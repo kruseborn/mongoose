@@ -1,0 +1,9 @@
+shaderCompiler solid
+shaderCompiler deferred
+shaderCompiler mrt
+shaderCompiler basic
+shaderCompiler text
+shaderCompiler ssao
+shaderCompiler ssaoBlur
+shaderCompiler drawText
+shaderCompiler depth
