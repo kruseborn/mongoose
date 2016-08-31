@@ -1,7 +1,7 @@
 # Vulkan
 Deferred rendering with SSAO, a small project trying to learn vulkan. I am using one DAG with no memory barriers.
 
-* glwf
+* glfw
 * Open Asset Import Library
 * glm
 * no OOD
