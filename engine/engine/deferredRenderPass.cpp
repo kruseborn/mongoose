@@ -3,7 +3,7 @@
 #include "vkUtils.h"
 #include "vulkanContext.h"
 
-static VkAttachmentDescription attachmentDescs[SIZE] = {};
+static VkAttachmentDescription attachmentDescs[RENDERPASS::SIZE] = {};
 
 void createDeferredTextures() {
 	Texture *normal = Textures::newTexture("normal");
@@ -20,7 +20,7 @@ void createDeferredTextures() {
 }
 
 void createAttachmentForRenderPass(VkFormat swapChainFormat, VkFormat depthFormat) {
-	for (uint32_t i = 0; i < SIZE; i++) {
+	for (uint32_t i = 0; i < RENDERPASS::SIZE; i++) {
 		attachmentDescs[i].samples = VK_SAMPLE_COUNT_1_BIT;
 		attachmentDescs[i].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 		attachmentDescs[i].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
@@ -30,31 +30,31 @@ void createAttachmentForRenderPass(VkFormat swapChainFormat, VkFormat depthForma
 		attachmentDescs[i].finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 	}
 	//depth
-	attachmentDescs[DEPTH].format = depthFormat;
-	attachmentDescs[DEPTH].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-	attachmentDescs[DEPTH].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-	attachmentDescs[SWAPCHAIN].format = swapChainFormat;
-	attachmentDescs[SWAPCHAIN].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-	attachmentDescs[SWAPCHAIN].finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+	attachmentDescs[RENDERPASS::DEPTH].format = depthFormat;
+	attachmentDescs[RENDERPASS::DEPTH].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	attachmentDescs[RENDERPASS::DEPTH].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+	attachmentDescs[RENDERPASS::SWAPCHAIN].format = swapChainFormat;
+	attachmentDescs[RENDERPASS::SWAPCHAIN].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	attachmentDescs[RENDERPASS::SWAPCHAIN].finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
-	attachmentDescs[NORMAL].format = VK_FORMAT_R16G16_SFLOAT;
-	attachmentDescs[ALBEDO].format = VK_FORMAT_R8G8B8A8_UNORM;
-	attachmentDescs[DEPTHOUT].format = VK_FORMAT_R16_SFLOAT;
-	attachmentDescs[SSAO].format = VK_FORMAT_R16G16B16A16_SFLOAT;
-	attachmentDescs[SSAOBLUR].format = VK_FORMAT_R16G16B16A16_SFLOAT;
+	attachmentDescs[RENDERPASS::NORMAL].format = VK_FORMAT_R16G16_SFLOAT;
+	attachmentDescs[RENDERPASS::ALBEDO].format = VK_FORMAT_R8G8B8A8_UNORM;
+	attachmentDescs[RENDERPASS::DEPTHOUT].format = VK_FORMAT_R16_SFLOAT;
+	attachmentDescs[RENDERPASS::SSAO].format = VK_FORMAT_R16G16B16A16_SFLOAT;
+	attachmentDescs[RENDERPASS::SSAOBLUR].format = VK_FORMAT_R16G16B16A16_SFLOAT;
 }
 
 void createDeferredRenderPass(VkFormat swapChainFormat, VkFormat depthFormat) {
 	createAttachmentForRenderPass(swapChainFormat, depthFormat);
 
 	VkAttachmentReference depthReference = {};
-	depthReference.attachment = DEPTH;
+	depthReference.attachment = RENDERPASS::DEPTH;
 	depthReference.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
 	VkAttachmentReference colorReference1[3] = {
-		{ NORMAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL },
-		{ ALBEDO, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL },
-		{ DEPTHOUT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL },
+		{RENDERPASS::NORMAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL },
+		{RENDERPASS::ALBEDO, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL },
+		{RENDERPASS::DEPTHOUT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL },
 	};
 
 	VkSubpassDescription subpass1 = {};
@@ -65,8 +65,8 @@ void createDeferredRenderPass(VkFormat swapChainFormat, VkFormat depthFormat) {
 
 	//subpass 2
 	VkAttachmentReference inputReference2[2] = {
-		{ NORMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL },
-		{ DEPTHOUT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL },
+		{RENDERPASS::NORMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL },
+		{RENDERPASS::DEPTHOUT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL },
 	};
 	VkAttachmentReference colorReference2[1] = {
 		{ SSAO, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL }
@@ -147,7 +147,7 @@ void createDeferredRenderPass(VkFormat swapChainFormat, VkFormat depthFormat) {
 	VkRenderPassCreateInfo renderPassInfo = {};
 	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
 	renderPassInfo.pAttachments = attachmentDescs;
-	renderPassInfo.attachmentCount = SIZE;
+	renderPassInfo.attachmentCount = RENDERPASS::SIZE;
 	renderPassInfo.subpassCount = 4;
 	renderPassInfo.pSubpasses = subpasses;
 	renderPassInfo.dependencyCount = 3;
