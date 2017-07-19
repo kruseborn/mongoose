@@ -1,7 +1,7 @@
 #include "rendering.h"
 #include "vulkanContext.h"
 #include "vkDefs.h"
-#include "glm\gtc\matrix_transform.hpp"
+#include "glm/gtc/matrix_transform.hpp"
 #include <cstdio>
 #include "meshes.h"
 #include "pipelines.h"
@@ -86,7 +86,7 @@ void renderFps() {
 		frame_ms = elapsed_time / frames * 1000.0;
 	}
 	char	 st[20];
-	sprintf_s(st, sizeof(st), "%4.0f fps, %4.0f ms", lastfps, frame_ms);
+	snprintf(st, sizeof(st), "%4.0f fps, %4.0f ms", lastfps, frame_ms);
 	renderText(st, 10, 10, TextAlign::alignLeft);
 }
 

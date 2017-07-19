@@ -1,5 +1,5 @@
 #pragma once
-#include "glm\glm.hpp"
+#include "glm/glm.hpp"
 
 void renderFinalDeferred(const glm::mat4 &projectionMatrix, const glm::mat4 &viewMatrix);
 void renderMRT(const glm::mat4 &projectionMatrix, const glm::mat4 &viewMatrix);

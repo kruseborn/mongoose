@@ -1,5 +1,5 @@
 #pragma once
-#include "vulkan\vulkan.h"
+#include "vulkan/vulkan.h"
 struct MeshManager;
 struct Pipeline;
 

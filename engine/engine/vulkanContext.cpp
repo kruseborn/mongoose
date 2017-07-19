@@ -1,8 +1,8 @@
 #pragma once
 #include "vulkanContext.h"
-#include <vulkan\vulkan.h>
+#include <vulkan/vulkan.h>
 #include "vkUtils.h"
-#include "glm\glm.hpp"
+#include "glm/glm.hpp"
 #include "vkDefs.h"
 #include "rendering.h"
 #include "textures.h"

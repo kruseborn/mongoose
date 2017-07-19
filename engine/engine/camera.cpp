@@ -1,6 +1,6 @@
 #include "camera.h"
 #include "vulkanContext.h"
-#include "glm\gtc\quaternion.hpp"
+#include "glm/gtc/quaternion.hpp"
 
 void initCamera(Camera &camera, const glm::vec3 &position, const glm::vec3 &aim, const glm::vec3 &up) {
 	camera.position = position;

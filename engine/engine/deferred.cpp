@@ -1,6 +1,6 @@
 #include "deferred.h"
-#include "glm\glm.hpp"
-#include "glm\gtc\matrix_transform.hpp"
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
 #include "vulkanContext.h"
 #include "meshes.h"
 
@@ -12,8 +12,7 @@
 #include "textures.h"
 #include "ssao.h"
 #include <random>
-
-
+#include <cstring>
 
 void renderMRT(const glm::mat4 &projectionMatrix, const glm::mat4 &viewMatrix) {
 	static Pipeline *mrtPipeline = Pipelines::findPipeline("mrt");
@@ -77,7 +76,7 @@ void renderSSAO(const glm::mat4 &projectionMatrix, const glm::mat4 &viewMatrix) 
 	};
 	SSAOUBO * ubo = (SSAOUBO*)allocateUniform(sizeof(SSAOUBO), &uniform_buffer, &uniform_offset, &ubo_set);
 	ubo->mvp = glm::mat4();
-	memcpy(ubo->kernel, ssaoKernelData.kernel, sizeof(glm::vec4) * 16);
+	std::memcpy(ubo->kernel, ssaoKernelData.kernel, sizeof(glm::vec4) * 16);
 	ubo->projection = projectionMatrix;
 	ubo->noiseScale = ssaoKernelData.noiseScale;
 

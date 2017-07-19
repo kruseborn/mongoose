@@ -1,8 +1,8 @@
 #pragma once
 #include <cstdint>
-#include "vulkan\vulkan.h"
+#include "vulkan/vulkan.h"
 #include <vector>
-#include "glm\glm.hpp"
+#include "glm/glm.hpp"
 
 struct MeshProperties {
 	glm::vec4 diffuse, specular;

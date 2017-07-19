@@ -8,6 +8,7 @@
 #include "framebufferAttachment.h"
 #include "textures.h"
 #include "deferredRenderPass.h"
+#include <cstring>
 
 #define NUM_COMMAND_BUFFERS 2
 #define MAX_SWAP_CHAIN_IMAGES 8

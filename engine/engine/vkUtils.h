@@ -39,7 +39,7 @@ VkDeviceSize allocateDeviceMemoryForImage(VkImage &image, VkDeviceMemory &memory
 VkImageMemoryBarrier createImageMemoryBarrier();
 void setImageLayout(VkCommandBuffer commandBuffer, VkImage image, VkImageAspectFlags aspect, VkImageLayout oldLayout, VkImageLayout newLayout);
 
-inline char* errorString(VkResult errorCode) {
+inline const char* errorString(VkResult errorCode) {
 	switch (errorCode) {
 #define STR(r) case VK_ ##r: return #r
 		STR(NOT_READY);
@@ -73,7 +73,7 @@ inline char* errorString(VkResult errorCode) {
 inline VkResult checkResult(VkResult result) {
 	if (result != VK_SUCCESS) {
 		char	 st[60];
-		sprintf_s(st, sizeof(st), "Fatal : VkResult returned %s", errorString(result));
+		snprintf(st, sizeof(st), "Fatal : VkResult returned %s", errorString(result));
 		printf("%s", st);
 		assert(result == VK_SUCCESS);
 	}

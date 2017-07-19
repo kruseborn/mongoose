@@ -74,7 +74,7 @@ static void initDefaultAttributes() {
 
 }
 
-static void createNoDepthTestPipeline(Shader &shader, VertexInputState &vertexInputState, VkPipeline &pipeline, VkRenderPass renderPass, VkPipelineLayout layout) {
+static void createNoDepthTestPipeline(const Shader &shader, VertexInputState &vertexInputState, VkPipeline &pipeline, VkRenderPass renderPass, VkPipelineLayout layout) {
 	VkGraphicsPipelineCreateInfo pipelineCreateInfo = {};
 	pipelineCreateInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 	pipelineCreateInfo.layout = layout;
@@ -88,7 +88,7 @@ static void createNoDepthTestPipeline(Shader &shader, VertexInputState &vertexIn
 	vertexInputStateCreateInfo.pVertexBindingDescriptions = vertexInputState.bindings;
 	vertexInputStateCreateInfo.vertexBindingDescriptionCount = vertexInputState.nrOfBindings;
 	vertexInputStateCreateInfo.pVertexAttributeDescriptions = vertexInputState.attributes;
-	vertexInputStateCreateInfo.vertexAttributeDescriptionCount = vertexInputState.nrOfAttríbutes;
+	vertexInputStateCreateInfo.vertexAttributeDescriptionCount = vertexInputState.nrOfAttributes;
 
 	depthStencilState.depthTestEnable = VK_FALSE;
 	depthStencilState.depthWriteEnable = VK_FALSE;
@@ -119,7 +119,7 @@ static void createNoDepthTestPipeline(Shader &shader, VertexInputState &vertexIn
 	checkResult(vkCreateGraphicsPipelines(vkContext.device, vkContext.pipelineCache, 1, &pipelineCreateInfo, nullptr, &pipeline));
 }
 
-static void createPolygonPipeline(Shader &shader, VertexInputState &vertexInputState, VkPipeline &pipeline, VkRenderPass renderPass, VkPipelineLayout layout) {
+static void createPolygonPipeline(const Shader &shader, VertexInputState &vertexInputState, VkPipeline &pipeline, VkRenderPass renderPass, VkPipelineLayout layout) {
 	VkGraphicsPipelineCreateInfo pipelineCreateInfo = {};
 	pipelineCreateInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 	pipelineCreateInfo.layout = layout;
@@ -133,7 +133,7 @@ static void createPolygonPipeline(Shader &shader, VertexInputState &vertexInputS
 	vertexInputStateCreateInfo.pVertexBindingDescriptions = vertexInputState.bindings;
 	vertexInputStateCreateInfo.vertexBindingDescriptionCount = vertexInputState.nrOfBindings;
 	vertexInputStateCreateInfo.pVertexAttributeDescriptions = vertexInputState.attributes;
-	vertexInputStateCreateInfo.vertexAttributeDescriptionCount = vertexInputState.nrOfAttríbutes;
+	vertexInputStateCreateInfo.vertexAttributeDescriptionCount = vertexInputState.nrOfAttributes;
 
 	pipelineCreateInfo.pInputAssemblyState = &inputAssemblyState;
 	pipelineCreateInfo.pRasterizationState = &rasterizationState;
@@ -151,7 +151,7 @@ static void createPolygonPipeline(Shader &shader, VertexInputState &vertexInputS
 	checkResult(vkCreateGraphicsPipelines(vkContext.device, vkContext.pipelineCache, 1, &pipelineCreateInfo, nullptr, &pipeline));
 }
 
-static void createMRTPipeline(Shader &shader, VertexInputState &vertexInputState, VkPipeline &pipeline) {
+static void createMRTPipeline(const Shader &shader, VertexInputState &vertexInputState, VkPipeline &pipeline) {
 	VkGraphicsPipelineCreateInfo pipelineCreateInfo = {};
 	pipelineCreateInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 	pipelineCreateInfo.layout = vkContext.pipelineLayout;
@@ -165,7 +165,7 @@ static void createMRTPipeline(Shader &shader, VertexInputState &vertexInputState
 	vertexInputStateCreateInfo.pVertexBindingDescriptions = vertexInputState.bindings;
 	vertexInputStateCreateInfo.vertexBindingDescriptionCount = vertexInputState.nrOfBindings;
 	vertexInputStateCreateInfo.pVertexAttributeDescriptions = vertexInputState.attributes;
-	vertexInputStateCreateInfo.vertexAttributeDescriptionCount = vertexInputState.nrOfAttríbutes;
+	vertexInputStateCreateInfo.vertexAttributeDescriptionCount = vertexInputState.nrOfAttributes;
 
 
 	VkPipelineColorBlendAttachmentState blendAttachmentStates[3] = {};
@@ -198,7 +198,7 @@ static void createMRTPipeline(Shader &shader, VertexInputState &vertexInputState
 	checkResult(vkCreateGraphicsPipelines(vkContext.device, vkContext.pipelineCache, 1, &pipelineCreateInfo, nullptr, &pipeline));
 }
 
-static void createMutltiTexturePipeline(Shader &shader, VertexInputState &vertexInputState, VkPipeline &pipeline) {
+static void createMutltiTexturePipeline(const Shader &shader, VertexInputState &vertexInputState, VkPipeline &pipeline) {
 	VkGraphicsPipelineCreateInfo pipelineCreateInfo = {};
 	pipelineCreateInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 	pipelineCreateInfo.layout = vkContext.pipelineLayoutMultiTexture;
@@ -212,7 +212,7 @@ static void createMutltiTexturePipeline(Shader &shader, VertexInputState &vertex
 	vertexInputStateCreateInfo.pVertexBindingDescriptions = vertexInputState.bindings;
 	vertexInputStateCreateInfo.vertexBindingDescriptionCount = vertexInputState.nrOfBindings;
 	vertexInputStateCreateInfo.pVertexAttributeDescriptions = vertexInputState.attributes;
-	vertexInputStateCreateInfo.vertexAttributeDescriptionCount = vertexInputState.nrOfAttríbutes;
+	vertexInputStateCreateInfo.vertexAttributeDescriptionCount = vertexInputState.nrOfAttributes;
 
 	pipelineCreateInfo.pInputAssemblyState = &inputAssemblyState;
 	pipelineCreateInfo.pRasterizationState = &rasterizationState;
@@ -231,7 +231,7 @@ static void createMutltiTexturePipeline(Shader &shader, VertexInputState &vertex
 }
 
 
-void createPipeline(Pipeline *pipeline, PIPELINES pipelineType, Shader &shader, VertexInputState &vertexInputState, VkRenderPass renderPass, VkPipelineLayout layout) {
+void createPipeline(Pipeline *pipeline, PIPELINES pipelineType, const Shader &shader, VertexInputState &vertexInputState, VkRenderPass renderPass, VkPipelineLayout layout) {
 	pipeline->layout = layout;
 
 	switch (pipelineType) {

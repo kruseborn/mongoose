@@ -3,14 +3,14 @@
 #pragma warning( disable : 4996)
 
 
-#include "glm\glm.hpp"
+#include "glm/glm.hpp"
 
 #include "vulkanContext.h"
 #include "scene.h"
 #include "shaders.h"
 #include "deferred.h"
 #include "vkDefs.h"
-#include "GLFW\glfw3.h"
+#include "GLFW/glfw3.h"
 
 int main() {
 

@@ -5,7 +5,7 @@
 #include <assimp/postprocess.h>
 #include <assimp/cimport.h>
 #include <vector>
-#include <glm\glm.hpp>
+#include <glm/glm.hpp>
 #include "meshes.h"
 #include "vulkanContext.h"
 #include "vkDefs.h"

@@ -1,6 +1,6 @@
 #include <cstdlib>
-#include "glm\glm.hpp"
-#include "glm\gtx\compatibility.hpp"
+#include "glm/glm.hpp"
+#include "glm/gtx/compatibility.hpp"
 #include "vkUtils.h"
 #include "ssao.h"
 #include "textures.h"

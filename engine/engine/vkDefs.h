@@ -1,6 +1,6 @@
 #pragma once
-#include "vulkan\vulkan.h"
-#include "glm\glm.hpp"
+#include "vulkan/vulkan.h"
+#include "glm/glm.hpp"
 namespace glm {
 
 }
@@ -8,7 +8,7 @@ struct VertexInputState {
 	VkVertexInputBindingDescription *bindings;
 	uint32_t nrOfBindings;
 	VkVertexInputAttributeDescription *attributes;
-	uint32_t nrOfAttríbutes;
+	uint32_t nrOfAttributes;
 };
 
 struct PositionVertex {
