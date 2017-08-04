@@ -1,5 +1,5 @@
 #pragma once
-#include "vulkan\vulkan.h"
+#include "vulkan/vulkan.h"
 
 #define MAX_TEXTURE_NAME_SIZE 16
 struct Texture {

@@ -1,6 +1,6 @@
 #pragma once
-#include "glm\glm.hpp"
-#include "glm\gtc\constants.hpp"
+#include "glm/glm.hpp"
+#include "glm/gtc/constants.hpp"
 
 struct Camera {
 	float fov = 0.785398163f; //rad

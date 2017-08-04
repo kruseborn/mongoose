@@ -1,7 +1,7 @@
 #include "shaders.h"
 #include <cassert>
 #include <string>
-#include <vulkan\vulkan.h>
+#include <vulkan/vulkan.h>
 #include <unordered_map>
 #include "vulkanContext.h"
 #pragma warning( disable : 4996)

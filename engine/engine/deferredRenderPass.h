@@ -1,5 +1,5 @@
 #pragma once
-#include "vulkan\vulkan.h"
+#include "vulkan/vulkan.h"
 
 enum RENDERPASS {
 	NORMAL, ALBEDO, DEPTHOUT, DEPTH, SWAPCHAIN, SSAO, SSAOBLUR, SIZE

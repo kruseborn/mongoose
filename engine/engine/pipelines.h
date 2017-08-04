@@ -1,5 +1,5 @@
 #pragma once
-#include "vulkan\vulkan.h"
+#include "vulkan/vulkan.h"
 
 #define MAX_PIPELINE_NAME_SIZE 16
 struct Pipeline {
@@ -21,4 +21,4 @@ namespace Pipelines {
 enum PIPELINES { POLYGON, NO_DEPTH_TEST, MRT, MULTI_TEXTURE };
 struct Shader;
 struct VertexInputState;
-void createPipeline(Pipeline *pipeline, PIPELINES pipelineType, Shader &shader, VertexInputState &vertexInputState, VkRenderPass renderPass, VkPipelineLayout layout);
+void createPipeline(Pipeline *pipeline, PIPELINES pipelineType, const Shader &shader, VertexInputState &vertexInputState, VkRenderPass renderPass, VkPipelineLayout layout);

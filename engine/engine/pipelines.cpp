@@ -4,7 +4,8 @@
 #include "cassert"
 #include "shaders.h"
 #include "vkDefs.h"
-#include <string>
+
+#include <cstring>
 namespace Pipelines {
 	std::unordered_map<std::string, Pipeline> pipelines;
 	void init() {
@@ -44,7 +45,7 @@ namespace Pipelines {
 		uint32_t strLenght = (uint32_t)strlen(name);
 		assert(strLenght < MAX_PIPELINE_NAME_SIZE);
 		Pipeline pipeline = {};
-		strcpy_s(pipeline.name, strLenght + 1, name);
+		strncpy(pipeline.name, name, strLenght + 1);
 		pipelines.emplace(name, pipeline);
 		return &pipelines.find(pipeline.name)->second;
 	}

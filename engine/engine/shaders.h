@@ -1,6 +1,7 @@
 #pragma once
-#include "vulkan\vulkan.h"
+#include "vulkan/vulkan.h"
 #include <vector>
+#include <string>
 
 struct Shader {
 	std::string name;

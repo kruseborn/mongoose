@@ -2,7 +2,7 @@
 #include <unordered_map>
 #include "vulkanContext.h"
 #include "cassert"
-#include <string>
+#include <cstring>
 #include "deferredRenderPass.h"
 
 namespace Textures {
@@ -39,7 +39,7 @@ namespace Textures {
 		uint32_t strLenght = (uint32_t)strlen(name);
 		assert(strLenght < MAX_TEXTURE_NAME_SIZE);
 		Texture texture = {};
-		strcpy_s(texture.name, strLenght + 1, name);
+		strncpy(texture.name, name, strLenght + 1);
 		
 		textures.emplace(texture.name, texture);
 		return &textures.find(texture.name)->second;
