@@ -88,6 +88,8 @@ if(MSVC)
 elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
 	# Update if necessary
 	add_definitions(-Wextra -Wundef -Wall -Wno-long-long -Wpedantic)
+	add_definitions(-D__STDC_LIB_EXT1__ -D__STDC_WANT_LIB_EXT1__)
+	# Hopefully replaced by the sanitizers above
 	#add_definitions(-g3 -O0 -Wextra -fsanitize=undefined
 		#-fno-sanitize-recover -fsanitize=shift
 		#-fsanitize=integer-divide-by-zero -fsanitize=unreachable
@@ -97,11 +99,10 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
 		#-fsanitize=float-divide-by-zero -fsanitize=float-cast-overflow
 		#-fsanitize=nonnull-attribute -fsanitize=returns-nonnull-attribute
 		#-fsanitize=bool -fsanitize=enum -fsanitize=vptr)
-	add_definitions(-D__STDC_LIB_EXT1__ -D__STDC_WANT_LIB_EXT1__)
 endif()
 
 add_definitions(
-	-std=c++14 
+	-std=c++17 
 	)
 
 include_directories(
