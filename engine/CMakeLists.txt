@@ -10,6 +10,7 @@ project(${NAME})
 
 OPTION(USE_D2D_WSI "Build the project using Direct to Display swapchain" OFF)
 OPTION(USE_WAYLAND_WSI "Build the project using Wayland swapchain" OFF)
+OPTION(USE_XCB_WSI "Build the project using XCB swapchain" ON)
 
 #unset(CMAKE_CXX_FLAGS)
 
@@ -60,11 +61,13 @@ ELSEIF(USE_WAYLAND_WSI)
 	add_definitions(-DVK_USE_PLATFORM_WAYLAND_KHR)
 	include_directories(${WAYLAND_INCLUDE_DIR})
 	link_libraries(${WAYLAND_LIBRARIES})
-ELSE(USE_D2D_WSI)
+ELSEIF(USE_XCB_WSI)
 	find_package(XCB REQUIRED)
 	add_definitions(-DVK_USE_PLATFORM_XCB_KHR)
 	link_libraries(${XCB_LIBRARIES})
 ENDIF(USE_D2D_WSI)
+
+find_package(Sanitizers)
 
 link_libraries(
 	${assimp_LIBRARIES}
@@ -84,7 +87,16 @@ if(MSVC)
 	remove_definitions(-DWIN32 -D_WINDOWS)
 elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
 	# Update if necessary
-	add_definitions(-Wextra -Wundef -Wall -Wno-long-long -pedantic)
+	add_definitions(-Wextra -Wundef -Wall -Wno-long-long -Wpedantic)
+	#add_definitions(-g3 -O0 -Wextra -fsanitize=undefined
+		#-fno-sanitize-recover -fsanitize=shift
+		#-fsanitize=integer-divide-by-zero -fsanitize=unreachable
+		#-fsanitize=vla-bound -fsanitize=null -fsanitize=return
+		#-fsanitize=signed-integer-overflow -fsanitize=bounds
+		#-fsanitize=alignment -fsanitize=object-size
+		#-fsanitize=float-divide-by-zero -fsanitize=float-cast-overflow
+		#-fsanitize=nonnull-attribute -fsanitize=returns-nonnull-attribute
+		#-fsanitize=bool -fsanitize=enum -fsanitize=vptr)
 	add_definitions(-D__STDC_LIB_EXT1__ -D__STDC_WANT_LIB_EXT1__)
 endif()
 
@@ -110,6 +122,8 @@ set(SHADER_DIR "engine/shaders/")
 file(GLOB SHADERS "${SHADER_DIR}/*.glsl")
 file(GLOB sources "engine/*.cpp" "engine/*.h")
 set(MAIN_CPP "engine/main.cpp")
-add_executable(VulkanEngine ${sources})
-install(TARGETS VulkanEngine DESTINATION ${CMAKE_SOURCE_DIR}/engine/bin)
+add_executable(${NAME} ${sources})
+add_sanitizers(${NAME})
+install(TARGETS ${NAME} DESTINATION ${CMAKE_SOURCE_DIR}/engine/bin)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/")
 
