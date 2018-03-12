@@ -222,14 +222,12 @@ static void createMutltiTexturePipeline(const Shader &shader, VertexInputState &
 	pipelineCreateInfo.pDepthStencilState = &depthStencilState;
 	pipelineCreateInfo.pDynamicState = &dynamicState;
 
-
 	pipelineCreateInfo.pVertexInputState = &vertexInputStateCreateInfo;
 	pipelineCreateInfo.stageCount = 2;
 	pipelineCreateInfo.pStages = shaders;
 
 	checkResult(vkCreateGraphicsPipelines(vkContext.device, vkContext.pipelineCache, 1, &pipelineCreateInfo, nullptr, &pipeline));
 }
-
 
 void createPipeline(Pipeline *pipeline, PIPELINES pipelineType, const Shader &shader, VertexInputState &vertexInputState, VkRenderPass renderPass, VkPipelineLayout layout) {
 	pipeline->layout = layout;
@@ -247,11 +245,7 @@ void createPipeline(Pipeline *pipeline, PIPELINES pipelineType, const Shader &sh
 	case PIPELINES::MULTI_TEXTURE:
 		createMutltiTexturePipeline(shader, vertexInputState, pipeline->pipeline);
 		break;
-	default: 
+	default:
 		assert(false);
 	}
 }
-
-
-
-

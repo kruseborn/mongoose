@@ -14,7 +14,7 @@
 
 int main() {
 
-	initVulkan(1500, 1024);
+	initVulkan(800, 600);
 	Scene scene;
 	initScene(scene);
 

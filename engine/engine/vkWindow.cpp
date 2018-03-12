@@ -242,7 +242,6 @@ static void createInstance() {
 	}
 	printf("\n");
 
-
 	VkInstanceCreateInfo createInfo = {};
 	createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 	createInfo.pApplicationInfo = &appInfo;
@@ -259,8 +258,16 @@ static void createInstance() {
 }
 static void onWindowResized(GLFWwindow* window, int width, int height) {
 }
+void glfwErrorCallback(int error, const char* description)
+{
+	fprintf(stderr, "Error: %s\n", description);
+}
 static void initWindow() {
-	glfwInit();
+	glfwSetErrorCallback(glfwErrorCallback);
+	auto res = glfwInit();
+	assert(res == GLFW_TRUE);
+	res = glfwVulkanSupported();
+	assert(res == GLFW_TRUE);
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 	window = glfwCreateWindow(vkContext.width, vkContext.height, "Live long and prosper", nullptr, nullptr);
 	glfwSetWindowSizeCallback(window, onWindowResized);
@@ -758,7 +765,7 @@ void getMousePosition(float *xpos, float *ypos) {
 	glfwGetCursorPos(window, &x, &y);
 	*xpos = float(x);
 	*ypos = float(y);
-	
+
 }
 bool isMouseButtonDown() {
 	return glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) != 0;

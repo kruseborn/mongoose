@@ -13,7 +13,7 @@ namespace Textures {
 
 		createFontTexture(fontTexture);
 		createNoiseTexture(noiseTexture);
-	
+
 		createDeferredTextures();
 	}
 
@@ -40,7 +40,7 @@ namespace Textures {
 		assert(strLenght < MAX_TEXTURE_NAME_SIZE);
 		Texture texture = {};
 		strncpy(texture.name, name, strLenght + 1);
-		
+
 		textures.emplace(texture.name, texture);
 		return &textures.find(texture.name)->second;
 	}
