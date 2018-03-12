@@ -1,3 +1,12 @@
+# CMake and Ninja build files
+build-engine-Desktop-Debug/
+.ninja_deps
+.ninja_log
+Makefile
+cmake_install.cmake
+engine/engine/VulkanEngine
+*.ninja
+
 # Compiled Object files
 *.slo
 *.lo
