@@ -38,10 +38,10 @@ void createHostTexture(Texture *texture, uint32_t width, uint32_t height, VkForm
 	memAlloc.memoryTypeIndex = getMemoryType(memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 	checkResult(vkAllocateMemory(vkContext.device, &memAlloc, nullptr, &texture->deviceMemory));
 	checkResult(vkBindImageMemory(vkContext.device, texture->image, texture->deviceMemory, 0));
-	
+
 	VkCommandBuffer layoutCmd = createCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY);
 	beginCommandBuffer(layoutCmd);
-	
+
 	setImageLayout(layoutCmd, texture->image, aspectMask,VK_IMAGE_LAYOUT_UNDEFINED, imageLayout);
 
 	endCommandBuffer(layoutCmd);
@@ -346,7 +346,7 @@ void setImageLayout(VkCommandBuffer commandBuffer, VkImage image, VkImageAspectF
 		break;
 
 	case VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL:
-		// Image is a transfer source 
+		// Image is a transfer source
 		// Make sure any reads from the image have been finished
 		src_mask = VK_ACCESS_TRANSFER_READ_BIT;
 		break;

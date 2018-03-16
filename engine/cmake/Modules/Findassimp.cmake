@@ -1,81 +1,56 @@
-if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-	set(ASSIMP_ARCHITECTURE "64")
-elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
-	set(ASSIMP_ARCHITECTURE "32")
-endif(CMAKE_SIZEOF_VOID_P EQUAL 8)
-	
-if(WIN32)
-	set(ASSIMP_ROOT_DIR CACHE PATH "ASSIMP root directory")
+# Find assimp
+# Copyright © 2016 Dylan Baker
 
-	# Find path of each library
-	find_path(ASSIMP_INCLUDE_DIR
-		NAMES
-			assimp/anim.h
-		HINTS
-			${ASSIMP_ROOT_DIR}/include
-	)
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files (the "Software"),
+# to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense,
+# and/or sell copies of the Software, and to permit persons to whom the
+# Software is furnished to do so, subject to the following conditions:
 
-	if(MSVC12)
-		set(ASSIMP_MSVC_VERSION "vc120")
-	elseif(MSVC14)	
-		set(ASSIMP_MSVC_VERSION "vc140")
-	endif(MSVC12)
-	
-	if(MSVC12 OR MSVC14)
-	
-		find_path(ASSIMP_LIBRARY_DIR
-			NAMES
-				assimp-${ASSIMP_MSVC_VERSION}-mt.lib
-			HINTS
-				${ASSIMP_ROOT_DIR}/lib${ASSIMP_ARCHITECTURE}
+# The above copyright notice and this permission notice shall be included
+# in all copies or substantial portions of the Software.
+
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+# OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+# IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+# TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
+# OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+# Provides a subset of what the one would get by calling CONFIG REQUIRED
+# directly, it will unset any unsupported versions
+# Currently it provides the following:
+#  ASSIMP_FOUND      -- TRUE if assimp was found
+#  ASSIMP_LIBRARIES  -- Libraries to link against
+
+find_package(ASSIMP CONFIG)
+if (ASSIMP_LIBRARIES)
+	# Unset variables that would be difficult to get via the find module
+	unset(ASSIMP_ROOT_DIR)
+	unset(ASSIMP_CXX_FLAGS)
+	unset(ASSIMP_LINK_FLAGS)
+	unset(ASSIMP_Boost_VERSION)
+
+	# TODO: It would be nice to find these, but they're not being used at the
+	# moment. They also need to be added to REQUIRED_VARS if added
+	unset(ASSIMP_INCLUDE_DIRS)
+	unset(ASSIMP_LIBRARY_DIRS)
+
+	# Like the found path
+	set(ASSIMP_FOUND TRUE)
+	message("-- Found ASSIMP")
+else ()
+	find_library(ASSIMP_LIBRARIES
+		NAMES assimp
 		)
-		
-		find_library(ASSIMP_LIBRARY_RELEASE				assimp-${ASSIMP_MSVC_VERSION}-mt.lib 			PATHS ${ASSIMP_LIBRARY_DIR})
-		find_library(ASSIMP_LIBRARY_DEBUG				assimp-${ASSIMP_MSVC_VERSION}-mtd.lib			PATHS ${ASSIMP_LIBRARY_DIR})
-		
-		set(ASSIMP_LIBRARY 
-			optimized 	${ASSIMP_LIBRARY_RELEASE}
-			debug		${ASSIMP_LIBRARY_DEBUG}
+
+	include(FindPackageHandleStandardArgs)
+	find_package_handle_standard_args(
+		ASSIMP
+		REQUIRED_VARS ASSIMP_LIBRARIES
 		)
-		
-		set(ASSIMP_LIBRARIES "ASSIMP_LIBRARY_RELEASE" "ASSIMP_LIBRARY_DEBUG")
-	
-		FUNCTION(ASSIMP_COPY_BINARIES TargetDirectory)
-			ADD_CUSTOM_TARGET(AssimpCopyBinaries
-				COMMAND ${CMAKE_COMMAND} -E copy ${ASSIMP_ROOT_DIR}/bin${ASSIMP_ARCHITECTURE}/assimp-${ASSIMP_MSVC_VERSION}-mtd.dll 	${TargetDirectory}/Debug/assimp-${ASSIMP_MSVC_VERSION}-mtd.dll
-				COMMAND ${CMAKE_COMMAND} -E copy ${ASSIMP_ROOT_DIR}/bin${ASSIMP_ARCHITECTURE}/assimp-${ASSIMP_MSVC_VERSION}-mt.dll 		${TargetDirectory}/Release/assimp-${ASSIMP_MSVC_VERSION}-mt.dll
-			COMMENT "Copying Assimp binaries to '${TargetDirectory}'"
-			VERBATIM)
-		ENDFUNCTION(ASSIMP_COPY_BINARIES)
-	
-	endif()
-	
-else(WIN32)
+endif (ASSIMP_LIBRARIES)
 
-	find_path(
-	  assimp_INCLUDE_DIRS
-	  NAMES postprocess.h scene.h version.h config.h cimport.h
-	  PATHS /usr/local/include/
-	)
-
-	find_library(
-	  assimp_LIBRARIES
-	  NAMES assimp
-	  PATHS /usr/local/lib/
-	)
-
-	if (assimp_INCLUDE_DIRS AND assimp_LIBRARIES)
-	  SET(assimp_FOUND TRUE)
-	ENDIF (assimp_INCLUDE_DIRS AND assimp_LIBRARIES)
-
-	if (assimp_FOUND)
-	  if (NOT assimp_FIND_QUIETLY)
-		message(STATUS "Found asset importer library: ${assimp_LIBRARIES}")
-	  endif (NOT assimp_FIND_QUIETLY)
-	else (assimp_FOUND)
-	  if (assimp_FIND_REQUIRED)
-		message(FATAL_ERROR "Could not find asset importer library")
-	  endif (assimp_FIND_REQUIRED)
-	endif (assimp_FOUND)
-	
-endif(WIN32)
+set(ASSIMP_FOUND True)
