@@ -1,5 +1,5 @@
 ## Mongoose
-### Minimalistic Vulkan engine for fast propotyping.
+### Minimalistic Vulkan engine for fast prototyping.
     Windows (and soon Linux)
     Support for free type text rendering
     Dear ImGui visualization
