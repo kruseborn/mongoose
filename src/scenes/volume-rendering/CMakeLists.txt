@@ -1,0 +1,22 @@
+mg_cc_executable(
+    NAME
+        volume-rendering
+    SRCS
+        volume_scene.h
+        volume_scene.cpp
+        volume_rendering.h
+        volume_rendering.cpp
+		volume_renderpass.h
+		volume_renderpass.cpp
+        volume_main.cpp
+        volume_utils.h
+        volume_utils.cpp
+    COPTS
+        ${CPP_FLAGS}
+    DEPS
+        glm
+        mg-engine
+	"$ENV{VULKAN_SDK}/Lib/vulkan-1.lib"
+    DEPS_DIR
+	"$ENV{VULKAN_SDK}/include"	
+)

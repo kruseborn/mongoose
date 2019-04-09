@@ -1,0 +1,7 @@
+add_subdirectory(glm)
+add_subdirectory(glfw-3.2.1)
+add_subdirectory(freetype-2.6.2)
+add_subdirectory(lodepng)
+add_subdirectory(tiny_gltf)
+add_subdirectory(imgui)
+add_subdirectory(assimp)

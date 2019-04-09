@@ -1,10 +1,34 @@
-# Vulkan
-Deferred rendering with SSAO, a small project trying to learn vulkan. I am using one DAG with no memory barriers.
+## Mongoose
+### Minimalistic Vulkan engine for fast propotyping.
+    Windows (and soon Linux)
+    Support for free type text rendering
+    Dear ImGui visualization
+    Tightly coupled with files generated from the Shader-Compiler*
 
-* glfw
-* Open Asset Import Library
-* glm
-* no OOD
+#### Dependencies
+    freetype-2.6.2
+    glfw-3.2.1
+    glm
+    imgui
+    lodepng
+    tiny_gltf(will soon be removed)
+    assimp (will soon be removed)
+    
+#### Prerequisites
+    Environment variable *VULKAN_SDK* has to be set
+    *VS studio* >= 2017
+    *cmake* >= 3.12
 
-<img src="https://github.com/kruseborn/vulkan/blob/master/crop.png" alt="alt text" width="512px">
-<img src="https://github.com/kruseborn/vulkan/blob/master/ssao.png" alt="alt text" width="512px">
+#### Deferred rendering with SSAO
+<img src="images/rungholt.png" width="512">
+
+#### Memory allocator visualization using dear IMGUI
+<img src="images/mongoose.png" width="512">
+
+#### Physically based rendering from gltf-model
+<img src="images/gltf.png" width="512">
+
+#### Isosurface rendering from Volume data
+<img src="images/bug.png" width="512">
+
+##### *http://github.com/kruseborn/shader-compiler

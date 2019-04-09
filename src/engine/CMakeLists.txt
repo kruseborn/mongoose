@@ -1,0 +1,84 @@
+set(VULKAN_SRC 
+	"vulkan/deviceAllocator.cpp"
+	"vulkan/deviceAllocator.h"
+	"vulkan/imguiOverlay.cpp"
+	"vulkan/imguiOverlay.h"
+	"vulkan/linearHeapAllocator.cpp"
+	"vulkan/linearHeapAllocator.h"
+	"vulkan/pipelineContainer.cpp"
+	"vulkan/pipelineContainer.h"
+	"vulkan/shaderPipelineInput.h"
+	"vulkan/shaders.cpp"
+	"vulkan/shaders.h"
+	"vulkan/singleRenderPass.cpp"
+	"vulkan/singleRenderPass.h"
+	"vulkan/swapChain.cpp"
+	"vulkan/swapChain.h"
+	"vulkan/vkContext.cpp"
+	"vulkan/vkContext.h"
+	"vulkan/vkUtils.cpp"
+	"vulkan/vkUtils.h"
+	"vulkan/vkWindow.cpp"
+	"vulkan/vkWindow.h"
+)
+
+set(RENDERING 
+	"rendering/rendering.h"
+	"rendering/textRendering.cpp"
+	"rendering/boxRendering.cpp"
+)
+
+set(SRC
+	"mg/camera.cpp"
+	"mg/camera.h"
+	"mg/logger.cpp"
+	"mg/logger.h"
+	"mg/gltfLoader.cpp"
+	"mg/objLoader.cpp"
+	"mg/meshLoader.h"
+	"mg/mgAssert.cpp"
+	"mg/mgAssert.h"
+	"mg/mgSystem.cpp"
+	"mg/mgSystem.h"
+	"mg/mgUtils.cpp"
+	"mg/mgUtils.h"
+	"mg/tools.cpp"
+	"mg/tools.h"
+	"mg/window.cpp"
+	"mg/window.h"
+	"mg/fonts.cpp"
+	"mg/fonts.h"
+	"mg/texts.cpp"
+	"mg/texts.h"
+	"mg/meshContainer.cpp"
+	"mg/meshContainer.h"
+	"mg/textureContainer.cpp"
+	"mg/textureContainer.h"
+	"mg/geometryUtils.h"
+	"mg/geometryUtils.cpp"
+)
+message(CPP_FLAGS ${CPP_FLAGS})
+mg_cc_library(
+    NAME
+        mg-engine
+    TYPE
+        STATIC
+    SRCS
+		${VULKAN_SRC}
+		${RENDERING}
+		${SRC}
+    COPTS
+        ${CPP_FLAGS}
+	DEPS_DIR
+		"$ENV{VULKAN_SDK}/include"
+    DEPS
+        glfw
+		glm
+		freetype
+		lodepng
+		tiny_gltf
+		imgui
+		assimp
+		"$ENV{VULKAN_SDK}/Lib/vulkan-1.lib"
+
+)

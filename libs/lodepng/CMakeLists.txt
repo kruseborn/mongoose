@@ -1,0 +1,11 @@
+mg_cc_library(
+	NAME
+		lodepng
+	TYPE
+		STATIC
+	SRCS
+		"lodepng.h"
+		"lodepng.cpp"
+	COPTS
+		${CPP_FLAGS}
+)

@@ -1,0 +1,13 @@
+mg_cc_library(
+	NAME
+		tiny_gltf
+	TYPE
+		STATIC
+	SRCS
+		"json.hpp"
+		"stb_image.h"
+		"stb_image_write.h"
+		"tiny_gltf.h"
+	COPTS
+		${CPP_FLAGS}
+)

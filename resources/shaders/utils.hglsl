@@ -1,0 +1,35 @@
+float reinterval(float inVal, float oldMin, float oldMax, float newMin, float newMax) {
+   return (((inVal - oldMin) * (newMax - newMin)) / (oldMax - oldMin)) + newMin;
+}
+
+float reintervalClamp(float inVal, float oldMin, float oldMax, float newMin, float newMax) {
+  return clamp(reinterval(inVal, oldMin, oldMax, newMin, newMax), newMin, newMax);
+}
+
+// Converts a normalized cartesian direction vector
+// to spherical coordinates.
+vec2 cartesianToSpherical(vec3 cartesian) {
+  vec2 spherical;
+
+  spherical.x = atan(cartesian.y, cartesian.x) / 3.14159;
+  spherical.y = cartesian.z;
+
+   return spherical * 0.5 + 0.5;
+}
+
+// Converts a spherical coordinate to a normalized
+// cartesian direction vector.
+vec3 sphericalToCartesian(vec2 spherical) {
+  vec2 sinCosTheta, sinCosPhi;
+
+  spherical = spherical * 2.0f - 1.0f;
+  sinCosTheta.x = sin(spherical.x * 3.14159);
+  sinCosTheta.y = cos(spherical.x * 3.14159);
+  sinCosPhi = vec2(sqrt(1.0 - spherical.y * spherical.y), spherical.y);
+
+  return vec3(sinCosTheta.y * sinCosPhi.x, sinCosTheta.x * sinCosPhi.x, sinCosPhi.y);    
+}
+
+float linearizeDepth(float depth, float near, float far) {
+  return (2.0 * near) / (far + near - depth * (far - near));
+}

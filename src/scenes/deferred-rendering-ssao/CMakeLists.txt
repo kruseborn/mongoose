@@ -1,0 +1,23 @@
+mg_cc_executable(
+    NAME
+        deferred-rendering-ssao
+    SRCS
+        deferred_scene.h
+        deferred_scene.cpp
+        deferred_utils.h
+        deferred_utils.cpp
+        deferred_rendering.h
+        deferred_rendering.cpp
+        deferred_renderpass.h
+        deferred_renderpass.cpp
+        deferred_main.cpp
+    COPTS
+        ${CPP_FLAGS}
+    DEPS
+        glm
+        mg-engine
+		"$ENV{VULKAN_SDK}/Lib/vulkan-1.lib"
+	DEPS_DIR
+		"$ENV{VULKAN_SDK}/include"
+		
+)

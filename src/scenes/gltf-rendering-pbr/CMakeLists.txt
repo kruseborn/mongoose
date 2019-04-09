@@ -1,0 +1,18 @@
+mg_cc_executable(
+    NAME
+        gltf-rendering-pbr
+    SRCS
+	gltf_scene.h
+	gltf_scene.cpp
+	gltf_rendering.h
+	gltf_rendering.cpp
+        gltf_main.cpp
+    COPTS
+        ${CPP_FLAGS}
+    DEPS
+        glm
+        mg-engine
+	"$ENV{VULKAN_SDK}/Lib/vulkan-1.lib"
+    DEPS_DIR
+	"$ENV{VULKAN_SDK}/include"	
+)

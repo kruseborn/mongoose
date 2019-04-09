@@ -1,0 +1,5 @@
+if(WIN32)
+    set(CPP_FLAGS ${MSVC_FLAGS})
+else()
+    set(CPP_FLAGS ${LLVM_FLAGS})
+endif()
