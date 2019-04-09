@@ -75,5 +75,5 @@ void main()  {
 
 		fragcolor += diff;
 	}    	
-	outFragcolor = vec4(fragcolor*ssao, 1.0);
+	outFragcolor = vec4(ssao,ssao,ssao, 1.0);
 }

@@ -10,12 +10,19 @@
 #include "textures.h"
 #include <iostream>
 
+
+
 void initScene(Scene &scene) {
 	Pipelines::init();
-	Meshes::init();
-	initCamera(scene.camera, glm::vec3(0.5f, 200, 470), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-	//initCamera(scene.camera, glm::vec3(0.5f, 70, 100), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 
+	initCamera(scene.camera, glm::vec3(0.5f, 200, 470), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+
+  	glm::mat4 viewMatrix = glm::lookAt(scene.camera.position,
+                                           scene.camera.aim, scene.camera.up);
+        glm::mat4 projMatrix = glm::perspective(
+            glm::radians(70.f), vkContext.width / (float)vkContext.height, 0.1f,
+            1000.0f);
+        Meshes::init();
 	scene.camera.angles.x = 0.03f;
 	scene.camera.angles.y = 5.59f;
 	//initCamera(scene.camera, glm::vec3(0.5f, 2, 2), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
@@ -23,8 +30,8 @@ void initScene(Scene &scene) {
 }
 void drawScene(Scene &scene) {
 	//scene.camera.angles.y += deltaTime * 0.5;
-	updateCamera(scene.camera, scene.inputState);
-	setCameraTransformation(scene.camera);
+	//updateCamera(scene.camera, scene.inputState);
+	//setCameraTransformation(scene.camera);
 	
 	
 

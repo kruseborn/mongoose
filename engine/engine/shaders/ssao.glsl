@@ -81,5 +81,5 @@ void main()  {
 	}
 
 	occlusion = 1.0 - (occlusion / float(kernelSize));
-	outFragcolor = vec4(occlusion);
+	outFragcolor = vec4(vec3(occlusion), 1.0);
 }

@@ -32,22 +32,22 @@ void updateCamera(Camera &camera, const InputState &inputState) {
 
 void setCameraTransformation(Camera &camera) {
 	//y rotation
-	glm::vec3 dirY = camera.originalPosition - camera.originalAim;
-	glm::quat yRotation = glm::angleAxis(camera.angles.y, glm::vec3(0, 1, 0));
-	camera.position = camera.originalAim + dirY * yRotation;
+	//glm::vec3 dirY = camera.originalPosition - camera.originalAim;
+	//glm::quat yRotation = glm::angleAxis(camera.angles.y, glm::vec3(0, 1, 0));
+	//camera.position = camera.originalAim + dirY * yRotation;
 
-	//x rotation
-	glm::vec3 dir = camera.position - camera.originalAim;
-	glm::vec3 normAxis = glm::normalize(glm::cross(glm::normalize(dir), camera.originalUp));
-	glm::quat rotation = glm::angleAxis(camera.angles.x, normAxis);
-	camera.position = camera.originalAim + dir * rotation;
-	camera.up = camera.originalUp * rotation;
+	////x rotation
+	//glm::vec3 dir = camera.position - camera.originalAim;
+	//glm::vec3 normAxis = glm::normalize(glm::cross(glm::normalize(dir), camera.originalUp));
+	//glm::quat rotation = glm::angleAxis(camera.angles.x, normAxis);
+	//camera.position = camera.originalAim + dir * rotation;
+	//camera.up = camera.originalUp * rotation;
 
-	//zoom
-	glm::vec3 dirZ = camera.aim + camera.position;
-	glm::vec3 nDir = glm::normalize(dirZ);
-	glm::vec3 z = nDir * camera.zoom;
-	camera.position += z;
+	////zoom
+	//glm::vec3 dirZ = camera.aim + camera.position;
+	//glm::vec3 nDir = glm::normalize(dirZ);
+	//glm::vec3 z = nDir * camera.zoom;
+	//camera.position += z;
 
 
 	

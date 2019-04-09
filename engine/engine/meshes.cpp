@@ -59,8 +59,8 @@ namespace Meshes {
 
 
 	void init() {
-		loadBinaryMeshFromFile("test.bin", "test.txt", "material.bin");
-		//loadMeshesFromFile("data/sibenik.obj");
+		//loadBinaryMeshFromFile("test.bin", "test.txt", "material.bin");
+		loadMeshesFromFile("data/rungholt.obj");
 	}
 	void destroy() {
 		for (uint32_t i = 0; i < _meshes.size(); i++) {

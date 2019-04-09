@@ -14,7 +14,7 @@
     <ProjectGuid>{3F326B4E-4975-46D3-BBB6-49B6E12845C7}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>engine</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
@@ -62,7 +62,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>libs\glfw3.lib;libs\glfw3dll.lib;libs\vulkan-1.lib;libs\assimp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>C:\git\mongoose\build\Debug\lib\assimp-vc140-mtd.lib;C:\VulkanSDK\1.1.101.0\Lib\vulkan-1.lib;C:\git\mongoose\build\Debug\lib\glfw3d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -80,7 +80,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>libs\glfw3.lib;libs\glfw3dll.lib;C:\VulkanSDK\1.0.51.0\Lib\vulkan-1.lib;libs\assimp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>C:\git\mongoose\build\Release\lib\assimp-vc140-mt.lib;C:\VulkanSDK\1.1.101.0\Lib\vulkan-1.lib;C:\git\mongoose\build\Release\lib\glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreAllDefaultLibraries>
       </IgnoreAllDefaultLibraries>
     </Link>

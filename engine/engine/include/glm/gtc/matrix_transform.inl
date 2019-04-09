@@ -30,6 +30,7 @@
 /// @author Christophe Riccio
 ///////////////////////////////////////////////////////////////////////////////////
 
+#define GLM_LEFT_HANDED 1
 #include "../geometric.hpp"
 #include "../trigonometric.hpp"
 #include "../matrix.hpp"
@@ -255,17 +256,18 @@ namespace glm
 		T zFar
 		)
 	{
-		assert(abs(aspect - std::numeric_limits<T>::epsilon()) > static_cast<T>(0));
+          assert(abs(aspect - std::numeric_limits<T>::epsilon()) >
+                 static_cast<T>(0));
 
-		T const tanHalfFovy = tan(fovy / static_cast<T>(2));
-		
-		tmat4x4<T, defaultp> Result(static_cast<T>(0));
-		Result[0][0] = static_cast<T>(1) / (aspect * tanHalfFovy);
-		Result[1][1] = static_cast<T>(1) / (tanHalfFovy);
-		Result[2][2] = (zFar + zNear) / (zFar - zNear);
-		Result[2][3] = static_cast<T>(1);
-		Result[3][2] = -(static_cast<T>(2) * zFar * zNear) / (zFar - zNear);
-		return Result;
+          T const tanHalfFovy = tan(fovy / static_cast<T>(2));
+
+          tmat4x4<T, defaultp> Result(static_cast<T>(0));
+          Result[0][0] = static_cast<T>(1) / (aspect * tanHalfFovy);
+          Result[1][1] = static_cast<T>(1) / (tanHalfFovy);
+          Result[2][2] = zFar / (zFar - zNear);
+          Result[2][3] = static_cast<T>(1);
+          Result[3][2] = -(zFar * zNear) / (zFar - zNear);
+          return Result;
 	}
 
 	template <typename T>
