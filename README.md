@@ -1,4 +1,5 @@
 ## Mongoose
+### Minimalistic Vulkan engine for fast propotyping.
     Windows (and soon Linux)
     Support for free type text rendering
     Dear ImGui visualization
