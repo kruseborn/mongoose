@@ -1,6 +1,7 @@
 ## Mongoose
 ### Minimalistic Vulkan engine for fast prototyping.
-    Windows (and soon Linux)
+    Linux and Windows, Tested under Linux Antergos(clang with libc++)
+    Windows(VS 2019)
     Support for free type text rendering
     Dear ImGui visualization
     Tightly coupled with files generated from the Shader-Compiler*
@@ -16,10 +17,11 @@
     
 #### Prerequisites
     Environment variable *VULKAN_SDK* has to be set
-    *VS studio* >= 2017
+    Windows, *VS studio* >= 2017
+    Linux, *Clang and libc++* >= 8.0
     *cmake* >= 3.12
 
-#### Deferred rendering with SSAO
+#### Deferred rendering with SSAO(unzip rungholt.zip before running)
 <img src="images/rungholt.png" width="512">
 
 #### Memory allocator visualization using dear IMGUI
