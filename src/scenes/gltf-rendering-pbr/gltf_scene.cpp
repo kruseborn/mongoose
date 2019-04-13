@@ -18,7 +18,7 @@ static mg::MeshId meshId;
 void initScene() {
   mg::initSingleRenderPass(&singleRenderPass);
 
-  camera = mg::create3DCamera(glm::vec3{0, 0, 0.5f}, glm::vec3{0, 0, 0}, glm::vec3{0, 1, 0});
+  camera = mg::create3DCamera(glm::vec3{0.0f, 0.0f, 0.5f}, glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f});
   auto meshes = mg::parseGltf("box", mg::getDataPath() + "/water_bottle_gltf/", "WaterBottle.gltf");
 
   const auto mesh = meshes.meshes.front();

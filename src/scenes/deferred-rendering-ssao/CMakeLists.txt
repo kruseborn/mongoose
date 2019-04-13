@@ -16,8 +16,12 @@ mg_cc_executable(
     DEPS
         glm
         mg-engine
-		"$ENV{VULKAN_SDK}/Lib/vulkan-1.lib"
-	DEPS_DIR
-		"$ENV{VULKAN_SDK}/include"
+        ${VULKAN_LIB}
+        ${PLATFORM_LIB}
+    DEPS_DIR
+        "$ENV{VULKAN_SDK}/include"
+    DEFS
+        GLM_FORCE_DEPTH_ZERO_TO_ONE
+        GLM_FORCE_LEFT_HANDED
 		
 )

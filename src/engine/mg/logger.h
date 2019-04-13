@@ -1,5 +1,5 @@
 #pragma once
-
+#include <cstring>
 #include <sstream>
 
 #if defined(WIN32)

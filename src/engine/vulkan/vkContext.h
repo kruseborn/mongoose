@@ -1,5 +1,9 @@
 #pragma once
-#define VK_USE_PLATFORM_WIN32_KHR 1
+#if defined(WIN32)
+#define VK_USE_PLATFORM_WIN32_KHR
+#else
+#define VK_USE_PLATFORM_XCB_KHR
+#endif
 
 #include <memory>
 #include <vulkan/vulkan.h>

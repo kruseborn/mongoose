@@ -10,8 +10,8 @@ set(VULKAN_SRC
 	"vulkan/shaderPipelineInput.h"
 	"vulkan/shaders.cpp"
 	"vulkan/shaders.h"
-	"vulkan/singleRenderPass.cpp"
-	"vulkan/singleRenderPass.h"
+	"vulkan/singleRenderpass.h"
+	"vulkan/singleRenderpass.cpp"
 	"vulkan/swapChain.cpp"
 	"vulkan/swapChain.h"
 	"vulkan/vkContext.cpp"
@@ -79,6 +79,5 @@ mg_cc_library(
 		tiny_gltf
 		imgui
 		assimp
-		"$ENV{VULKAN_SDK}/Lib/vulkan-1.lib"
-
+		${VULKAN_LIB}
 )

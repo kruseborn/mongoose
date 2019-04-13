@@ -5,7 +5,7 @@
 #include <iostream>
 #include <vector>
 
-#include "singleRenderPass.h"
+#include "singleRenderpass.h"
 #include "vkContext.h"
 #include "vkUtils.h"
 
@@ -123,8 +123,9 @@ static bool createInstance() {
   extensions.push_back(VK_MVK_IOS_SURFACE_EXTENSION_NAME);
 #elif defined(VK_USE_PLATFORM_MACOS_MVK)
   extensions.push_back(VK_MVK_MACOS_SURFACE_EXTENSION_NAME);
+#elif defined(VK_USE_PLATFORM_XCB_KHR)
+  extensions.push_back(VK_KHR_XCB_SURFACE_EXTENSION_NAME);
 #endif
-
   if (ENABLE_DEBUGGING)
     extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 

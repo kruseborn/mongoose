@@ -26,7 +26,7 @@ static void checkSwapChainSupport() {
 }
 
 static VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR &surfaceCapabilities) {
-  if (surfaceCapabilities.currentExtent.width == -1) {
+  if (int32_t(surfaceCapabilities.currentExtent.width) == -1) {
     VkExtent2D extend = {};
     extend.width = std::min(std::max(mg::vkContext.screen.width, surfaceCapabilities.minImageExtent.width),
                             surfaceCapabilities.maxImageExtent.width);

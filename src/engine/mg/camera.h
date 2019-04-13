@@ -13,7 +13,7 @@ struct Camera {
   float fov, startFov;
 };
 
-Camera create3DCamera(const glm::vec3 &position, glm::vec3 &aim, const glm::vec3 &up);
+Camera create3DCamera(const glm::vec3 &position, const glm::vec3 &aim, const glm::vec3 &up);
 void setCameraTransformation(Camera *camera);
 
 }

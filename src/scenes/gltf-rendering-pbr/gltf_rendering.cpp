@@ -4,7 +4,7 @@
 #include "mg/mgUtils.h"
 #include "rendering/rendering.h"
 #include "vulkan/pipelineContainer.h"
-#include "vulkan/singleRenderPass.h"
+#include "vulkan/singleRenderpass.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -60,8 +60,8 @@ void drawGltfMesh(const mg::RenderContext &renderContext, mg::MeshId meshId, con
                           mg::countof(descriptorSets.values), descriptorSets.values, 1, &uniformOffset);
   vkCmdBindPipeline(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.pipeline);
 
-   const auto mesh = mg::getMesh(meshId);
-   VkDeviceSize offset = 0;
-   vkCmdBindVertexBuffers(mg::vkContext.commandBuffer, 0, 1, &mesh.buffer, &offset);
-   vkCmdDraw(mg::vkContext.commandBuffer, mesh.indexCount, 1, 0, 0);
+  const auto mesh = mg::getMesh(meshId);
+  VkDeviceSize offset = 0;
+  vkCmdBindVertexBuffers(mg::vkContext.commandBuffer, 0, 1, &mesh.buffer, &offset);
+  vkCmdDraw(mg::vkContext.commandBuffer, mesh.indexCount, 1, 0, 0);
 }

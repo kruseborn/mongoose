@@ -6,7 +6,7 @@
 #include "linearHeapAllocator.h"
 #include "mg/mgAssert.h"
 #include "mg/textureContainer.h"
-#include "singleRenderPass.h"
+#include "singleRenderpass.h"
 #include "vkUtils.h"
 #include "vkWindow.h"
 

@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.12)
 
 project(Mongoose)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+#define GLM_FORCE_LEFT_HANDED
+
 include(cmake-modules/copts.cmake)
 include(cmake-modules/platform.cmake)
 include(cmake-modules/helper.cmake)

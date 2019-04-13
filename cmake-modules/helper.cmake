@@ -24,12 +24,9 @@ function(mg_cc_library)
         target_include_directories(${NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
         target_include_directories(${NAME} SYSTEM PRIVATE ${MG_LIB_DEPS_DIR})
         target_compile_definitions(${NAME} PRIVATE ${MG_LIB_DEFS})
-        target_compile_definitions(${NAME} PRIVATE GLM_FORCE_DEPTH_ZERO_TO_ONE=1 GLM_FORCE_LEFT_HANDED=1)
-
         
 		set_target_properties(${NAME} PROPERTIES
 				CXX_STANDARD 17
-				CXX_EXTENSIONS OFF
 		)
 
 
@@ -56,12 +53,11 @@ function(mg_cc_executable)
     cmake_parse_arguments(MG_CC
         "" # list of names of the boolean arguments (only defined ones will be true)
         "NAME;" # list of names of mono-valued arguments
-        "SRCS;COPTS;DEPS;DEPS_DIR" # list of names of multi-valued arguments (output variables are lists)
+        "SRCS;COPTS;DEPS;DEPS_DIR;DEFS" # list of names of multi-valued arguments (output variables are lists)
         ${ARGN} # arguments of the function to parse, here we take the all original ones
     )
-	set_target_properties(${NAME} PROPERTIES
-            CXX_STANDARD 17
-            CXX_EXTENSIONS OFF
+    set_target_properties(${NAME} PROPERTIES
+       CXX_STANDARD 17
     )
 
     set(NAME ${MG_CC_NAME})
@@ -69,6 +65,8 @@ function(mg_cc_executable)
         ${NAME}
         ${MG_CC_SRCS}
     )
+    message(${MG_CC_DEFS})
+    target_compile_definitions(${NAME} PUBLIC ${MG_CC_DEFS})
     target_include_directories(${NAME} SYSTEM PRIVATE ${MG_CC_DEPS_DIR})
     target_link_libraries(${NAME} PUBLIC ${MG_CC_DEPS})
     target_compile_options(${NAME} PRIVATE ${MG_CC_COPTS})

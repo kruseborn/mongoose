@@ -12,6 +12,8 @@ bool isDebuggerPresent();
 
 #if defined(WIN32)
 #define DEBUG_BREAK() __debugbreak()
+#else 
+#define DEBUG_BREAK()
 #endif
 
 #define mgAssert(cond) \

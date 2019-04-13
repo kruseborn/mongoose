@@ -4,6 +4,7 @@
 #include "mg/mgSystem.h"
 #include "mg/texts.h"
 #include <glm/gtc/matrix_transform.hpp>
+#include <cmath>
 
 namespace mg {
 
@@ -39,7 +40,7 @@ static std::vector<glm::vec4> getTextsVertexBufferData(mg::FONT_TYPE fontType, c
 
   for (uint32_t i = 0; i < count; i++) {
     const auto text = texts[i];
-    auto position = glm::vec2{std::floorf(text.position.x), std::floorf(text.position.y)};
+    auto position = glm::vec2{floorf(text.position.x), floorf(text.position.y)};
     // Iterate through all characters
     for (const auto &textChar : text.text) {
       const auto &character = fonts.getFontCharacter(fontType, textChar);

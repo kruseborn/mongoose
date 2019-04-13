@@ -7,7 +7,7 @@
 #include "vulkan/imguiOverlay.h"
 #include "vulkan/linearHeapAllocator.h"
 #include "vulkan/pipelineContainer.h"
-#include "vulkan/singleRenderPass.h"
+#include "vulkan/singleRenderpass.h"
 #include "mg/fonts.h"
 
 namespace mg {

@@ -5,7 +5,7 @@
 
 namespace mg {
 
-Camera create3DCamera(const glm::vec3 &position, glm::vec3 &aim, const glm::vec3 &up) {
+Camera create3DCamera(const glm::vec3 &position, const glm::vec3 &aim, const glm::vec3 &up) {
   Camera camera = {};
   camera.startPosition = camera.position = position;
   camera.startAim = camera.aim = aim;

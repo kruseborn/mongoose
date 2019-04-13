@@ -4,6 +4,7 @@
 #include <chrono>
 #include <algorithm>
 #include <unordered_set>
+#include <vector>
 
 #include <glm/glm.hpp>
 
