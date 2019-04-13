@@ -32,7 +32,7 @@ static mg::Pipeline createMRTPipeline(const mg::RenderContext &renderContext) {
   return mrtPipeline;
 }
 
-void renderMRT(const mg::RenderContext &renderContext, const mg::ObjMeshes &objMeshes) {
+void renderMRT(const mg::RenderContext &renderContext, const mg::TinyObjMeshes &objMeshes) {
   using namespace mg::shaders::mrt;
 
   using Ubo = UBO;
@@ -58,15 +58,15 @@ void renderMRT(const mg::RenderContext &renderContext, const mg::ObjMeshes &objM
                           mg::countof(descriptorSets.values), descriptorSets.values, 1, &uniformOffset);
   vkCmdBindPipeline(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mrtPipeline.pipeline);
 
-  for (uint32_t i = 0; i < objMeshes.ids.size(); i++) {
-    const auto mesh = mg::getMesh(objMeshes.ids[i]);
-    const auto meshProperty = objMeshes.meshProperties[i];
+  for (uint32_t i = 0; i < objMeshes.meshes.size(); i++) {
+    const auto mesh = mg::getMesh(objMeshes.meshes[i].id);
+    const auto material = objMeshes.materials[i];
 
     VkDeviceSize offset = 0;
     vkCmdBindVertexBuffers(mg::vkContext.commandBuffer, 0, 1, &mesh.buffer, &offset);
     vkCmdBindIndexBuffer(mg::vkContext.commandBuffer, mesh.buffer, mesh.indicesOffset, VK_INDEX_TYPE_UINT32);
-    vkCmdPushConstants(mg::vkContext.commandBuffer, mrtPipeline.layout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(meshProperty),
-                       (void *)&meshProperty);
+    vkCmdPushConstants(mg::vkContext.commandBuffer, mrtPipeline.layout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(material.diffuse),
+                       (void *)&material.diffuse);
     vkCmdDrawIndexed(mg::vkContext.commandBuffer, mesh.indexCount, 1, 0, 0, 0);
   }
 }

@@ -1,0 +1,10 @@
+mg_cc_library(
+	NAME
+		tiny_obj_loader
+	TYPE
+		STATIC
+	SRCS
+		"tiny_obj_loader.h"
+	COPTS
+		${CPP_FLAGS}
+)

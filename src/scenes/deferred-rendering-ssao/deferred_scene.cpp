@@ -15,15 +15,13 @@
 
 static mg::Camera camera;
 static DeferredRenderPass deferredRenderPass;
-static mg::ObjMeshes objMeshes;
-#include <iostream>
+static mg::TinyObjMeshes objMeshes;
+
 using namespace std;
 void initScene() {
 
   camera = mg::create3DCamera(glm::vec3(0.5, 200, 470), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-
-  objMeshes = mg::loadMeshesFromFile(mg::getDataPath() + "rungholt_obj/", "rungholt.obj", true);
-  //objMeshes = mg::loadMeshesFromBinary("", "rungholt.obj");
+  objMeshes = mg::loadObjFromFile(mg::getDataPath() + "rungholt_obj/rungholt.obj");
   initDeferredRenderPass(&deferredRenderPass);
 }
 

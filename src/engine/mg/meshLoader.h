@@ -3,6 +3,7 @@
 #include "vulkan/shaderPipelineInput.h"
 #include <vector>
 
+
 namespace mg {
 struct Attribute {
   std::string name;
@@ -31,17 +32,18 @@ struct GltfMeshes {
   std::vector<ImageData> images;
 };
 
-struct MeshProperties {
-  glm::vec4 diffuse;
+struct TinyObjMesh {
+  mg::MeshId id;
+  uint32_t numTriangles;
+  uint32_t material_id;
 };
 
-struct ObjMeshes {
-  std::vector<MeshProperties> meshProperties;
-  std::vector<mg::MeshId> ids;
+struct TinyObjMeshes {
+  std::vector<tinyobj::material_t> materials;
+  std::vector<TinyObjMesh> meshes;
 };
 
 GltfMeshes parseGltf(const std::string &id, const std::string &path, const std::string &name);
-ObjMeshes loadMeshesFromFile(const std::string path, const std::string &fileName, bool saveToFile);
-ObjMeshes loadMeshesFromBinary(const std::string path, const std::string &fileName);
+TinyObjMeshes loadObjFromFile(const std::string &fileName);
 
 } // namespace mg

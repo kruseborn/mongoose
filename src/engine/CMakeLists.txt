@@ -79,5 +79,6 @@ mg_cc_library(
 		tiny_gltf
 		imgui
 		assimp
+		stb
 		${VULKAN_LIB}
 )

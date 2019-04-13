@@ -1,0 +1,11 @@
+mg_cc_library(
+	NAME
+		stb
+	TYPE
+		STATIC
+	SRCS
+		"stb_image.h"
+		"tiny_obj_loader.h"
+	COPTS
+		${CPP_FLAGS}
+)
