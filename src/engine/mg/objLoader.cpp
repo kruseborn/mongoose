@@ -1,25 +1,46 @@
 #include "meshLoader.h"
-#include <vector>
-#include <glm/glm.hpp>
 #include "mg/mgSystem.h"
+#include <glm/glm.hpp>
 #include <unordered_set>
+#include <vector>
+#include <iostream>
 
 #define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
 #define TINYOBJLOADER_IMPLEMENTATION
+#include <stb_image.h>
 #include <tiny_obj_loader.h>
 
 namespace mg {
 
-static std::string GetBaseDir(const std::string& filepath) {
+static std::vector<unsigned char> resizeRGBToRGBA(unsigned char *rgb, uint32_t size) {
+  std::vector<unsigned char> rgba;
+  rgba.resize(size * 4);
+  for (uint32_t i = 0; i < size; i++) {
+    rgba[i * 4 + 0] = rgb[i * 3 + 0];
+    rgba[i * 4 + 1] = rgb[i * 3 + 0];
+    rgba[i * 4 + 2] = rgb[i * 3 + 0];
+    rgba[i * 4 + 3] = 1.0f;
+  }
+  return rgba;
+}
+
+static std::string getBaseDir(const std::string &filepath) {
   if (filepath.find_last_of("/\\") != std::string::npos)
     return filepath.substr(0, filepath.find_last_of("/\\"));
+  assert(false);
   return "";
 }
 
-static bool FileExists(const std::string& abs_filename) {
+static std::string getName(const std::string &filepath) {
+  if (filepath.find_last_of("/\\") != std::string::npos)
+    return filepath.substr(filepath.find_last_of("/\\") + 1, std::string::npos);
+  assert(false);
+  return "";
+}
+
+static bool FileExists(const std::string &abs_filename) {
   bool ret;
-  FILE* fp = fopen(abs_filename.c_str(), "rb");
+  FILE *fp = fopen(abs_filename.c_str(), "rb");
   if (fp) {
     ret = true;
     fclose(fp);
@@ -66,7 +87,7 @@ static void normalizeVector(glm::vec3 &v) {
   }
 }
 
-static bool hasSmoothingGroup(const tinyobj::shape_t& shape) {
+static bool hasSmoothingGroup(const tinyobj::shape_t &shape) {
   for (uint32_t i = 0; i < shape.mesh.smoothing_group_ids.size(); i++) {
     if (shape.mesh.smoothing_group_ids[i] > 0) {
       return true;
@@ -75,8 +96,8 @@ static bool hasSmoothingGroup(const tinyobj::shape_t& shape) {
   return false;
 }
 
-static void computeSmoothingNormals(const tinyobj::attrib_t& attrib, const tinyobj::shape_t& shape,
-                             std::map<int, glm::vec3>& smoothVertexNormals) {
+static void computeSmoothingNormals(const tinyobj::attrib_t &attrib, const tinyobj::shape_t &shape,
+                                    std::map<int, glm::vec3> &smoothVertexNormals) {
   smoothVertexNormals.clear();
   std::map<int, glm::vec3>::iterator iter;
 
@@ -87,8 +108,8 @@ static void computeSmoothingNormals(const tinyobj::attrib_t& attrib, const tinyo
     tinyobj::index_t idx2 = shape.mesh.indices[3 * f + 2];
 
     // Get the three vertex indexes and coordinates
-    int vi[3];      // indexes
-    float v[3][3];  // coordinates
+    int vi[3];     // indexes
+    float v[3][3]; // coordinates
 
     for (int k = 0; k < 3; k++) {
       vi[0] = idx0.vertex_index;
@@ -122,26 +143,71 @@ static void computeSmoothingNormals(const tinyobj::attrib_t& attrib, const tinyo
       }
     }
 
-  }  // f
+  } // f
 
   // Normalize the normals, that is, make them unit vectors
-  for (iter = smoothVertexNormals.begin(); iter != smoothVertexNormals.end();
-       iter++) {
+  for (iter = smoothVertexNormals.begin(); iter != smoothVertexNormals.end(); iter++) {
     normalizeVector(iter->second);
   }
-} 
+}
 
-TinyObjMeshes loadObjFromFile(const std::string  filename) {
-  float bmin[2];
-  float bmax[2];
-  TinyObjMeshes tinyObjMeshes = {};
-  auto &materials = tinyObjMeshes.materials;
+static ObjMeshes readObjFromBinary(std::ifstream &offsets, const std::string &name) {
+  ObjMeshes objMeshes = {};
+  const auto binary = mg::readBinaryFromDisc(name + ".bin");
+  const auto materials = mg::readBinaryFromDisc(name + ".mat");
+  const auto mesh = mg::readBinaryFromDisc(name + ".mesh");
+
+  objMeshes.materials.resize(materials.size() / sizeof(ObjMaterial));
+  std::memcpy(objMeshes.materials.data(), materials.data(), mg::sizeofContainerInBytes(materials));
+
+  objMeshes.meshes.resize(mesh.size() / sizeof(ObjMesh));
+  std::memcpy(objMeshes.meshes.data(), mesh.data(), mg::sizeofContainerInBytes(mesh));
+
+  uint32_t currentOffset = 0;
+  for (uint32_t i = 0; i < objMeshes.meshes.size(); i++) {
+    uint32_t vertexsize;
+    char delimiter;
+    offsets >> vertexsize >> delimiter;
+    mgAssert((currentOffset + vertexsize) <= binary.size());
+    mg::CreateMeshInfo createMeshInfo = {};
+    createMeshInfo.id = "mesh" + std::to_string(i);
+    createMeshInfo.vertices = (unsigned char *)&binary[currentOffset];
+    createMeshInfo.verticesSizeInBytes = vertexsize;
+    createMeshInfo.nrOfIndices = vertexsize / (sizeof(float)* (3+3+2));
+
+    currentOffset += vertexsize;
+
+    const auto meshId = mg::mgSystem.meshContainer.createMesh(createMeshInfo);
+    objMeshes.meshes[i].id = meshId;
+  }
+  return objMeshes;
+}
+
+struct Outputs {
+  std::ofstream binary, sizes, materials, mesh;
+};
+
+ObjMeshes loadObjFromFile(const std::string &filename) {
+  ObjMeshes tinyObjMeshes = {};
+  Outputs outputs = {};
+  const auto name = getName(filename);
+  std::ifstream ifText(name + ".txt");
+  if (ifText.good()) {
+    return readObjFromBinary(ifText, name);
+  } else {
+    outputs.binary.open(name + ".bin", std::fstream::binary);
+    outputs.sizes.open(name + ".txt");
+    outputs.materials.open(name + ".mat", std::fstream::binary);
+    outputs.mesh.open(name + ".mesh", std::fstream::binary);
+  }
+
+  std::vector<tinyobj::material_t> materials;
   std::unordered_set<std::string> loadedTextures;
 
   tinyobj::attrib_t attrib;
   std::vector<tinyobj::shape_t> shapes;
 
-  std::string base_dir = GetBaseDir(filename);
+  std::string base_dir = getBaseDir(filename);
   if (base_dir.empty()) {
     base_dir = ".";
   }
@@ -154,7 +220,7 @@ TinyObjMeshes loadObjFromFile(const std::string  filename) {
   const auto start = mg::timer::now();
   std::string warn;
   std::string err;
-  bool ret = tinyobj::LoadObj(&attrib, &shapes, &tinyObjMeshes.materials, &warn, &err, filename.c_str(), base_dir.c_str());
+  bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, filename.c_str(), base_dir.c_str());
   if (!warn.empty()) {
     printf("WARN: %s\n", warn.c_str());
     mgAssert(false);
@@ -170,7 +236,7 @@ TinyObjMeshes loadObjFromFile(const std::string  filename) {
   }
 
   const auto end = mg::timer::now();
-  printf("Parsing time: %d [ms]\n", mg::timer::durationInMs(start, end));
+  printf("Parsing time: %ul [ms]\n", mg::timer::durationInMs(start, end));
 
   printf("# of vertices  = %d\n", (int32_t)(attrib.vertices.size()) / 3);
   printf("# of normals   = %d\n", (int32_t)(attrib.normals.size()) / 3);
@@ -182,14 +248,13 @@ TinyObjMeshes loadObjFromFile(const std::string  filename) {
   materials.push_back(tinyobj::material_t());
 
   for (size_t i = 0; i < materials.size(); i++) {
-    printf("material[%d].diffuse_texname = %s\n", int(i),
-           materials[i].diffuse_texname.c_str());
+    printf("material[%d].diffuse_texname = %s\n", int(i), materials[i].diffuse_texname.c_str());
   }
 
   // Load diffuse textures
   {
     for (size_t m = 0; m < materials.size(); m++) {
-      tinyobj::material_t* mp = &materials[m];
+      tinyobj::material_t *mp = &materials[m];
 
       if (mp->diffuse_texname.length() > 0) {
         // Only load the texture if it is not already loaded
@@ -208,7 +273,7 @@ TinyObjMeshes loadObjFromFile(const std::string  filename) {
             }
           }
 
-          unsigned char* image = stbi_load(textureFilename.c_str(), &w, &h, &comp, STBI_default);
+          unsigned char *image = stbi_load(textureFilename.c_str(), &w, &h, &comp, STBI_default);
           if (!image) {
             printf("Unable to load texture: %s\n", textureFilename.c_str());
             mgAssert(false);
@@ -216,30 +281,32 @@ TinyObjMeshes loadObjFromFile(const std::string  filename) {
           printf("Loaded texture: %s, w = %d, h = %d, comp = %d\n", textureFilename.c_str(), w, h, comp);
 
           mg::CreateTextureInfo createTextureInfo = {};
-
           createTextureInfo.id = mp->diffuse_texname;
           createTextureInfo.textureSamplers = {mg::TEXTURE_SAMPLER::LINEAR_CLAMP_TO_BORDER};
           createTextureInfo.type = mg::TEXTURE_TYPE::TEXTURE_2D;
           createTextureInfo.size = {uint32_t(w), uint32_t(h), 1};
-          if(comp == 3)
-            createTextureInfo.format = VK_FORMAT_R8G8B8_UINT;
-          else if(comp == 4)
-            createTextureInfo.format = VK_FORMAT_R8G8B8A8_UINT;
-          else 
+          createTextureInfo.format = VK_FORMAT_R8G8B8A8_UINT;
+
+          if (comp == 3) {
+            const auto rgba = resizeRGBToRGBA(image, w * h);
+            createTextureInfo.data = (void *)rgba.data();
+            mg::mgSystem.textureContainer.createTexture(createTextureInfo);
+          } else if (comp == 4) {
+            createTextureInfo.data = image;
+            mg::mgSystem.textureContainer.createTexture(createTextureInfo);
+          } else
             mgAssert(false);
-          mg::mgSystem.textureContainer.createTexture(createTextureInfo);
           loadedTextures.insert(mp->diffuse_texname);
+          stbi_image_free(image);
         }
       }
     }
   }
-  bmin[0] = bmin[1] = bmin[2] = std::numeric_limits<float>::max();
-  bmax[0] = bmax[1] = bmax[2] = -std::numeric_limits<float>::max();
 
   {
     for (uint32_t s = 0; s < uint32_t(shapes.size()); s++) {
-      TinyObjMesh o = {};
-      std::vector<float> buffer;  // pos(3float), normal(3float), color(3float)
+      ObjMesh o = {};
+      std::vector<float> buffer; // pos(3float), normal(3float)
 
       // Check for smoothing group and compute smoothing normals
       std::map<int, glm::vec3> smoothVertexNormals;
@@ -255,11 +322,9 @@ TinyObjMeshes loadObjFromFile(const std::string  filename) {
 
         int current_material_id = shapes[s].mesh.material_ids[f];
 
-        if ((current_material_id < 0) ||
-            (current_material_id >= static_cast<int>(materials.size()))) {
+        if ((current_material_id < 0) || (current_material_id >= static_cast<int>(materials.size()))) {
           // Invaid material ID. Use default material.
-          current_material_id =
-              materials.size() -1;  // Default material is added to the last item in `materials`.
+          current_material_id = materials.size() - 1; // Default material is added to the last item in `materials`.
         }
         float diffuse[3];
         for (size_t i = 0; i < 3; i++) {
@@ -267,8 +332,7 @@ TinyObjMeshes loadObjFromFile(const std::string  filename) {
         }
         float tc[3][2];
         if (attrib.texcoords.size() > 0) {
-          if ((idx0.texcoord_index < 0) || (idx1.texcoord_index < 0) ||
-              (idx2.texcoord_index < 0)) {
+          if ((idx0.texcoord_index < 0) || (idx1.texcoord_index < 0) || (idx2.texcoord_index < 0)) {
             // face does not contain valid uv index.
             tc[0][0] = 0.0f;
             tc[0][1] = 0.0f;
@@ -277,12 +341,9 @@ TinyObjMeshes loadObjFromFile(const std::string  filename) {
             tc[2][0] = 0.0f;
             tc[2][1] = 0.0f;
           } else {
-            assert(attrib.texcoords.size() >
-                   size_t(2 * idx0.texcoord_index + 1));
-            assert(attrib.texcoords.size() >
-                   size_t(2 * idx1.texcoord_index + 1));
-            assert(attrib.texcoords.size() >
-                   size_t(2 * idx2.texcoord_index + 1));
+            assert(attrib.texcoords.size() > size_t(2 * idx0.texcoord_index + 1));
+            assert(attrib.texcoords.size() > size_t(2 * idx1.texcoord_index + 1));
+            assert(attrib.texcoords.size() > size_t(2 * idx2.texcoord_index + 1));
 
             // Flip Y coord.
             tc[0][0] = attrib.texcoords[2 * idx0.texcoord_index];
@@ -313,12 +374,6 @@ TinyObjMeshes loadObjFromFile(const std::string  filename) {
           v[0][k] = attrib.vertices[3 * f0 + k];
           v[1][k] = attrib.vertices[3 * f1 + k];
           v[2][k] = attrib.vertices[3 * f2 + k];
-          bmin[k] = std::min(v[0][k], bmin[k]);
-          bmin[k] = std::min(v[1][k], bmin[k]);
-          bmin[k] = std::min(v[2][k], bmin[k]);
-          bmax[k] = std::max(v[0][k], bmax[k]);
-          bmax[k] = std::max(v[1][k], bmax[k]);
-          bmax[k] = std::max(v[2][k], bmax[k]);
         }
 
         float n[3][3];
@@ -388,23 +443,6 @@ TinyObjMeshes loadObjFromFile(const std::string  filename) {
           buffer.push_back(n[k][0]);
           buffer.push_back(n[k][1]);
           buffer.push_back(n[k][2]);
-          // Combine normal and diffuse to get color.
-          float normal_factor = 0.2;
-          float diffuse_factor = 1 - normal_factor;
-          float c[3] = {n[k][0] * normal_factor + diffuse[0] * diffuse_factor,
-                        n[k][1] * normal_factor + diffuse[1] * diffuse_factor,
-                        n[k][2] * normal_factor + diffuse[2] * diffuse_factor};
-          float len2 = c[0] * c[0] + c[1] * c[1] + c[2] * c[2];
-          if (len2 > 0.0f) {
-            float len = sqrtf(len2);
-
-            c[0] /= len;
-            c[1] /= len;
-            c[2] /= len;
-          }
-          buffer.push_back(c[0] * 0.5 + 0.5);
-          buffer.push_back(c[1] * 0.5 + 0.5);
-          buffer.push_back(c[2] * 0.5 + 0.5);
 
           buffer.push_back(tc[k][0]);
           buffer.push_back(tc[k][1]);
@@ -412,33 +450,43 @@ TinyObjMeshes loadObjFromFile(const std::string  filename) {
       }
 
       // OpenGL viewer does not support texturing with per-face material.
-      if (shapes[s].mesh.material_ids.size() > 0 &&
-          shapes[s].mesh.material_ids.size() > s) {
-        o.material_id = shapes[s].mesh.material_ids[0];  // use the material ID
-                                                         // of the first face.
+      if (shapes[s].mesh.material_ids.size() > 0 && shapes[s].mesh.material_ids.size() > s) {
+        o.materialId = shapes[s].mesh.material_ids[0]; // use the material ID
+                                                        // of the first face.
       } else {
-        o.material_id = materials.size() - 1;  // = ID for default material.
+        o.materialId = materials.size() - 1; // = ID for default material.
       }
-      printf("shape[%d] material_id %d\n", int(s), int(o.material_id));
+      printf("shape[%d] material_id %d\n", int(s), int(o.materialId));
 
       if (buffer.size() > 0) {
-        o.numTriangles = buffer.size() / (3 + 3 + 3 + 2) / 3;  // 3:vtx, 3:normal, 3:col, 2:texcoord
+        const auto nrOfIndices = buffer.size() / (3 + 3 + 2); // 3:vtx, 3:normal, 2:texcoord
 
         mg::CreateMeshInfo createMeshInfo = {};
         createMeshInfo.vertices = (uint8_t *)buffer.data();
         createMeshInfo.verticesSizeInBytes = mg::sizeofContainerInBytes(buffer);
-        createMeshInfo.nrOfIndices = o.numTriangles;
+        createMeshInfo.nrOfIndices = nrOfIndices;
+
         o.id = mg::mgSystem.meshContainer.createMesh(createMeshInfo);
-        printf("shape[%d] # of triangles = %d\n", static_cast<int>(s), o.numTriangles);
+        printf("shape[%d] # of triangles = %d\n", static_cast<int>(s), nrOfIndices);
+
+        outputs.binary.write((char *)buffer.data(), mg::sizeofContainerInBytes(buffer));
+        outputs.sizes << mg::sizeofContainerInBytes(buffer) << '/';
       }
 
       tinyObjMeshes.meshes.push_back(o);
     }
   }
 
-  printf("bmin = %f, %f, %f\n", bmin[0], bmin[1], bmin[2]);
-  printf("bmax = %f, %f, %f\n", bmax[0], bmax[1], bmax[2]);
+  for (uint32_t i = 0; i < materials.size(); i++) {
+    ObjMaterial material = {};
+    const auto &m = materials[i];
+    material.diffuse = {m.diffuse[0], m.diffuse[1], m.diffuse[2], 1.0f};
+    tinyObjMeshes.materials.push_back(material);
+  }
 
+  outputs.materials.write((char *)tinyObjMeshes.materials.data(), mg::sizeofContainerInBytes(tinyObjMeshes.materials));
+  outputs.mesh.write((char *)tinyObjMeshes.meshes.data(), mg::sizeofContainerInBytes(tinyObjMeshes.meshes));
+  
   return tinyObjMeshes;
 }
 

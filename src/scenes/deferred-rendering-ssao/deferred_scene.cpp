@@ -15,13 +15,15 @@
 
 static mg::Camera camera;
 static DeferredRenderPass deferredRenderPass;
-static mg::TinyObjMeshes objMeshes;
+static mg::ObjMeshes objMeshes;
 
 using namespace std;
 void initScene() {
 
   camera = mg::create3DCamera(glm::vec3(0.5, 200, 470), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+  //camera = mg::create3DCamera(glm::vec3(0.5, 1.0, 4), glm::vec3(0, 1.0, 0), glm::vec3(0, 1, 0));
   objMeshes = mg::loadObjFromFile(mg::getDataPath() + "rungholt_obj/rungholt.obj");
+  //objMeshes = mg::loadObjFromFile(mg::getDataPath() + "CornellBox_obj/CornellBox-Original.obj");
   initDeferredRenderPass(&deferredRenderPass);
 }
 

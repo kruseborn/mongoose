@@ -1,4 +1,4 @@
-#pragma once
+  #pragma once
 #include "vulkan/deviceAllocator.h"
 #include "mg/mgUtils.h"
 #include "vulkan/vkContext.h"

@@ -32,7 +32,7 @@ static mg::Pipeline createMRTPipeline(const mg::RenderContext &renderContext) {
   return mrtPipeline;
 }
 
-void renderMRT(const mg::RenderContext &renderContext, const mg::TinyObjMeshes &objMeshes) {
+void renderMRT(const mg::RenderContext &renderContext, const mg::ObjMeshes &objMeshes) {
   using namespace mg::shaders::mrt;
 
   using Ubo = UBO;
@@ -60,14 +60,14 @@ void renderMRT(const mg::RenderContext &renderContext, const mg::TinyObjMeshes &
 
   for (uint32_t i = 0; i < objMeshes.meshes.size(); i++) {
     const auto mesh = mg::getMesh(objMeshes.meshes[i].id);
-    const auto material = objMeshes.materials[i];
+    mgAssert(objMeshes.meshes[i].materialId < objMeshes.materials.size());
+    const auto material = objMeshes.materials[objMeshes.meshes[i].materialId];
 
     VkDeviceSize offset = 0;
     vkCmdBindVertexBuffers(mg::vkContext.commandBuffer, 0, 1, &mesh.buffer, &offset);
-    vkCmdBindIndexBuffer(mg::vkContext.commandBuffer, mesh.buffer, mesh.indicesOffset, VK_INDEX_TYPE_UINT32);
     vkCmdPushConstants(mg::vkContext.commandBuffer, mrtPipeline.layout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(material.diffuse),
                        (void *)&material.diffuse);
-    vkCmdDrawIndexed(mg::vkContext.commandBuffer, mesh.indexCount, 1, 0, 0, 0);
+    vkCmdDraw(mg::vkContext.commandBuffer, mesh.indexCount, 1, 0, 0);
   }
 }
 
@@ -163,7 +163,7 @@ void renderBlurSSAO(const mg::RenderContext &renderContext) {
                           mg::countof(descriptorSets.values), descriptorSets.values, 1, &uniformOffset);
 
   vkCmdBindPipeline(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, ssaoBlurPipeline.pipeline);
-  vkCmdDrawIndexed(mg::vkContext.commandBuffer, 3, 1, 0, 0, 0);
+  vkCmdDraw(mg::vkContext.commandBuffer, 3, 1, 0, 0);
 }
 
 static mg::Pipeline createFinalDeferred(const mg::RenderContext &renderContext) {

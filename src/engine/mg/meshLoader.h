@@ -2,7 +2,7 @@
 #include "meshContainer.h"
 #include "vulkan/shaderPipelineInput.h"
 #include <vector>
-
+#include <glm/glm.hpp>
 
 namespace mg {
 struct Attribute {
@@ -32,18 +32,21 @@ struct GltfMeshes {
   std::vector<ImageData> images;
 };
 
-struct TinyObjMesh {
+struct ObjMesh {
   mg::MeshId id;
-  uint32_t numTriangles;
-  uint32_t material_id;
+  uint32_t materialId;
 };
 
-struct TinyObjMeshes {
-  std::vector<tinyobj::material_t> materials;
-  std::vector<TinyObjMesh> meshes;
+struct ObjMaterial {
+  glm::vec4 diffuse;
+};
+
+struct ObjMeshes {
+  std::vector<ObjMaterial> materials;
+  std::vector<ObjMesh> meshes;
 };
 
 GltfMeshes parseGltf(const std::string &id, const std::string &path, const std::string &name);
-TinyObjMeshes loadObjFromFile(const std::string &fileName);
+ObjMeshes loadObjFromFile(const std::string &filename);
 
 } // namespace mg

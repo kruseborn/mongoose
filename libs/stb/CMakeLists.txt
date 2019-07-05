@@ -6,6 +6,4 @@ mg_cc_library(
 	SRCS
 		"stb_image.h"
 		"tiny_obj_loader.h"
-	COPTS
-		${CPP_FLAGS}
 )
