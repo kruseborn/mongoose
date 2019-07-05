@@ -78,6 +78,6 @@ mg_cc_library(
 		lodepng
 		tiny_gltf
 		imgui
-		assimp
+		stb
 		${VULKAN_LIB}
 )

@@ -51,7 +51,7 @@ struct Texture {
 class TextureContainer : mg::nonCopyable {
 public:
   void createTextureContainer() {};
-  void createTexture(const CreateTextureInfo &textureInfo) ;
+  void createTexture(const CreateTextureInfo &textureInfo);
   Texture getTexture(const std::string &id, TEXTURE_SAMPLER sampler = TEXTURE_SAMPLER::NONE);
   void removeTexture(const std::string &id) ;
   void destroyTextureContainer();
@@ -60,7 +60,6 @@ public:
 
 private:
   void destroyTexture(const std::string &id);
-
   std::unordered_map<std::string, mg::_TextureData> _idToTexture;
 };
 

@@ -2,6 +2,7 @@
 #include "meshContainer.h"
 #include "vulkan/shaderPipelineInput.h"
 #include <vector>
+#include <glm/glm.hpp>
 
 namespace mg {
 struct Attribute {
@@ -31,17 +32,21 @@ struct GltfMeshes {
   std::vector<ImageData> images;
 };
 
-struct MeshProperties {
+struct ObjMesh {
+  mg::MeshId id;
+  uint32_t materialId;
+};
+
+struct ObjMaterial {
   glm::vec4 diffuse;
 };
 
 struct ObjMeshes {
-  std::vector<MeshProperties> meshProperties;
-  std::vector<mg::MeshId> ids;
+  std::vector<ObjMaterial> materials;
+  std::vector<ObjMesh> meshes;
 };
 
 GltfMeshes parseGltf(const std::string &id, const std::string &path, const std::string &name);
-ObjMeshes loadMeshesFromFile(const std::string path, const std::string &fileName, bool saveToFile);
-ObjMeshes loadMeshesFromBinary(const std::string path, const std::string &fileName);
+ObjMeshes loadObjFromFile(const std::string &filename);
 
 } // namespace mg

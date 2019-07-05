@@ -7,6 +7,7 @@ struct Camera;
 struct ObjMeshes;
 } // namespace mg
 
+
 void renderMRT(const mg::RenderContext &renderContext, const mg::ObjMeshes &objMeshes);
 void renderSSAO(const mg::RenderContext &renderContext);
 void renderBlurSSAO(const mg::RenderContext &renderContext);

@@ -237,13 +237,15 @@ struct UBO {
   glm::mat4 mNormal;
 };
 namespace InputAssembler {
-  static VertexInputState vertexInputState[2] = {
+  static VertexInputState vertexInputState[3] = {
     { VK_FORMAT_R32G32B32_SFLOAT, 0, 0, 0, 12 },
     { VK_FORMAT_R32G32B32_SFLOAT, 1, 12, 0, 12 },
+    { VK_FORMAT_R32G32_SFLOAT, 2, 24, 0, 8 },
   };
   struct VertexInputData {
     glm::vec3 position;
     glm::vec3 normal;
+    glm::vec2 texCoord;
   };
 };
 namespace shaderResource {
