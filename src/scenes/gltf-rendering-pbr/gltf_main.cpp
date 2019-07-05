@@ -1,5 +1,5 @@
 #include "mg/window.h"
-#include "gltf_scene.h"
+#include "invaders_scene.h"
 
 int main() {
   mg::initWindow(1500, 1024);

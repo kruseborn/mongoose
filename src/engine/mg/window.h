@@ -1,4 +1,5 @@
 #pragma once
+
 #include "tools.h"
 #include <cstdint>
 #include <glm/glm.hpp>
