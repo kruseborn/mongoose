@@ -48,8 +48,11 @@ void destroyWindow() {
 }
 
 bool startFrame() { return !glfwWindowShouldClose(window); }
-
+float getTime()  { return float(glfwGetTime()); }
 void endFrame() { glfwPollEvents(); }
+
+float getScreenWidth() { return vkContext.screen.width; }
+float getScreenHeight(){ return vkContext.screen.height; };
 
 FrameData getFrameData() {
   FrameData frameData = {};
@@ -84,6 +87,10 @@ FrameData getFrameData() {
   frameData.keys.r = glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS;
   frameData.keys.n = glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS;
   frameData.keys.m = glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS;
+
+  frameData.keys.left = glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS;
+  frameData.keys.right = glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS;
+  frameData.keys.space = glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS;
 
 
   return frameData;

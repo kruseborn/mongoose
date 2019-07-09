@@ -3,8 +3,90 @@
 #include "mg/mgSystem.h"
 #include "vulkan/pipelineContainer.h"
 #include <cmath>
+#include <glm/gtc/matrix_transform.hpp>
 
 namespace mg {
+
+static mg::Pipeline createSolidRendering(const mg::RenderContext &renderContext) {
+  using namespace mg::shaders::solid;
+
+  mg::PipelineStateDesc pipelineStateDesc = {};
+  pipelineStateDesc.vkRenderPass = renderContext.renderPass;
+  pipelineStateDesc.vkPipelineLayout = mg::getPipelineLayout(shaderResource::resources, mg::countof(shaderResource::resources));
+  pipelineStateDesc.graphics.subpass = renderContext.subpass;
+  pipelineStateDesc.depth.TestEnable = VK_FALSE;
+  pipelineStateDesc.rasterization.cullMode = VK_CULL_MODE_NONE;
+
+  mg::CreatePipelineInfo createPipelineInfo = {};
+  createPipelineInfo.shaderName = "solid";
+  createPipelineInfo.vertexInputState = InputAssembler::vertexInputState;
+  createPipelineInfo.vertexInputStateCount = mg::countof(InputAssembler::vertexInputState);
+
+  const auto pipeline = mg::mgSystem.pipelineContainer.createPipeline(pipelineStateDesc, createPipelineInfo);
+  return pipeline;
+}
+
+void renderSolidBoxes(const mg::RenderContext &renderContext, const float *xPositions, const float *yPositions,
+                      const glm::vec4 *colors, glm::vec2 size, uint32_t count, bool useSameColor) {
+  const auto solidPipeline = createSolidRendering(renderContext);
+  using namespace mg::shaders::solid;
+
+  using Ubo = UBO;
+  using VertexInputData = InputAssembler::VertexInputData;
+  using DescriptorSets = shaderResource::DescriptorSets;
+
+  VkBuffer uniformBuffer;
+  uint32_t uniformOffset;
+  VkDescriptorSet uboSet;
+  Ubo *ubo = (Ubo *)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
+  ubo->mvp = glm::ortho(0.0f, float(vkContext.screen.width), 0.0f, float(vkContext.screen.height), -10.0f, 10.0f);
+  VkBuffer storageBuffer;
+  uint32_t storageOffset;
+  VkDescriptorSet storageSet;
+  Storage::StorageData *storage = (Storage::StorageData *)mg::mgSystem.linearHeapAllocator.allocateStorage(
+      sizeof(Storage::StorageData) * count, &storageBuffer, &storageOffset, &storageSet);
+
+  for (uint32_t i = 0; i < count; i++) {
+    storage[i].position.x = xPositions[i];
+    storage[i].position.y = yPositions[i];
+    storage[i].color = useSameColor ? colors[0] : colors[i];
+  }
+
+  DescriptorSets descriptorSets = {};
+  descriptorSets.ubo = uboSet;
+  descriptorSets.storage = storageSet;
+
+  VkBuffer vertexBuffer;
+  VkDeviceSize vertexBufferOffset;
+  VertexInputData *vertices = (VertexInputData *)mg::mgSystem.linearHeapAllocator.allocateBuffer(
+      sizeof(VertexInputData) * 4, &vertexBuffer, &vertexBufferOffset);
+
+  constexpr uint32_t indicesInputData[6] = {0, 1, 2, 2, 3, 0};
+  VkBuffer indexBuffer;
+  VkDeviceSize indexBufferOffset;
+  uint32_t *indices = (uint32_t *)mg::mgSystem.linearHeapAllocator.allocateBuffer(mg::sizeofArrayInBytes(indicesInputData),
+                                                                                  &indexBuffer, &indexBufferOffset);
+  memcpy(indices, indicesInputData, sizeof(indicesInputData));
+
+  // render boxes
+  glm::vec3 vertexInputData[4] = {
+      {0, 0, 0},
+      {0 + size.x, 0, 0},
+      {0 + size.x, 0 + size.y, 0},
+      {0, 0 + size.y, 0},
+  };
+  memcpy(vertices, vertexInputData, sizeof(vertexInputData));
+
+  uint32_t offsets[] = { uniformOffset, storageOffset };
+  vkCmdBindDescriptorSets(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, solidPipeline.layout, 0,
+                          mg::countof(descriptorSets.values), descriptorSets.values, mg::countof(offsets), offsets);
+
+  vkCmdBindPipeline(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, solidPipeline.pipeline);
+
+  vkCmdBindVertexBuffers(mg::vkContext.commandBuffer, 0, 1, &vertexBuffer, &vertexBufferOffset);
+  vkCmdBindIndexBuffer(mg::vkContext.commandBuffer, indexBuffer, indexBufferOffset, VK_INDEX_TYPE_UINT32);
+  vkCmdDrawIndexed(mg::vkContext.commandBuffer, mg::countof(indicesInputData), count, 0, 0, 0);
+} // namespace mg
 
 static mg::Pipeline createTextureRenderingPipeline(const mg::RenderContext &renderContext) {
   using namespace mg::shaders::textureRendering;

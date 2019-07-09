@@ -226,6 +226,10 @@ static Pipeline _createPipeline(const _PipelineDesc &pipelineDesc) {
 // hard coded for now, this should be created with a hashmap or something similar
 VkPipelineLayout getPipelineLayout(mg::shaders::Resources *resources, uint32_t resourcesCount) {
   mgAssert(resourcesCount > 0);
+  for (uint32_t i = 0; i < resourcesCount; i++) {
+    if (resources[i] == mg::shaders::Resources::SSBO)
+      return mg::vkContext.pipelineStorageLayout;
+  }
   if (resourcesCount > 3)
     return mg::vkContext.pipelineLayoutMultiTexture;
   else

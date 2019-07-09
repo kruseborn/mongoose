@@ -9,7 +9,7 @@
 #include <vulkan/vulkan.h>
 
 struct GLFWwindow;
-
+ 
 namespace mg {
 
 struct SwapChain;
@@ -26,6 +26,7 @@ struct VulkanContext {
   VkDescriptorPool descriptorPool;
 
   VkPipelineLayout pipelineLayout;
+  VkPipelineLayout pipelineStorageLayout;
   VkPipelineLayout pipelineLayoutMultiTexture;
 
   VkCommandPool commandPool;
@@ -33,6 +34,7 @@ struct VulkanContext {
   uint32_t presentQueueFamilyIndex;
   struct {
     VkDescriptorSetLayout ubo;
+    VkDescriptorSetLayout storage;
     VkDescriptorSetLayout texture;
   } descriptorSetLayout;
 

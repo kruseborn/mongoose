@@ -1,0 +1,37 @@
+mg_cc_executable(
+    NAME
+        space-invaders
+    SRCS
+        allocator.cpp
+        allocator.h
+        array.h
+        collisions.cpp
+        collisions.h
+        hashmap.cpp
+        hashmap.h
+        invaders_scene.cpp
+        invaders_scene.h
+        invaders_helper.cpp
+        invaders_helper.h
+        invaders_utils.cpp
+        player.cpp
+        player.h
+        invaders_main.cpp
+        transforms.cpp
+        transforms.h
+        types.h
+        invaders_utils.h
+    COPTS
+        ${CPP_FLAGS}
+        "-mavx"
+    DEPS
+        glm
+        mg-engine
+        ${VULKAN_LIB}
+        ${PLATFORM_LIB}
+    DEPS_DIR
+        "$ENV{VULKAN_SDK}/include"
+    DEFS
+        GLM_FORCE_DEPTH_ZERO_TO_ONE
+        GLM_FORCE_LEFT_HANDED
+)

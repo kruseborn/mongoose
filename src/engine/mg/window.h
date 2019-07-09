@@ -1,4 +1,5 @@
 #pragma once
+
 #include "tools.h"
 #include <cstdint>
 #include <glm/glm.hpp>
@@ -15,6 +16,7 @@ struct FrameData {
   } mouse;
   struct {
     bool r,n,m;
+    bool left, right, space;
   } keys;
   mg::Tool tool;
 };
@@ -25,5 +27,8 @@ void destroyWindow();
 bool startFrame();
 void endFrame();
 FrameData getFrameData();
+float getScreenWidth();
+float getScreenHeight();
+float getTime();
 
 } // namespace mg
