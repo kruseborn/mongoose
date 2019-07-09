@@ -1,6 +1,6 @@
 ## Mongoose
 ### Minimalistic Vulkan engine for fast prototyping.
-    Windows and Linux(Tested with Linux Antergos)
+    Windows and Linux(Tested with Arch Linux)
     Support for free type text rendering
     Dear ImGui visualization
     Tightly coupled with files generated from the Shader-Compiler*
@@ -12,7 +12,6 @@
     imgui
     lodepng
     tiny_gltf(will soon be removed)
-    assimp (will soon be removed)
     
 #### Prerequisites
     Environment variable *VULKAN_SDK* has to be set
