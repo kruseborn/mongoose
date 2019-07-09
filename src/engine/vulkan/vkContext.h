@@ -9,7 +9,7 @@
 #include <vulkan/vulkan.h>
 
 struct GLFWwindow;
-
+ 
 namespace mg {
 
 struct SwapChain;

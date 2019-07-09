@@ -1,6 +1,6 @@
 #include "vkContext.h"
 
-#include <float.h>
+#include <cfloat>
 #include <memory>
 
 #include "linearHeapAllocator.h"
@@ -35,10 +35,10 @@ void destroyVulkan() {
   vkDestroyDescriptorSetLayout(mg::vkContext.device, mg::vkContext.descriptorSetLayout.texture, nullptr);
 
   vkDestroyCommandPool(mg::vkContext.device, mg::vkContext.commandPool, nullptr);
-
+ 
   vkDestroyDescriptorPool(mg::vkContext.device, mg::vkContext.descriptorPool, nullptr);
 
-  destroyVulkanWindow();
+  destroyVulkanWindow();    
   vkDestroyDevice(mg::vkContext.device, nullptr);
   destoyInstance();
 }
@@ -131,32 +131,32 @@ static void createDescriptorPool() {
   checkResult(vkCreateDescriptorPool(mg::vkContext.device, &createInfo, nullptr, &mg::vkContext.descriptorPool));
 }
 
-static void initSampler() {
+static void initSampler() {     
   VkSamplerCreateInfo sampler_create_info = {};
   sampler_create_info.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
   sampler_create_info.magFilter = VK_FILTER_NEAREST;
   sampler_create_info.minFilter = VK_FILTER_NEAREST;
   sampler_create_info.mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
   sampler_create_info.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
-  sampler_create_info.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+  sampler_create_info.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER; 
   sampler_create_info.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
   sampler_create_info.mipLodBias = 0.0f;
   sampler_create_info.maxAnisotropy = 1.0f;
   sampler_create_info.minLod = 0;
   sampler_create_info.maxLod = 0;
   sampler_create_info.borderColor = VK_BORDER_COLOR_INT_TRANSPARENT_BLACK;
-  sampler_create_info.anisotropyEnable = VK_FALSE;
-  sampler_create_info.compareOp = VK_COMPARE_OP_NEVER;
+  sampler_create_info.anisotropyEnable = VK_FALSE; 
+  sampler_create_info.compareOp = VK_COMPARE_OP_NEVER;   
 
   checkResult(vkCreateSampler(mg::vkContext.device, &sampler_create_info, NULL, &mg::vkContext.sampler.pointBorderSampler));
 
   sampler_create_info.magFilter = VK_FILTER_LINEAR;
   sampler_create_info.minFilter = VK_FILTER_LINEAR;
-  sampler_create_info.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+  sampler_create_info.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;  
 
   checkResult(vkCreateSampler(mg::vkContext.device, &sampler_create_info, NULL, &mg::vkContext.sampler.linearBorderSampler));
 
-  sampler_create_info.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+  sampler_create_info.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE; 
   sampler_create_info.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
   sampler_create_info.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
   checkResult(vkCreateSampler(mg::vkContext.device, &sampler_create_info, NULL, &mg::vkContext.sampler.linearEdgeSampler));

@@ -9,8 +9,6 @@ mg_cc_library(
 		imgui.h
 		imgui_demo.cpp
 		imgui_draw.cpp
-		imgui_freetype.cpp
-		imgui_freetype.h
 		imgui_internal.h
 		imgui_widgets.cpp
 		imstb_rectpack.h

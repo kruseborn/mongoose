@@ -15,6 +15,8 @@ struct Invaders {
 };
 
 struct Settings {
+  float playerSize = 32.0f;
+  float alienSize = 32.0f;
   float playerSpeed = 100.0f;
   float playerBulletSpeed = 50.0f;
   float playerFireColdDown = 1.0f;
@@ -36,5 +38,5 @@ void invadersInit(Invaders *invaders);
 void invadersDestroy(Invaders *invaders);
 void invadersReset(Invaders *invaders);
 void invadersSimulate(Invaders *invaders, const mg::FrameData &frameData, float dt);
-void invadersRender(const Invaders &invaders);
+void invadersRender(const Invaders &invaders, const mg::FrameData &frameData);
 void invadersEndFrame();

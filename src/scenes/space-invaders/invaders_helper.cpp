@@ -6,21 +6,15 @@
 #include "types.h"
 #include "invaders_utils.h"
 #include <cstdlib>
+#include "rendering/rendering.h"
+#include "mg/window.h"
 
-void drawSprites(const float *xPositions, const float *yPositions, uint32_t size, const mg::FrameData &frameData) {
+void drawSprites(const mg::RenderContext &renderContext, const float *xPositions, const float *yPositions, float size, uint32_t count) {
   assert(xPositions);
   assert(yPositions);
-  for (uint32_t i = 0; i < size; i++);
-//    engine->drawSprite(sprite, int32_t(xPositions[i]), int32_t(yPositions[i]));
-}
-
-void drawSprites(const float *xPositions, const float *yPositions, const mg::FrameData &frameData) {
-  assert(xPositions);
-  assert(yPositions);
-  //assert(engine);
-  //assert(sprites);
-  //for (uint32_t i = 0; i < size; i++)
-  //  engine->drawSprite(sprites[i], int32_t(xPositions[i]), int32_t(yPositions[i]));
+  for (uint32_t i = 0; i < count; i++) {
+    mg::renderSolidBox(renderContext, {xPositions[i], yPositions[i], float(size), 0});
+  }
 }
 
 void invadersReset(Invaders *invaders, const Settings &settings) {
@@ -37,20 +31,19 @@ void invadersReset(Invaders *invaders, const Settings &settings) {
   aliens.speed = settings.alienSpeed;
   alienBullets.speed = settings.alienBulletSpeed;
   alienBullets.direction = {0, 1};
-  //constexpr Engine::Sprite alienSprites[] = {Engine::Sprite::Enemy1, Engine::Sprite::Enemy2};
+  
   for (uint32_t y = 0; y < settings.aliensRows; y++) {
     for (uint32_t x = 0; x < settings.aliensCols; x++) {
-    //  aliens.sprites[aliens.nrAliens] = alienSprites[x & 1];
-     // aliens.x[aliens.nrAliens] = float(Engine::SpriteSize * x);
-     // aliens.y[aliens.nrAliens++] = float(y * Engine::SpriteSize);
+      aliens.x[aliens.nrAliens] = float(mg::getScreenWidth() * x);
+      aliens.y[aliens.nrAliens++] = float(y * settings.alienSize);
     }
   }
   // player
   player.health = settings.startHealth;
   player.weaponColdDown = settings.playerFireColdDown;
   player.speed = settings.playerSpeed;
-  //player.position.x = float(Engine::CanvasWidth >> 1);
-  //player.position.y = Engine::CanvasHeight - Engine::SpriteSize;
+  player.position.x = float(mg::getScreenWidth() / 1);
+  player.position.y = mg::getScreenHeight() - settings.alienSize;
   playerBullets.speed = settings.playerBulletSpeed;
   playerBullets.direction = {0, -1};
 }

@@ -1,15 +1,22 @@
 #include "invaders_scene.h"
 #include "hashmap.h"
 #include "invaders_helper.h"
+#include "mg/mgSystem.h"
+#include "mg/window.h"
 #include "player.h"
+#include "rendering/rendering.h"
 #include "transforms.h"
+#include "vulkan/singleRenderpass.h"
 #include <cstdio>
 
 // global
 Device device = {};
 static const Settings settings = {};
+static mg::SingleRenderPass singleRenderPass;
 
 void invadersInit(Invaders *invaders) {
+  mg::initSingleRenderPass(&singleRenderPass);
+
   assert(invaders);
   device.linearAllocator.init(1024 * 1024);
   invadersReset(invaders);
@@ -19,6 +26,7 @@ void invadersDestroy(Invaders *invaders) {
   assert(invaders);
   *invaders = {};
   device.linearAllocator.destroy();
+  destroySingleRenderPass(&singleRenderPass);
 }
 
 void invadersEndFrame() { device.linearAllocator.clear(); }
@@ -26,6 +34,14 @@ void invadersReset(Invaders *invaders) { invadersReset(invaders, settings); }
 
 void invadersSimulate(Invaders *invaders, const mg::FrameData &frameData, float dt) {
   assert(invaders);
+
+  if (frameData.resize) {
+    mg::resizeSingleRenderPass(&singleRenderPass);
+  }
+  if (frameData.keys.r) {
+    mg::mgSystem.pipelineContainer.resetPipelineContainer();
+  }
+
   Hashmap alienHashmap = {};
   Hashmap alienBulletsHashmap = {};
   alienHashmap.init(&device.linearAllocator, 512);
@@ -37,17 +53,17 @@ void invadersSimulate(Invaders *invaders, const mg::FrameData &frameData, float 
   auto &alienBullets = invaders->alienBullets;
 
   // transform
-  //transformPlayer(&player, Engine::CanvasWidth, Engine::SpriteSize, playerInput, dt);
+  transformPlayer(&player, mg::getScreenWidth(), settings.playerSize, frameData, dt);
   const auto minMaxAliens = transformAliens(&aliens, dt);
   transformPositions(playerBullets.x, playerBullets.y, playerBullets.nrBullets, playerBullets.direction, playerBullets.speed, dt);
   transformPositions(alienBullets.x, alienBullets.y, alienBullets.nrBullets, alienBullets.direction, alienBullets.speed, dt);
 
   // fire bullets
-  // if (shouldFirePlayerBullet(&player, playerInput, dt)) {
-  //   assert(playerBullets.nrBullets < MAX_BULLETS);
-  //   playerBullets.x[playerBullets.nrBullets] = player.position.x;
-  //   playerBullets.y[playerBullets.nrBullets++] = player.position.y;
-  // }
+  if (shouldFirePlayerBullet(&player, frameData, dt)) {
+    assert(playerBullets.nrBullets < MAX_BULLETS);
+    playerBullets.x[playerBullets.nrBullets] = player.position.x;
+    playerBullets.y[playerBullets.nrBullets++] = player.position.y;
+  }
   fireAlienBullets(aliens, &alienBullets);
 
   // add entities to grid
@@ -63,25 +79,34 @@ void invadersSimulate(Invaders *invaders, const mg::FrameData &frameData, float 
   removeBulletsOutsideBorders(&playerBullets);
   removeBulletsOutsideBorders(&alienBullets);
 
-  // const bool isAliensOutSideBorder = minMaxAliens.ymax > (Engine::CanvasHeight - Engine::SpriteSize);
-  // player.health *= !isAliensOutSideBorder;
+  const bool isAliensOutSideBorder = minMaxAliens.ymax > (mg::getScreenHeight() - settings.alienSize);
+  player.health *= !isAliensOutSideBorder;
 }
 
-void invadersRender(const Invaders &invaders) {
-  //assert(engine);
+void invadersRender(const Invaders &invaders, const mg::FrameData &frameData) {
+  mg::beginRendering();
+  mg::setFullscreenViewport();
+  mg::beginSingleRenderPass(singleRenderPass);
+
+  mg::RenderContext renderContext = {};
+  renderContext.renderPass = singleRenderPass.vkRenderPass;
+
   const auto &player = invaders.player;
   const auto &aliens = invaders.aliens;
   const auto &playerBullets = invaders.playerBullets;
   const auto &alienBullets = invaders.alienBullets;
 
-  //drawSprites(aliens.x, aliens.y, aliens.sprites, aliens.nrAliens);
-  //drawSprites(&player.position.x, &player.position.y, 1, engine, Engine::Sprite::Player);
-  //drawSprites(playerBullets.x, playerBullets.y, playerBullets.nrBullets, engine, Engine::Sprite::Rocket);
-  //drawSprites(alienBullets.x, alienBullets.y, alienBullets.nrBullets, engine, Engine::Sprite::Bomb);
+  drawSprites(renderContext, aliens.x, aliens.y, settings.alienSize, aliens.nrAliens);
+  drawSprites(renderContext, &player.position.x, &player.position.y, settings.playerSize, 1);
+  drawSprites(renderContext, playerBullets.x, playerBullets.y, settings.playerSize, playerBullets.nrBullets);
+  drawSprites(renderContext, alienBullets.x, alienBullets.y, settings.playerSize, alienBullets.nrBullets);
 
   char textBuffer[40];
   constexpr auto pointsPerAlien = 10;
   const auto killScore = (MAX_ALIENS - aliens.nrAliens) * pointsPerAlien;
   snprintf(textBuffer, sizeof(textBuffer), "Health: %d score: %d\n", player.health, killScore);
-  //engine->drawText(textBuffer, 0, 0);
+
+  mg::endSingleRenderPass();
+  mg::endRendering();
+  // engine->drawText(textBuffer, 0, 0);
 }

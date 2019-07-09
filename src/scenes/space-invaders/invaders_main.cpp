@@ -1,18 +1,16 @@
 #include "invaders_scene.h"
-#include <chrono>
-#include <thread>
-#include <cmath>
 #include "mg/window.h"
+#include <chrono>
+#include <cmath>
+#include <thread>
 
-void EngineMain() {
+int main() {
   mg::initWindow(1500, 1024);
-  initScene();
-
   Invaders invaders = {};
   invadersInit(&invaders);
 
   constexpr float lastFrameMsMin = 16.0f;
-  float startTime = float(engine.getStopwatchElapsedSeconds());
+  float startTime = mg::getTime();
 
   while (mg::startFrame()) {
     if (invaders.aliens.nrAliens == 0 || invaders.player.health <= 0)
@@ -22,19 +20,20 @@ void EngineMain() {
       const auto frameData = mg::getFrameData();
       const auto dt = 0.07f;
       invadersSimulate(&invaders, frameData, dt);
-      invadersRender(invaders);
+      invadersRender(invaders, frameData);
 
-      mg::invadersEndFrame();
+      invadersEndFrame();
     }
-    const auto endTime = engine.getStopwatchElapsedSeconds();
+    const auto endTime = mg::getTime();
     const auto lastFrameMs = float((endTime - startTime) * 1000.0);
-    startTime = float(engine.getStopwatchElapsedSeconds());
+    startTime = mg::getTime();
 
     if (lastFrameMs < lastFrameMsMin) {
       std::this_thread::sleep_for(std::chrono::milliseconds(uint32_t(lastFrameMsMin - lastFrameMs)));
     }
+    mg::endFrame();
   }
   invadersDestroy(&invaders);
   mg::destroyWindow();
-
+  return 0;
 }

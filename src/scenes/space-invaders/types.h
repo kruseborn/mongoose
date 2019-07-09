@@ -23,7 +23,6 @@ static constexpr int32_t AlienYDirs[ALIEN_DIR_SIZE] = {0, 1, 0, 1};
 struct Aliens {
   alignas(SIMD_ALIGNMENT) float x[MAX_ALIENS];
   alignas(SIMD_ALIGNMENT) float y[MAX_ALIENS];
-//  Engine::Sprite sprites[MAX_ALIENS];
   uint32_t nrAliens;
   float speed;
   float currentDistanceMoveInY;

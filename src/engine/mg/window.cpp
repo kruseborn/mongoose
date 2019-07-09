@@ -48,8 +48,11 @@ void destroyWindow() {
 }
 
 bool startFrame() { return !glfwWindowShouldClose(window); }
-
+float getTime()  { return float(glfwGetTime()); }
 void endFrame() { glfwPollEvents(); }
+
+float getScreenWidth() { return vkContext.screen.width; }
+float getScreenHeight(){ return vkContext.screen.height; };
 
 FrameData getFrameData() {
   FrameData frameData = {};

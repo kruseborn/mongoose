@@ -1,7 +1,7 @@
 #include "collisions.h"
 #include "allocator.h"
 #include "hashmap.h"
-#include "invaders.h"
+#include "invaders_scene.h"
 #include <bitset>
 #include <climits>
 #include <immintrin.h>

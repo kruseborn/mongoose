@@ -10,11 +10,10 @@ struct Settings;
 struct MinMax;
 
 namespace mg {
-    struct FrameData;
+    struct RenderContext;
 }
 
-void drawSprites(const float *xPositions, const float *yPosition, uint32_t size, const mg::FrameData &frameData);
-void drawSprites(const float *xPositions, const float *yPosition, const mg::FrameData &frameData);
+void drawSprites(const mg::RenderContext &renderContext, const float *xPositions, const float *yPosition, float size, uint32_t count);
 
 void invadersReset(Invaders *invaders, const Settings &settings);
 MinMax transformAliens(Aliens *aliens, float dt);

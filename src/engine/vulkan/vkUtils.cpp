@@ -133,5 +133,4 @@ void endRendering() {
   vkContext.commandBuffers.submitted[commandBufferIndex] = true;
   vkContext.commandBuffers.currentIndex = (vkContext.commandBuffers.currentIndex + 1) % vkContext.commandBuffers.nrOfBuffers;
 }
-
 } // namespace mg
