@@ -7,6 +7,7 @@
 #include "rendering/rendering.h"
 #include "transforms.h"
 #include "vulkan/singleRenderpass.h"
+#include "mg/texts.h"
 #include <cstdio>
 
 // global
@@ -26,6 +27,7 @@ void invadersDestroy(Invaders *invaders) {
   assert(invaders);
   *invaders = {};
   device.linearAllocator.destroy();
+  mg::waitForDeviceIdle();
   destroySingleRenderPass(&singleRenderPass);
 }
 
@@ -54,7 +56,7 @@ void invadersSimulate(Invaders *invaders, const mg::FrameData &frameData, float 
 
   // transform
   transformPlayer(&player, mg::getScreenWidth(), settings.playerSize, frameData, dt);
-  const auto minMaxAliens = transformAliens(&aliens, dt);
+  const auto minMaxAliens = transformAliens(settings, &aliens, dt);
   transformPositions(playerBullets.x, playerBullets.y, playerBullets.nrBullets, playerBullets.direction, playerBullets.speed, dt);
   transformPositions(alienBullets.x, alienBullets.y, alienBullets.nrBullets, alienBullets.direction, alienBullets.speed, dt);
 
@@ -64,16 +66,16 @@ void invadersSimulate(Invaders *invaders, const mg::FrameData &frameData, float 
     playerBullets.x[playerBullets.nrBullets] = player.position.x;
     playerBullets.y[playerBullets.nrBullets++] = player.position.y;
   }
-  fireAlienBullets(aliens, &alienBullets);
+  fireAlienBullets(settings, aliens, &alienBullets);
 
   // add entities to grid
   addTransformToGrid(aliens.x, aliens.y, aliens.nrAliens, &alienHashmap, settings.cellSize);
   addTransformToGrid(alienBullets.x, alienBullets.y, alienBullets.nrBullets, &alienBulletsHashmap, settings.cellSize);
 
   // handle collisions
-  playerBulletsOnAlienCollision(alienHashmap, &aliens, &playerBullets, settings.cellSize);
-  alienBulletsOnPlayerCollision(alienBulletsHashmap, &player, &alienBullets, settings.cellSize);
-  alienOnPlayerCollision(alienHashmap, &aliens, &player, settings.cellSize);
+  playerBulletsOnAlienCollision(alienHashmap, settings, &aliens, &playerBullets, settings.cellSize);
+  alienBulletsOnPlayerCollision(alienBulletsHashmap, settings, &player, &alienBullets, settings.cellSize);
+  alienOnPlayerCollision(alienHashmap, settings, &aliens, &player, settings.cellSize);
 
   // handle borders
   removeBulletsOutsideBorders(&playerBullets);
@@ -96,17 +98,25 @@ void invadersRender(const Invaders &invaders, const mg::FrameData &frameData) {
   const auto &playerBullets = invaders.playerBullets;
   const auto &alienBullets = invaders.alienBullets;
 
-  drawSprites(renderContext, aliens.x, aliens.y, settings.alienSize, aliens.nrAliens);
-  drawSprites(renderContext, &player.position.x, &player.position.y, settings.playerSize, 1);
-  drawSprites(renderContext, playerBullets.x, playerBullets.y, settings.playerSize, playerBullets.nrBullets);
-  drawSprites(renderContext, alienBullets.x, alienBullets.y, settings.playerSize, alienBullets.nrBullets);
+  drawSprites(renderContext, aliens.x, aliens.y, aliens.colors, settings.alienSize, aliens.nrAliens);
+  drawSprites(renderContext, &player.position.x, &player.position.y, {45 / 255.0f, 0 / 255.0f, 38 / 255.0f, 1}, settings.playerSize, 1);
+  drawSprites(renderContext, playerBullets.x, playerBullets.y, {45 / 255.0f, 41 / 255.0f, 0 / 255.0f, 1}, settings.playerBulletSize, playerBullets.nrBullets);
+  drawSprites(renderContext, alienBullets.x, alienBullets.y, {233 / 255.0f, 75 / 255.0f, 60 / 255.0f, 1}, settings.alienBulletSize, alienBullets.nrBullets);
 
   char textBuffer[40];
   constexpr auto pointsPerAlien = 10;
   const auto killScore = (MAX_ALIENS - aliens.nrAliens) * pointsPerAlien;
-  snprintf(textBuffer, sizeof(textBuffer), "Health: %d score: %d\n", player.health, killScore);
+  snprintf(textBuffer, sizeof(textBuffer), "Health: %d score: %d", player.health, killScore);
+
+  mg::Texts texts = {};
+  mg::Text text = {textBuffer};
+  mg::pushText(&texts, text);
+
+  mg::validateTexts(texts);
+  mg::renderText(renderContext, texts);
 
   mg::endSingleRenderPass();
   mg::endRendering();
+
   // engine->drawText(textBuffer, 0, 0);
 }

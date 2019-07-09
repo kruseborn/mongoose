@@ -30,9 +30,11 @@ void destroyVulkan() {
   vkDestroyPipelineCache(mg::vkContext.device, mg::vkContext.pipelineCache, nullptr);
   vkDestroyPipelineLayout(mg::vkContext.device, mg::vkContext.pipelineLayout, nullptr);
   vkDestroyPipelineLayout(mg::vkContext.device, mg::vkContext.pipelineLayoutMultiTexture, nullptr);
+  vkDestroyPipelineLayout(mg::vkContext.device, mg::vkContext.pipelineStorageLayout, nullptr);
 
   vkDestroyDescriptorSetLayout(mg::vkContext.device, mg::vkContext.descriptorSetLayout.ubo, nullptr);
   vkDestroyDescriptorSetLayout(mg::vkContext.device, mg::vkContext.descriptorSetLayout.texture, nullptr);
+  vkDestroyDescriptorSetLayout(mg::vkContext.device, mg::vkContext.descriptorSetLayout.storage, nullptr);
 
   vkDestroyCommandPool(mg::vkContext.device, mg::vkContext.commandPool, nullptr);
  
@@ -69,6 +71,18 @@ static void createDescriptorLayout() {
 
   checkResult(vkCreateDescriptorSetLayout(mg::vkContext.device, &descriptorSetLayoutCreateInfo, nullptr,
                                           &mg::vkContext.descriptorSetLayout.texture));
+
+  VkDescriptorSetLayoutBinding storageLayout = {};
+  storageLayout.binding = 0;
+  storageLayout.descriptorCount = 1;
+  storageLayout.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC;
+  storageLayout.stageFlags = VK_SHADER_STAGE_ALL;
+
+  descriptorSetLayoutCreateInfo.bindingCount = 1;
+  descriptorSetLayoutCreateInfo.pBindings = &storageLayout;
+
+  checkResult(vkCreateDescriptorSetLayout(mg::vkContext.device, &descriptorSetLayoutCreateInfo, nullptr,
+                                          &mg::vkContext.descriptorSetLayout.storage));
 }
 
 static void createPipelineLayout() {
@@ -85,7 +99,7 @@ static void createPipelineLayout() {
   layoutCreateInfo.pSetLayouts = descriptorSetLayouts;
 
   VkPushConstantRange pushConstantRange = {};
-  pushConstantRange.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+  pushConstantRange.stageFlags = VK_SHADER_STAGE_ALL_GRAPHICS;
   pushConstantRange.size = 256;
 
   layoutCreateInfo.pPushConstantRanges = &pushConstantRange;
@@ -94,6 +108,19 @@ static void createPipelineLayout() {
 
   layoutCreateInfo.setLayoutCount = nrOfDescriptorLayouts;
   checkResult(vkCreatePipelineLayout(mg::vkContext.device, &layoutCreateInfo, nullptr, &mg::vkContext.pipelineLayoutMultiTexture));
+
+  const uint32_t nrOfDescriptorLayoutsStorage = 4;
+  VkDescriptorSetLayout descriptorSetLayoutsStorage[nrOfDescriptorLayoutsStorage] = {
+      mg::vkContext.descriptorSetLayout.ubo,     mg::vkContext.descriptorSetLayout.storage,
+      mg::vkContext.descriptorSetLayout.texture, mg::vkContext.descriptorSetLayout.texture,
+  };
+  VkPipelineLayoutCreateInfo layoutCreateInfoStorage = {};
+  layoutCreateInfoStorage.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+  layoutCreateInfoStorage.setLayoutCount = nrOfDescriptorLayoutsStorage;
+  layoutCreateInfoStorage.pSetLayouts = descriptorSetLayoutsStorage;
+
+  checkResult(
+      vkCreatePipelineLayout(mg::vkContext.device, &layoutCreateInfoStorage, nullptr, &mg::vkContext.pipelineStorageLayout));
 }
 
 static void createPipelineCache() {

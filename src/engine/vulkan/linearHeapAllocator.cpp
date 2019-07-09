@@ -8,9 +8,10 @@
 // 'If descriptorType is VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER or VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 
 // the range member of each element of pBufferInfo, or the effective range if range is VK_WHOLE_SIZE, must be less than or equal to VkPhysicalDeviceLimits::maxUniformBufferRange' 
 // https://www.khronos.org/registry/vulkan/specs/1.0/html/vkspec.html#VUID-VkWriteDescriptorSet-descriptorType-00332
-static constexpr uint32_t uniformBufferSizeInBytes = 1 << 16; // 64 kb
-static constexpr uint32_t vertexBufferSizeInBytes = 1 << 25; // 32 meg
-static constexpr uint32_t stagingBufferSizeInBytes = 1 << 27; // 128 meg
+static constexpr uint32_t uniformBufferSizeInBytes = 1u << 16; // 64 kb
+static constexpr uint32_t storageBufferSizeInBytes = 1u << 25; // 32 meg
+static constexpr uint32_t vertexBufferSizeInBytes = 1u << 25; // 32 meg
+static constexpr uint32_t stagingBufferSizeInBytes = 1u << 27; // 128 meg
 
 static constexpr struct {
   VkMemoryPropertyFlags requiredProperties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
@@ -102,6 +103,38 @@ static _UniformBuffer createUniformBuffer(VkDeviceSize bufferSizeInBytes, VkMemo
   return dynamicUniformBuffer;
 }
 
+static _StorageBuffer createStorageBuffers(VkDeviceSize bufferSizeInBytes, VkMemoryPropertyFlags requiredProperties,
+                                          VkMemoryPropertyFlags preferredProperties) {
+  _StorageBuffer dynamicStorageBuffer = {};
+  dynamicStorageBuffer.buffer = _createLinearBuffer(storageBufferSizeInBytes, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, requiredProperties, preferredProperties);
+
+  VkDescriptorSetAllocateInfo vkDescriptorSetAllocateInfo = {};
+  vkDescriptorSetAllocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+  vkDescriptorSetAllocateInfo.descriptorPool = mg::vkContext.descriptorPool;
+  vkDescriptorSetAllocateInfo.descriptorSetCount = NrOfBuffers;
+  vkDescriptorSetAllocateInfo.pSetLayouts = &mg::vkContext.descriptorSetLayout.storage;
+  vkDescriptorSetAllocateInfo.descriptorSetCount = 1;
+
+  for (uint32_t i = 0; i < NrOfBuffers; i++) {
+    vkAllocateDescriptorSets(mg::vkContext.device, &vkDescriptorSetAllocateInfo, &dynamicStorageBuffer.vkDescriptorSet[i]);
+
+    VkDescriptorBufferInfo vkDescriptorBufferInfo = {};
+    vkDescriptorBufferInfo.buffer = dynamicStorageBuffer.buffer.bufferViews[i].vkBuffer;
+    vkDescriptorBufferInfo.range = VK_WHOLE_SIZE;
+
+    VkWriteDescriptorSet vkWriteDescriptorSet = {};
+    vkWriteDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    vkWriteDescriptorSet.dstSet = dynamicStorageBuffer.vkDescriptorSet[i];
+    vkWriteDescriptorSet.dstBinding = 0;
+    vkWriteDescriptorSet.descriptorCount = 1;
+    vkWriteDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC;
+    vkWriteDescriptorSet.pBufferInfo = &vkDescriptorBufferInfo;
+
+    vkUpdateDescriptorSets(mg::vkContext.device, 1, &vkWriteDescriptorSet, 0, nullptr);
+  }
+  return dynamicStorageBuffer;
+}
+
 static void* allocateDynamicBuffer(mg::_Buffer *dynamicBuffer, uint32_t currentBufferIndex, VkDeviceSize sizeInBytes, VkBuffer *buffer, VkDeviceSize *offset) {
   mgAssertDesc((dynamicBuffer->bufferViews[currentBufferIndex].offset + sizeInBytes) <= dynamicBuffer->alignedSize, "Out of dynamic vertex buffer space");
   *buffer = dynamicBuffer->bufferViews[currentBufferIndex].vkBuffer;
@@ -129,6 +162,19 @@ void* LinearHeapAllocator::allocateUniform(VkDeviceSize sizeInBytes, VkBuffer *b
   auto *data = allocateDynamicBuffer(&_uniformBuffer.buffer, _currentBufferIndex, alignedSize, buffer, &vkDeviceSizeOffset);
   *offset = static_cast<uint32_t>(vkDeviceSizeOffset);
   *vkDescriptorSet = _uniformBuffer.vkDescriptorSet[_currentBufferIndex];
+
+  return data;
+}
+
+void *LinearHeapAllocator::allocateStorage(VkDeviceSize sizeInBytes, VkBuffer *buffer, uint32_t *offset,
+                                           VkDescriptorSet *vkDescriptorSet) {
+  const auto alignment = mg::vkContext.physicalDeviceProperties.limits.minStorageBufferOffsetAlignment;
+  VkDeviceSize alignedSize = mg::alignUpPowerOfTwo(sizeInBytes, alignment);
+
+  VkDeviceSize vkDeviceSizeOffset;
+  auto *data = allocateDynamicBuffer(&_storageBuffer.buffer, _currentBufferIndex, alignedSize, buffer, &vkDeviceSizeOffset);
+  *offset = static_cast<uint32_t>(vkDeviceSizeOffset);
+  *vkDescriptorSet = _storageBuffer.vkDescriptorSet[_currentBufferIndex];
 
   return data;
 }
@@ -226,6 +272,7 @@ void LinearHeapAllocator::create() {
   // vertex and uniform buffers
   _vertexBuffer = _createLinearBuffer(vertexBufferSizeInBytes, usageFlags.vertexBufferUsageFlags, usageFlags.requiredProperties, 0);
   _uniformBuffer = createUniformBuffer(uniformBufferSizeInBytes, usageFlags.requiredProperties, 0);
+  _storageBuffer = createStorageBuffers(uniformBufferSizeInBytes, usageFlags.requiredProperties, 0);
 
   VkCommandBufferAllocateInfo vkCommandBufferAllocateInfo = {};
   vkCommandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -250,6 +297,7 @@ void LinearHeapAllocator::destroy() {
   destroyLinearBuffer(&_vertexBuffer);
   destroyLinearBuffer(&_uniformBuffer.buffer);
   destroyLinearBuffer(&_stagingBuffer.buffer);
+  destroyLinearBuffer(&_storageBuffer.buffer);
 
   for(uint32_t i = 0; i < NrOfBuffers; i++) {
     vkDestroyFence(mg::vkContext.device, _stagingBuffer.vkFences[i], nullptr);
@@ -308,6 +356,7 @@ void LinearHeapAllocator::swapLinearHeapBuffers() {
   _vertexBuffer.bufferViews[_currentBufferIndex].offset = 0;
   _uniformBuffer.buffer.bufferViews[_currentBufferIndex].offset = 0;
   _stagingBuffer.buffer.bufferViews[_currentBufferIndex].offset = 0;
+  _storageBuffer.buffer.bufferViews[_currentBufferIndex].offset = 0;
 
   _currentBufferIndex = (_currentBufferIndex + 1) % NrOfBuffers;
 }

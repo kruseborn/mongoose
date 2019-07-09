@@ -108,7 +108,7 @@ void changeAlienDirectionIfNeeded(Aliens *aliens, MinMax minMax, Limits limits, 
   const auto ydir = AlienYDirs[aliens->dirIndex];
 
   aliens->currentDistanceMoveInY += ydir * aliens->speed * dt;
-  const bool changeToXDir = ydir && uint32_t(aliens->currentDistanceMoveInY >= limits.down);
+  const bool changeToXDir = ydir && uint32_t(std::abs(aliens->currentDistanceMoveInY) >= limits.down);
 
   const bool outsideLeft = minMax.xmin <= limits.left;
   const bool outsideRight = minMax.xmax >= limits.right;

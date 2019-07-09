@@ -15,17 +15,19 @@ struct Invaders {
 };
 
 struct Settings {
-  float playerSize = 32.0f;
-  float alienSize = 32.0f;
-  float playerSpeed = 100.0f;
-  float playerBulletSpeed = 50.0f;
-  float playerFireColdDown = 1.0f;
+  float playerSize = 20.0f;
+  float alienSize = 20.0f;
+  float alienBulletSize = 10.0f;
+  float playerBulletSize = 10.0f;
+  float playerSpeed = 1000.0f;
+  float playerBulletSpeed = 500.0f;
+  float playerFireColdDown = 0.05f;
   uint32_t startHealth = 3;
-  float alienSpeed = 15.0f;
-  float alienBulletSpeed = 10.0f;
-  float cellSize = 32.0f;
-  uint32_t aliensRows = 5;
-  uint32_t aliensCols = 12;
+  float alienSpeed = 150.0f;
+  float alienBulletSpeed = 100.0f;
+  float cellSize = 8.0f;
+  uint32_t aliensRows = ALIEN_ROWS;
+  uint32_t aliensCols = ALIEN_COLS;
 };
 
 struct Device {

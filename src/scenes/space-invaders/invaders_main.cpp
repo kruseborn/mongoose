@@ -5,8 +5,8 @@
 #include <thread>
 
 int main() {
-  mg::initWindow(1500, 1024);
-  Invaders invaders = {};
+  mg::initWindow(800, 600); 
+  Invaders invaders = {}; 
   invadersInit(&invaders);
 
   constexpr float lastFrameMsMin = 16.0f;
@@ -18,7 +18,7 @@ int main() {
 
     {
       const auto frameData = mg::getFrameData();
-      const auto dt = 0.07f;
+      const auto dt = 0.01f;
       invadersSimulate(&invaders, frameData, dt);
       invadersRender(invaders, frameData);
 

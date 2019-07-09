@@ -32,4 +32,10 @@
 #### Isosurface rendering from Volume data
 <img src="images/bug.png" width="512">
 
+#### Space invaders
+Instancing with SSBO, SIMD(avx) for collision detection and translation.
+Collision algorithm: Grid coordinates -> hash map -> linked list in array
+No heap allocation during each frame
+<img src="images/space.png" width="512">
+
 ##### *http://github.com/kruseborn/shader-compiler

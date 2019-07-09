@@ -5,7 +5,6 @@
 #include <vector>
 #include <iostream>
 
-#define STB_IMAGE_IMPLEMENTATION
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <stb_image.h>
 #include <tiny_obj_loader.h>
@@ -236,7 +235,7 @@ ObjMeshes loadObjFromFile(const std::string &filename) {
   }
 
   const auto end = mg::timer::now();
-  printf("Parsing time: %ul [ms]\n", mg::timer::durationInMs(start, end));
+  printf("Parsing time: %llu [ms]\n", mg::timer::durationInMs(start, end));
 
   printf("# of vertices  = %d\n", (int32_t)(attrib.vertices.size()) / 3);
   printf("# of normals   = %d\n", (int32_t)(attrib.normals.size()) / 3);
@@ -259,7 +258,6 @@ ObjMeshes loadObjFromFile(const std::string &filename) {
       if (mp->diffuse_texname.length() > 0) {
         // Only load the texture if it is not already loaded
         if (loadedTextures.find(mp->diffuse_texname) == std::end(loadedTextures)) {
-          uint32_t texture_id;
           int w, h;
           int comp;
 
@@ -310,7 +308,7 @@ ObjMeshes loadObjFromFile(const std::string &filename) {
 
       // Check for smoothing group and compute smoothing normals
       std::map<int, glm::vec3> smoothVertexNormals;
-      if (hasSmoothingGroup(shapes[s]) > 0) {
+      if (hasSmoothingGroup(shapes[s])) {
         printf("Compute smoothingNormal for shape [%d]", s);
         computeSmoothingNormals(attrib, shapes[s], smoothVertexNormals);
       }
@@ -467,7 +465,7 @@ ObjMeshes loadObjFromFile(const std::string &filename) {
         createMeshInfo.nrOfIndices = nrOfIndices;
 
         o.id = mg::mgSystem.meshContainer.createMesh(createMeshInfo);
-        printf("shape[%d] # of triangles = %d\n", static_cast<int>(s), nrOfIndices);
+        printf("shape[%d] # of triangles = %d\n", static_cast<int>(s), static_cast<int>(nrOfIndices));
 
         outputs.binary.write((char *)buffer.data(), mg::sizeofContainerInBytes(buffer));
         outputs.sizes << mg::sizeofContainerInBytes(buffer) << '/';
