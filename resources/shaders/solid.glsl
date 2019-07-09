@@ -4,23 +4,40 @@
 
 layout (set = 0, binding = 0) uniform UBO {
 	mat4 mvp;
-	vec4 color;
 } ubo;
 
 @vert
+
+struct StorageData {
+	vec4 color;
+	vec4 position;
+};
+
+layout(set = 1, binding = 0) readonly buffer Storage {
+     StorageData storageData[];
+} storage;
+
 layout (location = 0) in vec3 in_position;
+layout (location = 0) out vec4 out_color;
 
 out gl_PerVertex {
 	vec4 gl_Position;
 };
 
+
 void main() {
-	gl_Position = ubo.mvp * vec4(in_position, 1.0);
+	vec3 position = in_position;
+	position.xy += storage.storageData[gl_InstanceIndex].position.xy;
+
+	out_color = storage.storageData[gl_InstanceIndex].color;
+	gl_Position = ubo.mvp * vec4(position, 1.0);
 }
 
 @frag
+layout (location = 0) in vec4 in_color;
 layout (location = 0) out vec4 out_frag_color;
 
+
 void main() {
-	out_frag_color = ubo.color;
+	out_frag_color = in_color;
 }

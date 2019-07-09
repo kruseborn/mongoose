@@ -8,7 +8,7 @@
 namespace mg {
 namespace shaders {
 
-enum class Resources { UBO, COMBINED_IMAGE_SAMPLER };
+enum class Resources { UBO, COMBINED_IMAGE_SAMPLER, SSBO };
 struct VertexInputState {
   VkFormat format;
   uint32_t location, offset, binding, size;
@@ -265,7 +265,13 @@ namespace shaderResource {
 namespace solid {
 struct UBO {
   glm::mat4 mvp;
-  glm::vec4 color;
+};
+struct Storage {
+  struct StorageData {
+    glm::vec4 color;
+    glm::vec4 position;
+  };
+  StorageData* storageData = nullptr;
 };
 namespace InputAssembler {
   static VertexInputState vertexInputState[1] = {
@@ -277,14 +283,16 @@ namespace InputAssembler {
 };
 namespace shaderResource {
   static bool hasPushConstant = false;
-  static Resources resources[1] = {
+  static Resources resources[2] = {
     Resources::UBO,
+    Resources::SSBO,
   };
   union DescriptorSets {
     struct {
       VkDescriptorSet ubo;
+      VkDescriptorSet storage;
     };
-    VkDescriptorSet values[1];
+    VkDescriptorSet values[2];
   };
   } // shaderResource
 } //solid
