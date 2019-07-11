@@ -11,7 +11,7 @@ namespace mg {
 static mg::Pipeline createFontPipeline(const mg::RenderContext &renderContext) {
   using namespace mg::shaders::fontRendering;
 
-  const auto pipelineLayout = mg::vkContext.pipelineLayout;
+  const auto pipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
   mg::PipelineStateDesc pipelineStateDesc = {};
   pipelineStateDesc.vkRenderPass = renderContext.renderPass;
   pipelineStateDesc.vkPipelineLayout = mg::getPipelineLayout(shaderResource::resources, mg::countof(shaderResource::resources));

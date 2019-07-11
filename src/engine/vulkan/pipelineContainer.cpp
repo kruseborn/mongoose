@@ -12,22 +12,25 @@
 #include <unordered_map>
 #include <vector>
 
-static std::vector<std::string> shaderNames() {
-  std::vector<std::string> names;
-  names.reserve(20);
+
+static mg::Shaders shaderNames() {
+  mg::Shaders shaders = {};
+  shaders.graphics.reserve(20);
+  shaders.computes.reserve(20);
 
   namespace fs = std::filesystem;
   const auto shaderPath = mg::getShaderPath() + "../";
   for (auto &file : fs::directory_iterator(shaderPath)) {
     const auto path = fs::path(file);
-    auto str = path.extension().generic_string();
-    if (str == ".glsl") {
-      std::string str = path.filename().generic_string();
-      str.resize(str.size() - 5); // remove extension and .
-      names.push_back(str);
-    }
+    if (path.extension().generic_string() == ".comp") {
+      shaders.computes.push_back(path.filename().generic_string());
+    } else if (path.extension().generic_string() == ".glsl") {
+        std::string str = path.filename().generic_string();
+        str.resize(str.size() - 5); // remove extension and .
+        shaders.graphics.push_back(str);
+    } 
   }
-  return names;
+  return shaders;
 }
 
 // Fowler-Noll-Vo_hash_function
@@ -228,15 +231,19 @@ VkPipelineLayout getPipelineLayout(mg::shaders::Resources *resources, uint32_t r
   mgAssert(resourcesCount > 0);
   for (uint32_t i = 0; i < resourcesCount; i++) {
     if (resources[i] == mg::shaders::Resources::SSBO)
-      return mg::vkContext.pipelineStorageLayout;
+      return mg::vkContext.pipelineLayouts.pipelineStorageLayout;
   }
   if (resourcesCount > 3)
-    return mg::vkContext.pipelineLayoutMultiTexture;
+    return mg::vkContext.pipelineLayouts.pipelineLayoutMultiTexture;
   else
-    return mg::vkContext.pipelineLayout;
+    return mg::vkContext.pipelineLayouts.pipelineLayout;
 }
 
-void PipelineContainer::createPipelineContainer() { mg::createShaders(shaderNames()); }
+void PipelineContainer::createPipelineContainer() { 
+  const auto shaders = shaderNames();
+  mg::createShaders(shaders.graphics); 
+  mg::createComputeShaders(shaders.computes);
+}
 
 PipelineContainer::~PipelineContainer() { mgAssert(_idToPipeline.empty()); }
 
@@ -253,7 +260,9 @@ void PipelineContainer::resetPipelineContainer() {
   waitForDeviceIdle();
   _idToPipeline.clear();
   mg::deleteShaders();
-  mg::createShaders(shaderNames());
+  const auto shaders = shaderNames();
+  mg::createShaders(shaders.graphics);
+  mg::createComputeShaders(shaders.computes);
 }
 
 Pipeline PipelineContainer::createPipeline(const PipelineStateDesc &pipelineDesc, const CreatePipelineInfo &createPipelineInfo) {
@@ -286,5 +295,38 @@ Pipeline PipelineContainer::createPipeline(const PipelineStateDesc &pipelineDesc
   return pipeline;
 }
 
-void Pipelines::createAllPipelines() {}
+Pipeline PipelineContainer::createComputePipeline(const ComputePipelineStateDesc &computePipelineStateDesc) {
+  _PipelineDesc _pipelineDesc = {};
+  mgAssert(computePipelineStateDesc.shaderName.size() + 1 < mg::countof(_pipelineDesc.shaderName));
+  strncpy(_pipelineDesc.shaderName, computePipelineStateDesc.shaderName.c_str(), sizeof(_pipelineDesc.shaderName));
+
+  auto startAdress = (const unsigned char *)((&_pipelineDesc));
+  auto hashValue = hashBytes(startAdress, startAdress + sizeof(_pipelineDesc));
+
+  auto it = _idToPipeline.find(hashValue);
+  if (it != std::end(_idToPipeline)) {
+    return it->second;
+  }
+  
+  // create new pipeline
+  const auto shader = mg::getShader(computePipelineStateDesc.shaderName);
+
+  VkPipelineShaderStageCreateInfo shaderStageCreateInfo = {};
+  shaderStageCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+  shaderStageCreateInfo.stage = VK_SHADER_STAGE_COMPUTE_BIT;
+  shaderStageCreateInfo.module = shader.compute.shaderStage.module;
+  shaderStageCreateInfo.pName = "main";
+
+  VkComputePipelineCreateInfo pipelineCreateInfo = {};
+  pipelineCreateInfo.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
+  pipelineCreateInfo.stage = shaderStageCreateInfo;
+  pipelineCreateInfo.layout = computePipelineStateDesc.pipelineLayout;
+
+  Pipeline pipeline = {};
+  pipeline.layout = computePipelineStateDesc.pipelineLayout;
+  checkResult(vkCreateComputePipelines(vkContext.device, VK_NULL_HANDLE, 1, &pipelineCreateInfo, nullptr, &pipeline.pipeline));
+
+  _idToPipeline.emplace(hashValue, pipeline);
+  return pipeline;
+}
 } // namespace mg

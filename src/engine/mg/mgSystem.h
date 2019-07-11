@@ -4,6 +4,7 @@
 #include "mg/meshContainer.h"
 #include "mg/mgUtils.h"
 #include "mg/textureContainer.h"
+#include "mg/storageContainer.h"
 #include "vulkan/imguiOverlay.h"
 #include "vulkan/linearHeapAllocator.h"
 #include "vulkan/pipelineContainer.h"
@@ -18,10 +19,12 @@ struct MgSystem : mg::nonCopyable {
 
   TextureContainer textureContainer;
   MeshContainer meshContainer;
+  StorageContainer storageContainer;
 
   LinearHeapAllocator linearHeapAllocator;
   DeviceMemoryAllocator meshDeviceMemoryAllocator;
   DeviceMemoryAllocator textureDeviceMemoryAllocator;
+  DeviceMemoryAllocator storageDeviceMemoryAllocator;
 
   Fonts fonts;
   Imgui imguiOverlay;

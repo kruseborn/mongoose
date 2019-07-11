@@ -26,6 +26,14 @@ static void createAllocators(MgSystem *system) {
     textureAllocationInfo.useDifferentHeapsForSmallAllocations = false;
     system->textureDeviceMemoryAllocator.create(textureAllocationInfo);
   }
+  {
+    constexpr uint32_t mgTobytes = 1024 * 1024;
+    constexpr uint32_t heapSize = 128 * mgTobytes;
+    CreateDeviceHeapAllocatorInfo storageAllocationInfo = {};
+    storageAllocationInfo.heapSizes = {heapSize, 0, 0, 0};
+    storageAllocationInfo.useDifferentHeapsForSmallAllocations = false;
+    system->storageDeviceMemoryAllocator.create(storageAllocationInfo);
+  }
   system->linearHeapAllocator.create();
 }
 
@@ -33,6 +41,7 @@ static void destroyAllocators(MgSystem *system) {
   LOG("destroyAllocators");
   system->textureDeviceMemoryAllocator.destroy();
   system->meshDeviceMemoryAllocator.destroy();
+  system->storageDeviceMemoryAllocator.destroy();
   system->linearHeapAllocator.destroy();
 }
 
@@ -40,19 +49,20 @@ static void createContainers(MgSystem *system) {
   system->textureContainer.createTextureContainer();
   system->pipelineContainer.createPipelineContainer();
   system->meshContainer.createMeshContainer();
+  system->storageContainer.createStorageContainer();
 }
 
 static void destroyContainers(MgSystem *system) {
   system->textureContainer.destroyTextureContainer();
   system->pipelineContainer.destroyPipelineContainer();
   system->meshContainer.destroyMeshContainer();
+  system->storageContainer.destroyStorageContainer();
 }
 
 void createMgSystem(MgSystem *system) {
   createAllocators(system);
   createContainers(system);
 
-  mgSystem.pipelines.createAllPipelines();
   mgSystem.imguiOverlay.CreateContext();
   system->fonts.init();
 }

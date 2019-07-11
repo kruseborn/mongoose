@@ -262,6 +262,27 @@ namespace shaderResource {
   } // shaderResource
 } //mrt
 
+namespace nbody {
+struct Storage {
+  struct ImageData {
+    glm::vec4 value;
+  };
+  ImageData* imageData = nullptr;
+};
+namespace shaderResource {
+  static bool hasPushConstant = false;
+  static Resources resources[1] = {
+    Resources::SSBO,
+  };
+  union DescriptorSets {
+    struct {
+      VkDescriptorSet storage;
+    };
+    VkDescriptorSet values[1];
+  };
+  } // shaderResource
+} //nbody
+
 namespace solid {
 struct UBO {
   glm::mat4 mvp;

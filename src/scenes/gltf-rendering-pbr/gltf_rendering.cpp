@@ -12,10 +12,9 @@
 void drawGltfMesh(const mg::RenderContext &renderContext, mg::MeshId meshId, const mg::Camera &camera) {
   using namespace mg::shaders::gltf;
 
-  const auto pipelineLayout = mg::vkContext.pipelineLayout;
   mg::PipelineStateDesc pipelineStateDesc = {};
   pipelineStateDesc.vkRenderPass = renderContext.renderPass;
-  pipelineStateDesc.vkPipelineLayout = mg::vkContext.pipelineLayoutMultiTexture;
+  pipelineStateDesc.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayoutMultiTexture;
 
   mg::CreatePipelineInfo createPipelineInfo = {};
   createPipelineInfo.shaderName = "gltf";

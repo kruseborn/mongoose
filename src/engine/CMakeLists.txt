@@ -54,6 +54,8 @@ set(SRC
 	"mg/meshContainer.h"
 	"mg/textureContainer.cpp"
 	"mg/textureContainer.h"
+	"mg/storageContainer.cpp"
+	"mg/storageContainer.h"
 	"mg/geometryUtils.h"
 	"mg/geometryUtils.cpp"
 )

@@ -50,7 +50,7 @@ static mg::Pipeline createImguiPipeline(const RenderContext &renderContext) {
   using namespace mg::shaders;
   using namespace mg;
 
-  const auto pipelineLayout = mg::vkContext.pipelineLayout;
+  const auto pipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
 
   mg::PipelineStateDesc pipelineStateDesc = {};
   pipelineStateDesc.vkRenderPass = renderContext.renderPass;
@@ -88,7 +88,7 @@ static void renderCommandList(const ImguiBuffer &imguiBuffer, const mg::Pipeline
   using VertexInputData = imgui::InputAssembler::VertexInputData;
   using DescriptorSets = imgui::shaderResource::DescriptorSets;
 
-  const auto pipelineLayout = mg::vkContext.pipelineLayout;
+  const auto pipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
 
   float scale[2] = { 2.0f / imDrawData->DisplaySize.x, 2.0f / imDrawData->DisplaySize.y };
   float translate[2] = { translate[0] = -1.0f - imDrawData->DisplayPos.x * scale[0], translate[1] = -1.0f - imDrawData->DisplayPos.y * scale[1] };

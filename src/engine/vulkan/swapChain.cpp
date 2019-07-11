@@ -150,7 +150,7 @@ void SwapChain::createImages() {
   createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
   createInfo.preTransform = surfaceTransform;
   createInfo.imageArrayLayers = 1;
-  createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+  createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE; // buffer is exclusive to a single queue family at a time.
   createInfo.queueFamilyIndexCount = 0;
   createInfo.pQueueFamilyIndices = nullptr;
   createInfo.presentMode = presentMode;

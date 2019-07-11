@@ -9,7 +9,7 @@
 // the range member of each element of pBufferInfo, or the effective range if range is VK_WHOLE_SIZE, must be less than or equal to VkPhysicalDeviceLimits::maxUniformBufferRange' 
 // https://www.khronos.org/registry/vulkan/specs/1.0/html/vkspec.html#VUID-VkWriteDescriptorSet-descriptorType-00332
 static constexpr uint32_t uniformBufferSizeInBytes = 1u << 16; // 64 kb
-static constexpr uint32_t storageBufferSizeInBytes = 1u << 25; // 32 meg
+static constexpr uint32_t storageBufferSizeInBytes = 1u << 18; // 2 meg
 static constexpr uint32_t vertexBufferSizeInBytes = 1u << 25; // 32 meg
 static constexpr uint32_t stagingBufferSizeInBytes = 1u << 27; // 128 meg
 
@@ -26,7 +26,7 @@ static mg::_Buffer _createLinearBuffer(uint32_t bufferSizeInBytes, VkBufferUsage
   vkBufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
   vkBufferCreateInfo.size = bufferSizeInBytes;
   vkBufferCreateInfo.usage = vkBufferUsageFlags;
-  vkBufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+  vkBufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE; // buffer is exclusive to a single queue family at a time.
 
   for(uint32_t i = 0; i < NrOfBuffers; i++) {
     checkResult(vkCreateBuffer(mg::vkContext.device, &vkBufferCreateInfo, nullptr, &buffer.bufferViews[i].vkBuffer));
@@ -111,8 +111,7 @@ static _StorageBuffer createStorageBuffers(VkDeviceSize bufferSizeInBytes, VkMem
   VkDescriptorSetAllocateInfo vkDescriptorSetAllocateInfo = {};
   vkDescriptorSetAllocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
   vkDescriptorSetAllocateInfo.descriptorPool = mg::vkContext.descriptorPool;
-  vkDescriptorSetAllocateInfo.descriptorSetCount = NrOfBuffers;
-  vkDescriptorSetAllocateInfo.pSetLayouts = &mg::vkContext.descriptorSetLayout.storage;
+  vkDescriptorSetAllocateInfo.pSetLayouts = &mg::vkContext.descriptorSetLayout.storageDynamic;
   vkDescriptorSetAllocateInfo.descriptorSetCount = 1;
 
   for (uint32_t i = 0; i < NrOfBuffers; i++) {
@@ -201,7 +200,7 @@ void* LinearHeapAllocator::allocateLargeStaging(VkDeviceSize sizeInBytes, VkComm
   vkBufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
   vkBufferCreateInfo.size = sizeInBytes;
   vkBufferCreateInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
-  vkBufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+  vkBufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE; // buffer is exclusive to a single queue family at a time.
 
   checkResult(vkCreateBuffer(mg::vkContext.device, &vkBufferCreateInfo, nullptr, &allocation->buffer));
 

@@ -9,7 +9,6 @@
 static mg::Pipeline createFrontAndBackPipeline(const mg::RenderContext &renderContext) {
   using namespace mg::shaders::frontAndBack;
 
-  const auto pipelineLayout = mg::vkContext.pipelineLayout;
   mg::PipelineStateDesc pipelineStateDesc = {};
   pipelineStateDesc.vkRenderPass = renderContext.renderPass;
   pipelineStateDesc.vkPipelineLayout = mg::getPipelineLayout(shaderResource::resources, mg::countof(shaderResource::resources));
@@ -71,7 +70,7 @@ void drawFrontAndBack(const mg::RenderContext &renderContext, const VolumeInfo &
 static mg::Pipeline createVolumePipeline(const mg::RenderContext &renderContext) {
   using namespace mg::shaders::volume;
 
-  const auto pipelineLayout = mg::vkContext.pipelineLayout;
+  const auto pipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
   mg::PipelineStateDesc pipelineStateDesc = {};
   pipelineStateDesc.vkRenderPass = renderContext.renderPass;
   pipelineStateDesc.vkPipelineLayout = mg::getPipelineLayout(shaderResource::resources, mg::countof(shaderResource::resources));
@@ -132,7 +131,7 @@ void drawVolume(const mg::RenderContext &renderContext, const mg::Camera &camera
 static mg::Pipeline createDenoisePipeline(const mg::RenderContext &renderContext) {
   using namespace mg::shaders::denoise;
 
-  const auto pipelineLayout = mg::vkContext.pipelineLayout;
+  const auto pipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
   mg::PipelineStateDesc pipelineStateDesc = {};
   pipelineStateDesc.vkRenderPass = renderContext.renderPass;
   pipelineStateDesc.vkPipelineLayout = mg::getPipelineLayout(shaderResource::resources, mg::countof(shaderResource::resources));

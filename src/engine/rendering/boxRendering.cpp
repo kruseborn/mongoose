@@ -91,7 +91,7 @@ void renderSolidBoxes(const mg::RenderContext &renderContext, const float *xPosi
 static mg::Pipeline createTextureRenderingPipeline(const mg::RenderContext &renderContext) {
   using namespace mg::shaders::textureRendering;
 
-  const auto pipelineLayout = mg::vkContext.pipelineLayout;
+  const auto pipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
   mg::PipelineStateDesc pipelineStateDesc = {};
   pipelineStateDesc.vkRenderPass = renderContext.renderPass;
   pipelineStateDesc.vkPipelineLayout = mg::getPipelineLayout(shaderResource::resources, mg::countof(shaderResource::resources));
@@ -156,7 +156,7 @@ void renderBoxWithTexture(mg::RenderContext &renderContext, const glm::vec4 &pos
 static mg::Pipeline createDepthTextureRenderingPipeline(const mg::RenderContext &renderContext) {
   using namespace mg::shaders::depth;
 
-  const auto pipelineLayout = mg::vkContext.pipelineLayout;
+  const auto pipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
   mg::PipelineStateDesc pipelineStateDesc = {};
   pipelineStateDesc.vkRenderPass = renderContext.renderPass;
   pipelineStateDesc.vkPipelineLayout = mg::getPipelineLayout(shaderResource::resources, mg::countof(shaderResource::resources));
