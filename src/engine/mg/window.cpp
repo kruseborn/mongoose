@@ -73,6 +73,8 @@ FrameData getFrameData() {
   frameData.dt = frameData.dt * 0.99 + 0.01 * newDt;
   prevTime = getCurrentTimeUs();
   const auto newFps = frames / ((currentTime - startTime) / 1000000.0);
+  if (frameData.fps == 0)
+    frameData.fps = newFps;
   frameData.fps = frameData.fps * 0.9 + 0.1 * newFps;
 
   int32_t width, height;

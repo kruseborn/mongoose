@@ -33,11 +33,11 @@ void main() {
     textCoord.y = 1.0-textCoord.y;
 	vec4 textureColor = texture(imageSampler, textCoord);
 
-    vec3 hdrColor = textureColor.rgb;
-    vec3 mapped = hdrColor / (hdrColor + vec3(1.0));
+    vec4 hdrColor = textureColor.rgba;
+    vec4 mapped = hdrColor / (hdrColor + vec4(1.0));
     
     const float gamma = 2.2;
-    mapped = pow(mapped, vec3(1.0 / gamma));
+    mapped = pow(mapped, vec4(1.0 / gamma));
   
-    outFragColor = vec4(mapped, 1.0);
+    outFragColor = vec4(mapped);
 }

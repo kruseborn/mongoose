@@ -101,9 +101,10 @@ void renderParticels(mg::RenderContext &renderContext, const ComputeData &comput
   pipelineStateDesc.vkRenderPass = renderContext.renderPass;
   pipelineStateDesc.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
   pipelineStateDesc.inputAssemblyState.topology = VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
-  pipelineStateDesc.blend.alphaBlendOp = VK_BLEND_OP_ADD;
-  pipelineStateDesc.blend.srcAlphaBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA ;
-  pipelineStateDesc.blend.dstAlphaBlendFactor = VK_BLEND_FACTOR_DST_ALPHA;
+  pipelineStateDesc.blend.colorBlendOp = VK_BLEND_OP_ADD;
+  pipelineStateDesc.blend.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
+  pipelineStateDesc.blend.dstColorBlendFactor = VK_BLEND_FACTOR_ONE;
+
   pipelineStateDesc.depth.TestEnable = VK_FALSE;
   pipelineStateDesc.depth.writeEnable = VK_FALSE;
 
