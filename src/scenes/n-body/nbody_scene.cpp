@@ -22,7 +22,7 @@ void initScene() {
   initNBodyRenderPass(&nbodyRenderPass);
 
   mg::uploadPngImage("particle2.png");
-  camera = mg::create3DCamera(glm::vec3{0.0f, 0.0f, -14.0f}, glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f});
+  camera = mg::create3DCamera(glm::vec3{0.0f, 0.0f, -5.0f}, glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f});
 
   initParticles(&computeData);
 }

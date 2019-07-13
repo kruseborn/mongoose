@@ -7,11 +7,11 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 static void transformVelocities(const ComputeData &computeData, const mg::FrameData &frameData) {
-  using namespace mg::shaders::nbody;
+  using namespace mg::shaders::simulate_velocities;
 
   mg::ComputePipelineStateDesc computePipelineStateDesc = {};
   computePipelineStateDesc.pipelineLayout = mg::vkContext.pipelineLayouts.pipelineComputeLayout;
-  computePipelineStateDesc.shaderName = "nbody.comp";
+  computePipelineStateDesc.shaderName = "simulate_velocities.comp";
 
   const auto pipeline = mg::mgSystem.pipelineContainer.createComputePipeline(computePipelineStateDesc);
 
@@ -23,8 +23,7 @@ static void transformVelocities(const ComputeData &computeData, const mg::FrameD
   uint32_t uniformOffset;
   VkDescriptorSet uboSet;
   Ubo *ubo = (Ubo *)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
-  ubo->particleCount = computeData.nrOfParticles;
-  ubo->deltaT = 0.001;
+  ubo->dt = frameData.dt;
 
   DescriptorSets descriptorSets = {};
   descriptorSets.ubo = uboSet;
@@ -49,11 +48,11 @@ static void transformVelocities(const ComputeData &computeData, const mg::FrameD
 }
 
 void transformPositions(const ComputeData &computeData, const mg::FrameData &frameData) {
-  using namespace mg::shaders::simulate_particles;
+  using namespace mg::shaders::simulate_positions;
 
   mg::ComputePipelineStateDesc computePipelineStateDesc = {};
   computePipelineStateDesc.pipelineLayout = mg::vkContext.pipelineLayouts.pipelineComputeLayout;
-  computePipelineStateDesc.shaderName = "simulate_particles.comp";
+  computePipelineStateDesc.shaderName = "simulate_positions.comp";
 
   const auto pipeline = mg::mgSystem.pipelineContainer.createComputePipeline(computePipelineStateDesc);
 
@@ -65,8 +64,7 @@ void transformPositions(const ComputeData &computeData, const mg::FrameData &fra
   uint32_t uniformOffset;
   VkDescriptorSet uboSet;
   Ubo *ubo = (Ubo *)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
-  ubo->particleCount = computeData.nrOfParticles;
-  ubo->deltaT = frameData.dt;
+  ubo->dt = frameData.dt;
 
   DescriptorSets descriptorSets = {};
   descriptorSets.ubo = uboSet;

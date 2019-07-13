@@ -57,7 +57,7 @@ struct _PipelineDesc {
   _PipelineDesc &operator=(const _PipelineDesc &other);
 
   PipelineStateDesc state;
-  char shaderName[25];
+  char shaderName[30];
   mg::shaders::VertexInputState vertexInputState[10];
   uint32_t vertexInputStateCount;
 };

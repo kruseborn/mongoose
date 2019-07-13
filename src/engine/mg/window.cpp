@@ -69,7 +69,7 @@ FrameData getFrameData() {
   frames++;
 
   currentTime = getCurrentTimeUs();
-  const auto newDt = (currentTime - prevTime) / 1000000.0f;
+  const auto newDt = (currentTime - prevTime) / 100000.0f;
   frameData.dt = frameData.dt * 0.99 + 0.01 * newDt;
   prevTime = getCurrentTimeUs();
   const auto newFps = frames / ((currentTime - startTime) / 1000000.0);

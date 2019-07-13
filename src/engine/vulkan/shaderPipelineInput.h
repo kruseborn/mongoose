@@ -264,8 +264,7 @@ namespace shaderResource {
 
 namespace nbody {
 struct UBO {
-  float deltaT;
-  int32_t particleCount;
+  float dt;
 };
 struct Storage {
   struct Particle {
@@ -322,10 +321,36 @@ namespace shaderResource {
   } // shaderResource
 } //particle
 
+namespace simulateVelocities {
+struct UBO {
+  float dt;
+};
+struct Storage {
+  struct Particle {
+    glm::vec4 position;
+    glm::vec4 velocity;
+  };
+  Particle* particles = nullptr;
+};
+namespace shaderResource {
+  static bool hasPushConstant = false;
+  static Resources resources[2] = {
+    Resources::UBO,
+    Resources::SSBO,
+  };
+  union DescriptorSets {
+    struct {
+      VkDescriptorSet ubo;
+      VkDescriptorSet storage;
+    };
+    VkDescriptorSet values[2];
+  };
+  } // shaderResource
+} //simulateVelocities
+
 namespace simulate_particles {
 struct UBO {
-  float deltaT;
-  int32_t particleCount;
+  float dt;
 };
 struct Storage {
   struct Particle {
@@ -349,6 +374,60 @@ namespace shaderResource {
   };
   } // shaderResource
 } //simulate_particles
+
+namespace simulate_positions {
+struct UBO {
+  float dt;
+};
+struct Storage {
+  struct Particle {
+    glm::vec4 position;
+    glm::vec4 velocity;
+  };
+  Particle* particles = nullptr;
+};
+namespace shaderResource {
+  static bool hasPushConstant = false;
+  static Resources resources[2] = {
+    Resources::UBO,
+    Resources::SSBO,
+  };
+  union DescriptorSets {
+    struct {
+      VkDescriptorSet ubo;
+      VkDescriptorSet storage;
+    };
+    VkDescriptorSet values[2];
+  };
+  } // shaderResource
+} //simulate_positions
+
+namespace simulate_velocities {
+struct UBO {
+  float dt;
+};
+struct Storage {
+  struct Particle {
+    glm::vec4 position;
+    glm::vec4 velocity;
+  };
+  Particle* particles = nullptr;
+};
+namespace shaderResource {
+  static bool hasPushConstant = false;
+  static Resources resources[2] = {
+    Resources::UBO,
+    Resources::SSBO,
+  };
+  union DescriptorSets {
+    struct {
+      VkDescriptorSet ubo;
+      VkDescriptorSet storage;
+    };
+    VkDescriptorSet values[2];
+  };
+  } // shaderResource
+} //simulate_velocities
 
 namespace solid {
 struct UBO {

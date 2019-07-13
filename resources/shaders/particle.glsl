@@ -22,15 +22,9 @@ out gl_PerVertex {
 
 
 void main ()  {
-	const float spriteSize = 0.005 * in_position.w; // Point size influenced by mass (stored in in_position.w);
-
-	vec4 eyePosition = ubo.modelview * vec4(in_position.xyz, 1.0); 
-	vec4 projectedCorner = ubo.projection * vec4(0.5 * spriteSize, 0.5 * spriteSize, eyePosition.z, eyePosition.w);
-	gl_PointSize = clamp(ubo.screendim.x * projectedCorner.x / projectedCorner.w, 1.0, 128.0);
-	
-	gl_Position = ubo.projection * eyePosition;
-
-	outGradient = in_velocity.w;
+	vec4 viewspacePosition = ubo.modelview * vec4(in_position.xyz, 1.0);
+	gl_Position = ubo.projection * viewspacePosition;
+	gl_PointSize = 50* pow(in_position.w, 1) / length(viewspacePosition);
 }
 
 @frag
