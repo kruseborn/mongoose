@@ -13,22 +13,9 @@ layout(set = 1, binding = 0) buffer Storage {
    Particle particles[];
 } storage;
 
-layout (constant_id = 1) const float GRAVITY = 0.002;
-layout (constant_id = 2) const float POWER = 0.75;
-layout (constant_id = 3) const float SOFTEN = 0.0075;
-
 #define localGroupSize 256
 shared vec4 sharedData[localGroupSize];
 layout (local_size_x = localGroupSize) in;
-
-const float    gravity_constant  = 0.001;
-const float    softening_squared = 0.005;
-const float    power             = 1.5;
-
-vec3 bodyBodyInteraction(vec3 r, float m_j)
-{       
-    return gravity_constant * r * m_j / pow(dot(r,r) + softening_squared, power);
-} 
 
 void main() {
 	const uint index = gl_GlobalInvocationID.x;
@@ -44,20 +31,17 @@ void main() {
 		barrier();
 
 		for (uint j = 0; j < gl_WorkGroupSize.x; j++) {
-      // vec4 otherParticle = sharedData[j];
+      vec4 otherParticle = sharedData[j];
 
-      // vec3 r =  otherParticle.xyz - position.xyz;
-      // float distSqr = dot(r,r); // Softening factor;
-      // distSqr = pow(distSqr, 0.75);
-
-      // float s = otherParticle.w * 1.0 / distSqr;
-			// acceleration.xyz +=  r * s;
-			vec4 body = sharedData[j];
-			acceleration.xyz += bodyBodyInteraction(body.xyz - position.xyz, body.w);
-
+      vec3 r =  otherParticle.xyz - position.xyz;
+      float distSqr = dot(r,r) + 0.005; // Softening factor;
+      distSqr = pow(distSqr, 1.5); // ^1/3
+      float s = otherParticle.w / distSqr;
+			acceleration.xyz +=  r * s;
 		}
 		memoryBarrierShared();
 		barrier();
 	}
-	storage.particles[index].velocity.xyz += acceleration * ubo.dt;
+	// G = 0.001
+	storage.particles[index].velocity.xyz += 0.001 * acceleration * ubo.dt;
 }

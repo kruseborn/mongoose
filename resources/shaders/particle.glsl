@@ -24,7 +24,7 @@ out gl_PerVertex {
 void main ()  {
 	vec4 viewspacePosition = ubo.modelview * vec4(in_position.xyz, 1.0);
 	gl_Position = ubo.projection * viewspacePosition;
-	gl_PointSize = 50* pow(in_position.w, 1) / length(viewspacePosition);
+	gl_PointSize =  16*in_position.w / length(viewspacePosition);
 }
 
 @frag
@@ -35,6 +35,6 @@ layout (set = 1, binding = 0) uniform sampler2D particleTexture;
 
 void main () {
 	vec4 particleColor = texture(particleTexture, gl_PointCoord);
-	particleColor.xyz *= vec3(0.0,0.6,0.9);
+	particleColor.xyz *= vec3(0.0,0.4,0.9);
 	outFragColor = particleColor;
 }
