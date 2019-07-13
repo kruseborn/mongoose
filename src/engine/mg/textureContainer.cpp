@@ -227,7 +227,7 @@ void TextureContainer::createTexture(const CreateTextureInfo &textureInfo) {
   imageCreateInfo.samples = VK_SAMPLE_COUNT_1_BIT;
   imageCreateInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
   imageCreateInfo.usage = imageInfo.vkImageUsageFlags;
-  imageCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+  imageCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE; // // buffer is exclusive to a single queue family at a time.
   imageCreateInfo.initialLayout = imageInfo.vkImageLayout;
   checkResult(vkCreateImage(mg::vkContext.device, &imageCreateInfo, nullptr, &texture.image));
 

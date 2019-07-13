@@ -235,28 +235,21 @@ static void findPhysicalDevice() {
 }
 
 static void createLogicalDevice() {
-  // Greate one graphics queue and optionally a separate presentation queue
+  // use same queue for graphic, present and compute
   float queuePriority = 1.0f;
 
-  VkDeviceQueueCreateInfo queueCreateInfo[2] = {};
+  VkDeviceQueueCreateInfo queueCreateInfo = {};
 
-  queueCreateInfo[0].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-  queueCreateInfo[0].queueFamilyIndex = mg::vkContext.graphicsQueueFamilyIndex;
-  queueCreateInfo[0].queueCount = 1;
-  queueCreateInfo[0].pQueuePriorities = &queuePriority;
-
-  queueCreateInfo[0].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-  queueCreateInfo[0].queueFamilyIndex = mg::vkContext.presentQueueFamilyIndex;
-  queueCreateInfo[0].queueCount = 1;
-  queueCreateInfo[0].pQueuePriorities = &queuePriority;
+  queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+  queueCreateInfo.queueFamilyIndex = mg::vkContext.queueFamilyIndex;
+  queueCreateInfo.queueCount = 1;
+  queueCreateInfo.pQueuePriorities = &queuePriority;
 
   // Create logical device from physical device
   // Note: there are separate instance and device extensions!
   VkDeviceCreateInfo deviceCreateInfo = {};
   deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-  deviceCreateInfo.pQueueCreateInfos = queueCreateInfo;
-
-  mgAssert(mg::vkContext.graphicsQueueFamilyIndex == mg::vkContext.presentQueueFamilyIndex);
+  deviceCreateInfo.pQueueCreateInfos = &queueCreateInfo;
   deviceCreateInfo.queueCreateInfoCount = 1;
 
   // Check for extensions
@@ -305,8 +298,7 @@ static void createLogicalDevice() {
   deviceCreateInfo.pEnabledFeatures = &enabledFeatures;
   checkResult(vkCreateDevice(mg::vkContext.physicalDevice, &deviceCreateInfo, nullptr, &mg::vkContext.device));
 
-  // Get graphics and presentation queues (which may be the same)
-  vkGetDeviceQueue(mg::vkContext.device, mg::vkContext.graphicsQueueFamilyIndex, 0, &mg::vkContext.queue);
+  vkGetDeviceQueue(mg::vkContext.device, mg::vkContext.queueFamilyIndex, 0, &mg::vkContext.queue);
   vkGetPhysicalDeviceMemoryProperties(mg::vkContext.physicalDevice, &mg::vkContext.physicalDeviceMemoryProperties);
 }
 
@@ -319,31 +311,19 @@ static void findQueueFamilies() {
   std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
   vkGetPhysicalDeviceQueueFamilyProperties(mg::vkContext.physicalDevice, &queueFamilyCount, queueFamilies.data());
 
-  bool foundGraphicsQueueFamily = false;
-  bool foundPresentQueueFamily = false;
-
-  for (uint32_t i = 0; i < queueFamilyCount; i++) {
+  uint32_t i = 0;
+  for (; i < queueFamilyCount; i++) {
     VkBool32 presentSupport;
 
     vkGetPhysicalDeviceSurfaceSupportKHR(mg::vkContext.physicalDevice, i, mg::vkContext.windowSurface, &presentSupport);
 
-    if (queueFamilies[i].queueCount > 0 && queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
-      mg::vkContext.graphicsQueueFamilyIndex = i;
-      foundGraphicsQueueFamily = true;
-
-      if (presentSupport) {
-        mg::vkContext.presentQueueFamilyIndex = i;
-        foundPresentQueueFamily = true;
-        break;
-      }
-    }
-
-    if (!foundPresentQueueFamily && presentSupport) {
-      mg::vkContext.presentQueueFamilyIndex = i;
-      foundPresentQueueFamily = true;
+    if (presentSupport && queueFamilies[i].queueCount > 0 && queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT &&
+        queueFamilies[i].queueFlags & VK_QUEUE_COMPUTE_BIT) {
+      mg::vkContext.queueFamilyIndex = i;
+      break;
     }
   }
-  mgAssert(foundGraphicsQueueFamily && foundPresentQueueFamily);
+  mgAssert(i != queueFamilyCount);
 }
 
 static VkFormat getSupportedDepthFormat() {

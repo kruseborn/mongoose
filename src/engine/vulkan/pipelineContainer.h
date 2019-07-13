@@ -43,6 +43,11 @@ struct PipelineStateDesc {
   } graphics;
 };
 
+struct ComputePipelineStateDesc {
+  std::string shaderName;
+  VkPipelineLayout pipelineLayout;
+};
+
 struct Pipeline {
   VkPipeline pipeline;
   VkPipelineLayout layout;
@@ -62,6 +67,7 @@ public:
   void resetPipelineContainer();
 
   Pipeline createPipeline(const PipelineStateDesc &pipelineDesc, const CreatePipelineInfo &createPipelineInfo);
+  Pipeline createComputePipeline(const ComputePipelineStateDesc &computePipelineStateDesc);
   ~PipelineContainer();
 
 private:
@@ -69,8 +75,6 @@ private:
 };
 
 struct Pipelines {
-  void createAllPipelines();
-
   struct {
     Pipeline frontAndBack;
     Pipeline volume;

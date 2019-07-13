@@ -1,14 +1,15 @@
 #pragma once
 #include <string>
 
+#include "mg/fonts.h"
 #include "mg/meshContainer.h"
 #include "mg/mgUtils.h"
+#include "mg/storageContainer.h"
 #include "mg/textureContainer.h"
 #include "vulkan/imguiOverlay.h"
 #include "vulkan/linearHeapAllocator.h"
 #include "vulkan/pipelineContainer.h"
 #include "vulkan/singleRenderpass.h"
-#include "mg/fonts.h"
 
 namespace mg {
 
@@ -18,10 +19,12 @@ struct MgSystem : mg::nonCopyable {
 
   TextureContainer textureContainer;
   MeshContainer meshContainer;
+  StorageContainer storageContainer;
 
   LinearHeapAllocator linearHeapAllocator;
   DeviceMemoryAllocator meshDeviceMemoryAllocator;
   DeviceMemoryAllocator textureDeviceMemoryAllocator;
+  DeviceMemoryAllocator storageDeviceMemoryAllocator;
 
   Fonts fonts;
   Imgui imguiOverlay;
@@ -39,6 +42,7 @@ inline Texture getTexture(const std::string &id, mg::TEXTURE_SAMPLER sampler = m
 
 inline void removeTexture(const std::string &id) { mgSystem.textureContainer.removeTexture(id); }
 inline Mesh getMesh(mg::MeshId meshId) { return mgSystem.meshContainer.getMesh(meshId); }
+inline StorageData getStorage(mg::StorageId storageId) { return mgSystem.storageContainer.getStorage(storageId); }
 inline void addImguiLog(const char *str) { mgSystem.imguiOverlay.addLog(str); }
 
 } // namespace mg

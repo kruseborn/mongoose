@@ -1,0 +1,26 @@
+mg_cc_executable(
+    NAME
+        nbody-rendering
+    SRCS
+        nbody_scene.h
+        nbody_scene.cpp
+        nbody_rendering.h
+        nbody_rendering.cpp
+        nbody_main.cpp
+        nbody_utils.h
+        nbody_utils.cpp
+		nbody_renderpass.h
+		nbody_renderpass.cpp
+    COPTS
+        ${CPP_FLAGS}
+    DEPS
+        glm
+        mg-engine
+        ${VULKAN_LIB}
+        ${PLATFORM_LIB}
+    DEPS_DIR
+        "$ENV{VULKAN_SDK}/include"
+    DEFS
+        GLM_FORCE_DEPTH_ZERO_TO_ONE
+        GLM_FORCE_LEFT_HANDED
+)

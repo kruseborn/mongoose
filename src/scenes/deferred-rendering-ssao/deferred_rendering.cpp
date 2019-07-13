@@ -14,7 +14,7 @@
 static mg::Pipeline createMRTPipeline(const mg::RenderContext &renderContext) {
   using namespace mg::shaders::mrt;
 
-  const auto pipelineLayout = mg::vkContext.pipelineLayout;
+  const auto pipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
   mg::PipelineStateDesc pipelineStateDesc = {};
   pipelineStateDesc.vkRenderPass = renderContext.renderPass;
   pipelineStateDesc.vkPipelineLayout = mg::getPipelineLayout(shaderResource::resources, mg::countof(shaderResource::resources));
@@ -74,7 +74,7 @@ void renderMRT(const mg::RenderContext &renderContext, const mg::ObjMeshes &objM
 static mg::Pipeline createSSAOPipeline(const mg::RenderContext &renderContext) {
   using namespace mg::shaders::ssao;
 
-  const auto pipelineLayout = mg::vkContext.pipelineLayout;
+  const auto pipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
   mg::PipelineStateDesc pipelineStateDesc = {};
   pipelineStateDesc.vkRenderPass = renderContext.renderPass;
   pipelineStateDesc.vkPipelineLayout = mg::getPipelineLayout(shaderResource::resources, mg::countof(shaderResource::resources));
@@ -126,7 +126,7 @@ void renderSSAO(const mg::RenderContext &renderContext) {
 static mg::Pipeline createSSAOBlurPipeline(const mg::RenderContext &renderContext) {
   using namespace mg::shaders::ssaoBlur;
 
-  const auto pipelineLayout = mg::vkContext.pipelineLayout;
+  const auto pipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
   mg::PipelineStateDesc pipelineStateDesc = {};
   pipelineStateDesc.vkRenderPass = renderContext.renderPass;
   pipelineStateDesc.vkPipelineLayout = mg::getPipelineLayout(shaderResource::resources, mg::countof(shaderResource::resources));
@@ -169,7 +169,7 @@ void renderBlurSSAO(const mg::RenderContext &renderContext) {
 static mg::Pipeline createFinalDeferred(const mg::RenderContext &renderContext) {
   using namespace mg::shaders::final;
 
-  const auto pipelineLayout = mg::vkContext.pipelineLayout;
+  const auto pipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
   mg::PipelineStateDesc pipelineStateDesc = {};
   pipelineStateDesc.vkRenderPass = renderContext.renderPass;
   pipelineStateDesc.vkPipelineLayout = mg::getPipelineLayout(shaderResource::resources, mg::countof(shaderResource::resources));

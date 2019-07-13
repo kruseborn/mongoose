@@ -2,6 +2,7 @@
 #include "mg/mgSystem.h"
 #include "mg/mgUtils.h"
 #include "vkContext.h"
+#include <lodepng.h>
 
 namespace mg {
 
@@ -132,5 +133,22 @@ void endRendering() {
 
   vkContext.commandBuffers.submitted[commandBufferIndex] = true;
   vkContext.commandBuffers.currentIndex = (vkContext.commandBuffers.currentIndex + 1) % vkContext.commandBuffers.nrOfBuffers;
+}
+
+void uploadPngImage(const std::string &name) {
+  std::vector<unsigned char> imageData;
+  uint32_t width, height;
+  const auto error = lodepng::decode(imageData, width, height, getTexturePath() + name);
+  mgAssertDesc(error == 0, "decoder error " << error << ": " << lodepng_error_text(error));
+
+  mg::CreateTextureInfo createTextureInfo = {};
+  createTextureInfo.data = imageData.data();
+  createTextureInfo.format = VK_FORMAT_R8G8B8A8_UNORM;
+  createTextureInfo.id = name;
+  createTextureInfo.size = {width, height, 1};
+  createTextureInfo.sizeInBytes = mg::sizeofContainerInBytes(imageData);
+  createTextureInfo.type = mg::TEXTURE_TYPE::TEXTURE_2D;
+  createTextureInfo.textureSamplers = {mg::TEXTURE_SAMPLER::LINEAR_CLAMP_TO_EDGE};
+  mg::mgSystem.textureContainer.createTexture(createTextureInfo);
 }
 } // namespace mg

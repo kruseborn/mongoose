@@ -14,7 +14,8 @@ if not exist %buildDir% (
 
 @echo off
 if not -%1-==-- glsl-compiler.exe %1
-if -%1-==-- for %%f in (*.glsl) do glsl-compiler.exe %%~nf	
+if -%1-==-- for %%f in (*.glsl) do glsl-compiler.exe %%f	
+if -%1-==-- for %%f in (*.comp) do glsl-compiler.exe %%f	
 
 @echo on
 

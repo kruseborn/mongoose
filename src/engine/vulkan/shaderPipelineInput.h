@@ -262,6 +262,173 @@ namespace shaderResource {
   } // shaderResource
 } //mrt
 
+namespace nbody {
+struct UBO {
+  float dt;
+};
+struct Storage {
+  struct Particle {
+    glm::vec4 position;
+    glm::vec4 velocity;
+  };
+  Particle* particles = nullptr;
+};
+namespace shaderResource {
+  static bool hasPushConstant = false;
+  static Resources resources[2] = {
+    Resources::UBO,
+    Resources::SSBO,
+  };
+  union DescriptorSets {
+    struct {
+      VkDescriptorSet ubo;
+      VkDescriptorSet storage;
+    };
+    VkDescriptorSet values[2];
+  };
+  } // shaderResource
+} //nbody
+
+namespace particle {
+struct UBO {
+  glm::mat4 projection;
+  glm::mat4 modelview;
+  glm::vec2 screendim;
+};
+namespace InputAssembler {
+  static VertexInputState vertexInputState[2] = {
+    { VK_FORMAT_R32G32B32A32_SFLOAT, 0, 0, 0, 16 },
+    { VK_FORMAT_R32G32B32A32_SFLOAT, 1, 16, 0, 16 },
+  };
+  struct VertexInputData {
+    glm::vec4 in_position;
+    glm::vec4 in_velocity;
+  };
+};
+namespace shaderResource {
+  static bool hasPushConstant = false;
+  static Resources resources[2] = {
+    Resources::UBO,
+    Resources::COMBINED_IMAGE_SAMPLER,
+  };
+  union DescriptorSets {
+    struct {
+      VkDescriptorSet ubo;
+      VkDescriptorSet particleTexture;
+    };
+    VkDescriptorSet values[2];
+  };
+  } // shaderResource
+} //particle
+
+namespace simulateVelocities {
+struct UBO {
+  float dt;
+};
+struct Storage {
+  struct Particle {
+    glm::vec4 position;
+    glm::vec4 velocity;
+  };
+  Particle* particles = nullptr;
+};
+namespace shaderResource {
+  static bool hasPushConstant = false;
+  static Resources resources[2] = {
+    Resources::UBO,
+    Resources::SSBO,
+  };
+  union DescriptorSets {
+    struct {
+      VkDescriptorSet ubo;
+      VkDescriptorSet storage;
+    };
+    VkDescriptorSet values[2];
+  };
+  } // shaderResource
+} //simulateVelocities
+
+namespace simulate_particles {
+struct UBO {
+  float dt;
+};
+struct Storage {
+  struct Particle {
+    glm::vec4 position;
+    glm::vec4 velocity;
+  };
+  Particle* particles = nullptr;
+};
+namespace shaderResource {
+  static bool hasPushConstant = false;
+  static Resources resources[2] = {
+    Resources::UBO,
+    Resources::SSBO,
+  };
+  union DescriptorSets {
+    struct {
+      VkDescriptorSet ubo;
+      VkDescriptorSet storage;
+    };
+    VkDescriptorSet values[2];
+  };
+  } // shaderResource
+} //simulate_particles
+
+namespace simulate_positions {
+struct UBO {
+  float dt;
+};
+struct Storage {
+  struct Particle {
+    glm::vec4 position;
+    glm::vec4 velocity;
+  };
+  Particle* particles = nullptr;
+};
+namespace shaderResource {
+  static bool hasPushConstant = false;
+  static Resources resources[2] = {
+    Resources::UBO,
+    Resources::SSBO,
+  };
+  union DescriptorSets {
+    struct {
+      VkDescriptorSet ubo;
+      VkDescriptorSet storage;
+    };
+    VkDescriptorSet values[2];
+  };
+  } // shaderResource
+} //simulate_positions
+
+namespace simulate_velocities {
+struct UBO {
+  float dt;
+};
+struct Storage {
+  struct Particle {
+    glm::vec4 position;
+    glm::vec4 velocity;
+  };
+  Particle* particles = nullptr;
+};
+namespace shaderResource {
+  static bool hasPushConstant = false;
+  static Resources resources[2] = {
+    Resources::UBO,
+    Resources::SSBO,
+  };
+  union DescriptorSets {
+    struct {
+      VkDescriptorSet ubo;
+      VkDescriptorSet storage;
+    };
+    VkDescriptorSet values[2];
+  };
+  } // shaderResource
+} //simulate_velocities
+
 namespace solid {
 struct UBO {
   glm::mat4 mvp;
@@ -370,6 +537,26 @@ namespace shaderResource {
   };
   } // shaderResource
 } //textureRendering
+
+namespace toneMapping {
+struct UBO {
+  glm::vec4 color;
+};
+namespace shaderResource {
+  static bool hasPushConstant = false;
+  static Resources resources[2] = {
+    Resources::UBO,
+    Resources::COMBINED_IMAGE_SAMPLER,
+  };
+  union DescriptorSets {
+    struct {
+      VkDescriptorSet ubo;
+      VkDescriptorSet imageSampler;
+    };
+    VkDescriptorSet values[2];
+  };
+  } // shaderResource
+} //toneMapping
 
 namespace volume {
 struct UBO {

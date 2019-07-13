@@ -23,6 +23,12 @@ glm::vec2 cursorPosition(uint32_t width, uint32_t height) {
   return {xpos / float(width), 1.0f - ypos / float(height)};
 }
 
+static uint64_t getCurrentTimeUs() {
+  auto t0 = std::chrono::high_resolution_clock::now();
+  auto nanosec = t0.time_since_epoch();
+  return std::chrono::duration_cast<std::chrono::microseconds>(nanosec).count();
+}
+
 void initWindow(uint32_t width, uint32_t height) {
   mgAssertDesc(glfwInit(), "could not init glfw");
   glfwSetErrorCallback(glfwErrorCallback);
@@ -56,6 +62,21 @@ float getScreenHeight(){ return vkContext.screen.height; };
 
 FrameData getFrameData() {
   FrameData frameData = {};
+  static auto startTime = getCurrentTimeUs();
+  static auto currentTime = getCurrentTimeUs();
+  static auto prevTime = getCurrentTimeUs();
+  static uint64_t frames = 0;
+  frames++;
+
+  currentTime = getCurrentTimeUs();
+  const auto newDt = (currentTime - prevTime) / 100000.0f;
+  frameData.dt = frameData.dt * 0.99 + 0.01 * newDt;
+  prevTime = getCurrentTimeUs();
+  const auto newFps = frames / ((currentTime - startTime) / 1000000.0);
+  if (frameData.fps == 0)
+    frameData.fps = newFps;
+  frameData.fps = frameData.fps * 0.9 + 0.1 * newFps;
+
   int32_t width, height;
   glfwGetWindowSize(window, &width, &height);
   

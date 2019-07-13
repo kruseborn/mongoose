@@ -68,7 +68,6 @@ static void createRenderPass(VolumeRenderPass *volumeRenderPass) {
   subpassFrontBack.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
   subpassFrontBack.pColorAttachments = frontBackColorAttachments;
   subpassFrontBack.colorAttachmentCount = mg::countof(frontBackColorAttachments);
-  subpassFrontBack.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 
   // subpass 1
   VkAttachmentReference volumeInputAttachments[] = {
@@ -83,7 +82,6 @@ static void createRenderPass(VolumeRenderPass *volumeRenderPass) {
   subpassVolume.pColorAttachments = volumeColorAttachments;
   subpassVolume.inputAttachmentCount = mg::countof(volumeInputAttachments);
   subpassVolume.pInputAttachments = volumeInputAttachments;
-  subpassVolume.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 
   // subpass 2
   VkAttachmentReference denoiseInputAttachments[] = {{VOLUME_ATTACHMENTS::COLOR, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL}};
