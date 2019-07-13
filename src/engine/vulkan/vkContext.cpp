@@ -48,16 +48,16 @@ void destroyVulkan() {
 }
 
 static void createDescriptorLayout() {
-  VkDescriptorSetLayoutBinding uboSamplerLayoutBindings = {};
-  uboSamplerLayoutBindings.binding = 0;
-  uboSamplerLayoutBindings.descriptorCount = 1;
-  uboSamplerLayoutBindings.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
-  uboSamplerLayoutBindings.stageFlags = VK_SHADER_STAGE_ALL_GRAPHICS;
+  VkDescriptorSetLayoutBinding uboSamplerLayoutBindings[1] = {};
+  uboSamplerLayoutBindings[0].binding = 0;
+  uboSamplerLayoutBindings[0].descriptorCount = 1;
+  uboSamplerLayoutBindings[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+  uboSamplerLayoutBindings[0].stageFlags = VK_SHADER_STAGE_ALL;
 
   VkDescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo = {};
   descriptorSetLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-  descriptorSetLayoutCreateInfo.bindingCount = 1;
-  descriptorSetLayoutCreateInfo.pBindings = &uboSamplerLayoutBindings;
+  descriptorSetLayoutCreateInfo.bindingCount = mg::countof(uboSamplerLayoutBindings);
+  descriptorSetLayoutCreateInfo.pBindings = uboSamplerLayoutBindings;
 
   checkResult(vkCreateDescriptorSetLayout(mg::vkContext.device, &descriptorSetLayoutCreateInfo, nullptr,
                                           &mg::vkContext.descriptorSetLayout.ubo));
@@ -88,14 +88,14 @@ static void createDescriptorLayout() {
                                             &mg::vkContext.descriptorSetLayout.storageDynamic));
   }
   {
-     VkDescriptorSetLayoutBinding storageLayout = {};
-    storageLayout.binding = 0;
-    storageLayout.descriptorCount = 1;
-    storageLayout.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-    storageLayout.stageFlags = VK_SHADER_STAGE_ALL;
+    VkDescriptorSetLayoutBinding storageLayout[1] = {};
+    storageLayout[0].binding = 0;
+    storageLayout[0].descriptorCount = 1;
+    storageLayout[0].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+    storageLayout[0].stageFlags = VK_SHADER_STAGE_ALL;
 
-    descriptorSetLayoutCreateInfo.bindingCount = 1;
-    descriptorSetLayoutCreateInfo.pBindings = &storageLayout;
+    descriptorSetLayoutCreateInfo.bindingCount = mg::countof(storageLayout);
+    descriptorSetLayoutCreateInfo.pBindings = storageLayout;
 
     checkResult(vkCreateDescriptorSetLayout(mg::vkContext.device, &descriptorSetLayoutCreateInfo, nullptr,
                                             &mg::vkContext.descriptorSetLayout.storage));
@@ -144,13 +144,13 @@ static void createPipelineLayout() {
   checkResult(vkCreatePipelineLayout(mg::vkContext.device, &layoutCreateInfoStorage, nullptr,
                                      &mg::vkContext.pipelineLayouts.pipelineStorageLayout));
 
-  const uint32_t nrOfDescriptorLayoutsCompute = 1;
-  VkDescriptorSetLayout descriptorSetLayoutCompute[nrOfDescriptorLayoutsCompute] = {
+  VkDescriptorSetLayout descriptorSetLayoutCompute[2] = {
+      mg::vkContext.descriptorSetLayout.ubo,
       mg::vkContext.descriptorSetLayout.storage,
   };
   VkPipelineLayoutCreateInfo layoutCreateInfoCompute = {};
   layoutCreateInfoCompute.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-  layoutCreateInfoCompute.setLayoutCount = nrOfDescriptorLayoutsCompute;
+  layoutCreateInfoCompute.setLayoutCount = mg::countof(descriptorSetLayoutCompute);
   layoutCreateInfoCompute.pSetLayouts = descriptorSetLayoutCompute;
 
   checkResult(vkCreatePipelineLayout(mg::vkContext.device, &layoutCreateInfoCompute, nullptr,

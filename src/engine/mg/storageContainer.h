@@ -25,7 +25,8 @@ struct _StorageData {
 class StorageContainer : mg::nonCopyable {
 public:
   void createStorageContainer() {}
-  StorageId createStorage(uint32_t sizeInBytes);
+  StorageId createEmptyStorage(uint32_t sizeInBytes);
+  StorageId createStorage(void *data, uint32_t sizeInBytes);
   StorageData getStorage(StorageId storageId) const;
   void* mapDeviceMemory(StorageId storageId);
   void unmapDeviceMemory(StorageId storageId);
@@ -35,6 +36,9 @@ public:
   ~StorageContainer();
 
 private:
+  StorageId StorageContainer::_createStorage(void *data, uint32_t sizeInBytes, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
+
+
   std::vector<_StorageData> _idToStorage;
   std::vector<uint32_t> _freeIndices;
   std::vector<uint32_t> _generations;

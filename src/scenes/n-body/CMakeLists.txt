@@ -9,6 +9,8 @@ mg_cc_executable(
         nbody_main.cpp
         nbody_utils.h
         nbody_utils.cpp
+		nbody_renderpass.h
+		nbody_renderpass.cpp
     COPTS
         ${CPP_FLAGS}
     DEPS

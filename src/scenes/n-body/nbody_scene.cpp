@@ -7,33 +7,34 @@
 #include "nbody_rendering.h"
 #include "nbody_utils.h"
 #include "rendering/rendering.h"
-#include "vulkan/singleRenderpass.h"
+#include "nbody_renderpass.h"
 #include "vulkan/vkContext.h"
 #include "vulkan/vkUtils.h"
+#include "mg/texts.h"
 #include <lodepng.h>
 
 static mg::Camera camera;
-static mg::SingleRenderPass singleRenderPass;
+static NBodyRenderPass nbodyRenderPass = {};
 
 static ComputeData computeData = {};
 
 void initScene() {
-  mg::initSingleRenderPass(&singleRenderPass);
-  camera = mg::create3DCamera(glm::vec3{0.0f, 0.0f, 0.5f}, glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f});
+  initNBodyRenderPass(&nbodyRenderPass);
 
-  const int WIDTH = 3200;  // Size of rendered mandelbrot set.
-  const int HEIGHT = 2400; // Size of renderered mandelbrot set.
-  computeData.storageId = mg::mgSystem.storageContainer.createStorage(sizeof(glm::vec4) * computeData.width * computeData.height);
+  mg::uploadPngImage("particle2.png");
+  camera = mg::create3DCamera(glm::vec3{0.0f, 0.0f, -14.0f}, glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f});
+
+  initParticles(&computeData);
 }
 
 void destroyScene() {
   mg::waitForDeviceIdle();
-  destroySingleRenderPass(&singleRenderPass);
+  destroyNBodyRenderPass(&nbodyRenderPass);
 }
 
 void updateScene(const mg::FrameData &frameData) {
   if (frameData.resize) {
-    mg::resizeSingleRenderPass(&singleRenderPass);
+    resizeNBodyRenderPass(&nbodyRenderPass);
   }
   if (frameData.keys.r) {
     mg::mgSystem.pipelineContainer.resetPipelineContainer();
@@ -43,19 +44,33 @@ void updateScene(const mg::FrameData &frameData) {
   mg::setCameraTransformation(&camera);
 }
 
-
-
 void renderScene(const mg::FrameData &frameData) {
+  mg::Texts texts = {};
+  char fps[50];
+  snprintf(fps, sizeof(fps), "Fps: %u", uint32_t(frameData.fps));
+  mg::Text text = {fps};
+
+  mg::pushText(&texts, text);
   mg::beginRendering();
   mg::setFullscreenViewport();
 
-  computeMandelbrot(computeData);
+  simulatePartices(computeData, frameData);
 
-  mg::beginSingleRenderPass(singleRenderPass);
+  beginNBodyRenderPass(nbodyRenderPass);
   mg::RenderContext renderContext = {};
-  renderContext.renderPass = singleRenderPass.vkRenderPass;
+  renderContext.renderPass = nbodyRenderPass.vkRenderPass;
+  renderContext.subpass = 0;
+  renderParticels(renderContext, computeData, camera);
 
-  mg::endSingleRenderPass();
+  vkCmdNextSubpass(mg::vkContext.commandBuffer, VK_SUBPASS_CONTENTS_INLINE);
+  renderContext.subpass = 1;
+  
+  renderToneMapping(renderContext);
+
+  mg::validateTexts(texts);
+  mg::renderText(renderContext, texts);
+
+  endNBodyRenderPass();
 
   mg::endRendering();
 }

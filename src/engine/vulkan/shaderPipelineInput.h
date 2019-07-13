@@ -263,25 +263,92 @@ namespace shaderResource {
 } //mrt
 
 namespace nbody {
+struct UBO {
+  float deltaT;
+  int32_t particleCount;
+};
 struct Storage {
-  struct ImageData {
-    glm::vec4 value;
+  struct Particle {
+    glm::vec4 position;
+    glm::vec4 velocity;
   };
-  ImageData* imageData = nullptr;
+  Particle* particles = nullptr;
 };
 namespace shaderResource {
   static bool hasPushConstant = false;
-  static Resources resources[1] = {
+  static Resources resources[2] = {
+    Resources::UBO,
     Resources::SSBO,
   };
   union DescriptorSets {
     struct {
+      VkDescriptorSet ubo;
       VkDescriptorSet storage;
     };
-    VkDescriptorSet values[1];
+    VkDescriptorSet values[2];
   };
   } // shaderResource
 } //nbody
+
+namespace particle {
+struct UBO {
+  glm::mat4 projection;
+  glm::mat4 modelview;
+  glm::vec2 screendim;
+};
+namespace InputAssembler {
+  static VertexInputState vertexInputState[2] = {
+    { VK_FORMAT_R32G32B32A32_SFLOAT, 0, 0, 0, 16 },
+    { VK_FORMAT_R32G32B32A32_SFLOAT, 1, 16, 0, 16 },
+  };
+  struct VertexInputData {
+    glm::vec4 in_position;
+    glm::vec4 in_velocity;
+  };
+};
+namespace shaderResource {
+  static bool hasPushConstant = false;
+  static Resources resources[2] = {
+    Resources::UBO,
+    Resources::COMBINED_IMAGE_SAMPLER,
+  };
+  union DescriptorSets {
+    struct {
+      VkDescriptorSet ubo;
+      VkDescriptorSet particleTexture;
+    };
+    VkDescriptorSet values[2];
+  };
+  } // shaderResource
+} //particle
+
+namespace simulate_particles {
+struct UBO {
+  float deltaT;
+  int32_t particleCount;
+};
+struct Storage {
+  struct Particle {
+    glm::vec4 position;
+    glm::vec4 velocity;
+  };
+  Particle* particles = nullptr;
+};
+namespace shaderResource {
+  static bool hasPushConstant = false;
+  static Resources resources[2] = {
+    Resources::UBO,
+    Resources::SSBO,
+  };
+  union DescriptorSets {
+    struct {
+      VkDescriptorSet ubo;
+      VkDescriptorSet storage;
+    };
+    VkDescriptorSet values[2];
+  };
+  } // shaderResource
+} //simulate_particles
 
 namespace solid {
 struct UBO {
@@ -391,6 +458,26 @@ namespace shaderResource {
   };
   } // shaderResource
 } //textureRendering
+
+namespace toneMapping {
+struct UBO {
+  glm::vec4 color;
+};
+namespace shaderResource {
+  static bool hasPushConstant = false;
+  static Resources resources[2] = {
+    Resources::UBO,
+    Resources::COMBINED_IMAGE_SAMPLER,
+  };
+  union DescriptorSets {
+    struct {
+      VkDescriptorSet ubo;
+      VkDescriptorSet imageSampler;
+    };
+    VkDescriptorSet values[2];
+  };
+  } // shaderResource
+} //toneMapping
 
 namespace volume {
 struct UBO {

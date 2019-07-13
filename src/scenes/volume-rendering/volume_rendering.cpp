@@ -128,16 +128,16 @@ void drawVolume(const mg::RenderContext &renderContext, const mg::Camera &camera
   vkCmdDraw(mg::vkContext.commandBuffer, 3, 1, 0, 0);
 }
 
-static mg::Pipeline createDenoisePipeline(const mg::RenderContext &renderContext) {
+static mg::Pipeline createToneMappingPipeline(const mg::RenderContext &renderContext) {
   using namespace mg::shaders::denoise;
 
-  const auto pipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
   mg::PipelineStateDesc pipelineStateDesc = {};
   pipelineStateDesc.vkRenderPass = renderContext.renderPass;
   pipelineStateDesc.vkPipelineLayout = mg::getPipelineLayout(shaderResource::resources, mg::countof(shaderResource::resources));
   pipelineStateDesc.rasterization.cullMode = VK_CULL_MODE_NONE;
   pipelineStateDesc.graphics.subpass = renderContext.subpass;
   pipelineStateDesc.depth.TestEnable = VK_FALSE;
+  pipelineStateDesc.depth.writeEnable = VK_FALSE;
 
   mg::CreatePipelineInfo createPipelineInfo = {};
   createPipelineInfo.shaderName = "denoise";
@@ -151,7 +151,7 @@ void drawDenoise(const mg::RenderContext &renderContext) {
   using Ubo = UBO;
   using DescriptorSets = shaderResource::DescriptorSets;
 
-  const auto denoisePipeline = createDenoisePipeline(renderContext);
+  const auto denoisePipeline = createToneMappingPipeline(renderContext);
 
   VkBuffer uniformBuffer;
   uint32_t uniformOffset;
@@ -160,8 +160,6 @@ void drawDenoise(const mg::RenderContext &renderContext) {
   ubo->color = glm::vec4{1, 0, 0, 1};
 
   const auto colorTexture = mg::getTexture("color");
-  const auto frontTexture = mg::getTexture("front");
-  const auto backTexture = mg::getTexture("back");
 
   DescriptorSets descriptorSets = {};
   descriptorSets.ubo = uboSet;

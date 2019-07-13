@@ -258,11 +258,8 @@ void PipelineContainer::destroyPipelineContainer() {
 
 void PipelineContainer::resetPipelineContainer() {
   waitForDeviceIdle();
-  _idToPipeline.clear();
-  mg::deleteShaders();
-  const auto shaders = shaderNames();
-  mg::createShaders(shaders.graphics);
-  mg::createComputeShaders(shaders.computes);
+  destroyPipelineContainer();
+  createPipelineContainer();
 }
 
 Pipeline PipelineContainer::createPipeline(const PipelineStateDesc &pipelineDesc, const CreatePipelineInfo &createPipelineInfo) {

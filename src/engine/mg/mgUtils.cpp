@@ -156,8 +156,7 @@ std::string toLower(std::string str) {
 }
 
 std::string getFontsPath() { return "../../../resources/fonts/"; }
-std::string getTextureCursorsPath() { return  "../../resources/textures/cursors/"; }
-std::string getTexturePath() { return "../../resources/textures/"; }
+std::string getTexturePath() { return "../../../resources/textures/"; }
 std::string getShaderPath() { return "../../../resources/shaders/build/"; }
 std::string getDataPath() { return "../../../resources/data/"; }
 std::string getTransferFunctionPath() { return "../../../resources/transferFunctions/"; }
