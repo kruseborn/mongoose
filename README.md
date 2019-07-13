@@ -38,4 +38,7 @@
     No heap allocation during each frame
 <img src="images/space.png" width="512">
 
+#### Compute shader, N-Body simulation with tone mapping
+<img src="images/nbody.png" width="512">
+
 ##### *http://github.com/kruseborn/shader-compiler
