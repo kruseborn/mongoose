@@ -40,12 +40,19 @@ void main() {
 @frag
 
 #include "pbr.hglsl"
+#include "utils.hglsl"
 
 layout (location = 0) in Data inData;
-layout (set = 1, binding = 0) uniform sampler2D baseColorTexture;
-layout (set = 2, binding = 0) uniform sampler2D normalTexture;
-layout (set = 3, binding = 0) uniform sampler2D roughnessMetallicTexture;
-layout (set = 4, binding = 0) uniform sampler2D emissiveTexture;
+
+layout(set = 1, binding = 0) uniform sampler samplers[2];
+layout(set = 1, binding = 1) uniform texture2D textures[128];
+
+layout(push_constant) uniform TextureIndices {
+  int baseColorIndex;
+  int normalIndex;
+  int roughnessMetallicIndex;
+  int emissiveIndex;
+}pc;
 
 layout (location = 0) out vec4 out_frag_color;
 
@@ -60,7 +67,7 @@ void main() {
 
   // Roughness is stored in the 'g' channel, metallic is stored in the 'b' channel.
   // This layout intentionally reserves the 'r' channel for (optional) occlusion map data
-  vec4 orm = texture(roughnessMetallicTexture, inData.UV);
+  vec4 orm = texture(sampler2D(textures[pc.roughnessMetallicIndex], samplers[linearBorder]), inData.UV);
   perceptualRoughness = orm.g * perceptualRoughness;
   metallic = orm.b * metallic;
   
@@ -72,7 +79,7 @@ void main() {
   float alphaRoughness = perceptualRoughness * perceptualRoughness;
 
   // The albedo may be defined from a base texture or a flat color
-  vec4 baseColor = SRGBtoLINEAR(texture(baseColorTexture, inData.UV));
+  vec4 baseColor = SRGBtoLINEAR(texture(sampler2D(textures[pc.baseColorIndex], samplers[linearBorder]), inData.UV));
 
   vec3 f0 = vec3(0.04);
   vec3 diffuseColor = baseColor.rgb * (vec3(1.0) - f0);
@@ -88,7 +95,7 @@ void main() {
   vec3 specularEnvironmentR0 = specularColor.rgb;
   vec3 specularEnvironmentR90 = vec3(1.0, 1.0, 1.0) * reflectance90;
 
-  vec3 n = getNormal(inData.worldPosition, inData.UV, inData.N, normalTexture);                             // normal at surface point
+  vec3 n = getNormal(inData.worldPosition, inData.UV, inData.N, textures[pc.normalIndex], samplers[linearBorder]); // normal at surface point
   vec3 v = normalize(cameraPosition - inData.worldPosition);        // Vector from surface point to camera
   vec3 l = normalize(lightPos - inData.worldPosition);             // Vector from surface point to light
   vec3 h = normalize(l+v);                          // Half vector between both l and v
@@ -128,7 +135,7 @@ void main() {
   vec3 color = NdotL * lightColor * (diffuseContrib + specContrib);
 
   // emissive
-  vec3 emissive = SRGBtoLINEAR(texture(emissiveTexture, inData.UV)).rgb;
+  vec3 emissive = SRGBtoLINEAR(texture(sampler2D(textures[pc.emissiveIndex], samplers[linearBorder]), inData.UV)).rgb;
   color += emissive;
 
   vec4 u_ScaleFGDSpec = vec4(0,0,0,0);

@@ -132,6 +132,12 @@ struct Ubo {
   glm::mat4 projection;
   glm::vec4 cameraPosition;
 };
+struct TextureIndices {
+  int32_t baseColorIndex;
+  int32_t normalIndex;
+  int32_t roughnessMetallicIndex;
+  int32_t emissiveIndex;
+};
 namespace InputAssembler {
   static VertexInputState vertexInputState[4] = {
     { VK_FORMAT_R32G32B32_SFLOAT, 0, 0, 0, 12 },
@@ -149,12 +155,9 @@ namespace InputAssembler {
 union DescriptorSets {
   struct {
     VkDescriptorSet ubo;
-    VkDescriptorSet baseColorTexture;
-    VkDescriptorSet normalTexture;
-    VkDescriptorSet roughnessMetallicTexture;
-    VkDescriptorSet emissiveTexture;
+    VkDescriptorSet textures;
   };
-  VkDescriptorSet values[5];
+  VkDescriptorSet values[2];
 };
 } //gltf
 
