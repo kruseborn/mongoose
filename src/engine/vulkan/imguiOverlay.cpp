@@ -50,11 +50,10 @@ static mg::Pipeline createImguiPipeline(const RenderContext &renderContext) {
   using namespace mg::shaders;
   using namespace mg;
 
-  const auto pipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
 
   mg::PipelineStateDesc pipelineStateDesc = {};
   pipelineStateDesc.vkRenderPass = renderContext.renderPass;
-  pipelineStateDesc.vkPipelineLayout = pipelineLayout;
+  pipelineStateDesc.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
   pipelineStateDesc.rasterization.frontFace = VK_FRONT_FACE_CLOCKWISE;
   pipelineStateDesc.graphics.subpass = renderContext.subpass;
 
@@ -69,7 +68,7 @@ static mg::Pipeline createImguiPipeline(const RenderContext &renderContext) {
   return pipeline;
 }
 
-static void renderCommandList(const ImguiBuffer &imguiBuffer, const mg::Pipeline &pipeline, const std::string &fontTextureId) {
+static void renderCommandList(const ImguiBuffer &imguiBuffer, const mg::Pipeline &pipeline, const mg::TextureId &fontTextureId) {
   ImDrawData *imDrawData = ImGui::GetDrawData();
 
   VkViewport viewport = {};
@@ -81,14 +80,9 @@ static void renderCommandList(const ImguiBuffer &imguiBuffer, const mg::Pipeline
   viewport.maxDepth = 1.0f;
   vkCmdSetViewport(mg::vkContext.commandBuffer, 0, 1, &viewport);
 
-  using namespace mg::shaders;
-  using namespace mg;
+  using namespace mg::shaders::imgui;
 
-  using Ubo = imgui::UBO;
-  using VertexInputData = imgui::InputAssembler::VertexInputData;
-  using DescriptorSets = imgui::shaderResource::DescriptorSets;
-
-  const auto pipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
+  using VertexInputData = InputAssembler::VertexInputData;
 
   float scale[2] = { 2.0f / imDrawData->DisplaySize.x, 2.0f / imDrawData->DisplaySize.y };
   float translate[2] = { translate[0] = -1.0f - imDrawData->DisplayPos.x * scale[0], translate[1] = -1.0f - imDrawData->DisplayPos.y * scale[1] };
@@ -106,8 +100,13 @@ static void renderCommandList(const ImguiBuffer &imguiBuffer, const mg::Pipeline
   vkCmdBindPipeline(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.pipeline);
   DescriptorSets descriptorSets = {};
   descriptorSets.ubo = uboSet;
-  descriptorSets.sTexture = mg::getTexture(fontTextureId, mg::TEXTURE_SAMPLER::LINEAR_CLAMP_TO_EDGE).descriptorSet;
+  descriptorSets.textures = mg::getTextureDescriptorSet();
   vkCmdBindDescriptorSets(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.layout, 0, mg::countof(descriptorSets.values), descriptorSets.values, 1, &uniformOffset);
+
+  TextureIndices textureIndices = {};
+  textureIndices.textureIndex = mg::getTextureDescriptorIndex(fontTextureId);
+  vkCmdPushConstants(mg::vkContext.commandBuffer, pipeline.layout, VK_SHADER_STAGE_ALL, 0, sizeof(TextureIndices),
+                     &textureIndices);
 
   // Render the command lists:
   int vtxOffset = 0;
@@ -166,8 +165,7 @@ void Imgui::CreateContext() {
   uint32_t uploadSize = width * height * 4 * sizeof(char);
 
   mg::CreateTextureInfo createTextureInfo = {};
-  createTextureInfo.id = _fontId;
-  createTextureInfo.textureSamplers = { mg::TEXTURE_SAMPLER::LINEAR_CLAMP_TO_EDGE };
+  createTextureInfo.id = "Font";
   createTextureInfo.type = mg::TEXTURE_TYPE::TEXTURE_2D;
   createTextureInfo.size = { uint32_t(width), uint32_t(height), 1 };
   createTextureInfo.format = VK_FORMAT_R8G8B8A8_UNORM;

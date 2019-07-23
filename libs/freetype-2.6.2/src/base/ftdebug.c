@@ -19,7 +19,7 @@
   /*************************************************************************/
   /*                                                                       */
   /* This component contains various macros and functions used to ease the */
-  /* debugging of the FreeType engine.  Its main purpose is in assertion   */
+  /* debugging of the FreeType engine.  Its ubo purpose is in assertion   */
   /* checking, tracing, and error detection.                               */
   /*                                                                       */
   /* There are now three debugging modes:                                  */

@@ -148,7 +148,6 @@ void uploadPngImage(const std::string &name) {
   createTextureInfo.size = {width, height, 1};
   createTextureInfo.sizeInBytes = mg::sizeofContainerInBytes(imageData);
   createTextureInfo.type = mg::TEXTURE_TYPE::TEXTURE_2D;
-  createTextureInfo.textureSamplers = {mg::TEXTURE_SAMPLER::LINEAR_CLAMP_TO_EDGE};
   mg::mgSystem.textureContainer.createTexture(createTextureInfo);
 }
 } // namespace mg

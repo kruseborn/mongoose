@@ -7,7 +7,7 @@ struct Data {
     vec2 UV;
 };
 
-layout (set = 0, binding = 0) uniform UBO {
+layout (set = 0, binding = 0) uniform Ubo {
     vec2 uScale;
     vec2 uTranslate;
  } ubo;
@@ -31,11 +31,18 @@ void main()
 }
 
 @frag
+#include "utils.hglsl"
+
 layout(location = 0) out vec4 outColor;
 layout (location = 0) in Data inData;
 
-layout(set=1, binding=0) uniform sampler2D sTexture;
+layout(set = 1, binding = 0) uniform sampler samplers[2];
+layout(set = 1, binding = 1) uniform texture2D textures[128];
+
+layout(push_constant) uniform TextureIndices {
+	int textureIndex;
+}pc;
 
 void main() {
-    outColor = inData.Color * texture(sTexture, inData.UV.st);
+    outColor = inData.Color * texture(sampler2D(textures[pc.textureIndex], samplers[linearBorder]), inData.UV.st);
 }

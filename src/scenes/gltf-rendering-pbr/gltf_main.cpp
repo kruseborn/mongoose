@@ -1,7 +1,7 @@
 #include "mg/window.h"
 #include "gltf_scene.h"
 
-int main() {
+int ubo() {
   mg::initWindow(1500, 1024);
   initScene();
   while (mg::startFrame()) {

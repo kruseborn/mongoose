@@ -6,18 +6,16 @@
 #include "mg/mgSystem.h"
 
 namespace mg {
-static const std::string depthId = "depth";
+static TextureId depthId;
 
 static void createAttachments() {
   mg::CreateTextureInfo createTextureInfo = {};
 
-  createTextureInfo.id = depthId;
-  createTextureInfo.textureSamplers = {mg::TEXTURE_SAMPLER::LINEAR_CLAMP_TO_BORDER};
   createTextureInfo.type = mg::TEXTURE_TYPE::DEPTH;
   createTextureInfo.size = {mg::vkContext.screen.width, mg::vkContext.screen.height, 1};
   createTextureInfo.format = mg::vkContext.formats.depth;
 
-  mg::mgSystem.textureContainer.createTexture(createTextureInfo);
+  depthId = mg::mgSystem.textureContainer.createTexture(createTextureInfo);
 }
 
 static void createFrameBuffers(SingleRenderPass *singleRenderPass) {

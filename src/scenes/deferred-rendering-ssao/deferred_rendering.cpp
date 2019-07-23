@@ -1,5 +1,6 @@
 #include "deferred_rendering.h"
 
+#include "deferred_renderpass.h"
 #include "deferred_utils.h"
 #include "mg/camera.h"
 #include "mg/meshLoader.h"
@@ -17,7 +18,7 @@ static mg::Pipeline createMRTPipeline(const mg::RenderContext &renderContext) {
   const auto pipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
   mg::PipelineStateDesc pipelineStateDesc = {};
   pipelineStateDesc.vkRenderPass = renderContext.renderPass;
-  pipelineStateDesc.vkPipelineLayout = mg::getPipelineLayout(shaderResource::resources, mg::countof(shaderResource::resources));
+  pipelineStateDesc.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
   pipelineStateDesc.rasterization.cullMode = VK_CULL_MODE_FRONT_BIT;
   pipelineStateDesc.graphics.subpass = renderContext.subpass;
   pipelineStateDesc.graphics.nrOfColorAttachments = 3;
@@ -35,9 +36,7 @@ static mg::Pipeline createMRTPipeline(const mg::RenderContext &renderContext) {
 void renderMRT(const mg::RenderContext &renderContext, const mg::ObjMeshes &objMeshes) {
   using namespace mg::shaders::mrt;
 
-  using Ubo = UBO;
   using VertexInputData = InputAssembler::VertexInputData;
-  using DescriptorSets = shaderResource::DescriptorSets;
 
   const auto mrtPipeline = createMRTPipeline(renderContext);
 
@@ -65,7 +64,7 @@ void renderMRT(const mg::RenderContext &renderContext, const mg::ObjMeshes &objM
 
     VkDeviceSize offset = 0;
     vkCmdBindVertexBuffers(mg::vkContext.commandBuffer, 0, 1, &mesh.buffer, &offset);
-    vkCmdPushConstants(mg::vkContext.commandBuffer, mrtPipeline.layout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(material.diffuse),
+    vkCmdPushConstants(mg::vkContext.commandBuffer, mrtPipeline.layout, VK_SHADER_STAGE_ALL, 0, sizeof(material.diffuse),
                        (void *)&material.diffuse);
     vkCmdDraw(mg::vkContext.commandBuffer, mesh.indexCount, 1, 0, 0);
   }
@@ -77,7 +76,7 @@ static mg::Pipeline createSSAOPipeline(const mg::RenderContext &renderContext) {
   const auto pipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
   mg::PipelineStateDesc pipelineStateDesc = {};
   pipelineStateDesc.vkRenderPass = renderContext.renderPass;
-  pipelineStateDesc.vkPipelineLayout = mg::getPipelineLayout(shaderResource::resources, mg::countof(shaderResource::resources));
+  pipelineStateDesc.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
   pipelineStateDesc.graphics.subpass = renderContext.subpass;
   pipelineStateDesc.rasterization.cullMode = VK_CULL_MODE_BACK_BIT;
 
@@ -88,11 +87,9 @@ static mg::Pipeline createSSAOPipeline(const mg::RenderContext &renderContext) {
   return ssaoPipeline;
 }
 
-void renderSSAO(const mg::RenderContext &renderContext) {
+void renderSSAO(const mg::RenderContext &renderContext, const DeferredRenderPass &deferredRenderPass, const Noise &noise) {
   using namespace mg::shaders::ssao;
-  using Ubo = UBO;
-  using DescriptorSets = shaderResource::DescriptorSets;
-
+  
   const auto ssaoPipeline = createSSAOPipeline(renderContext);
 
   VkBuffer uniformBuffer;
@@ -100,24 +97,23 @@ void renderSSAO(const mg::RenderContext &renderContext) {
   VkDescriptorSet uboSet;
   Ubo *ubo = (Ubo *)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
 
-  static auto kernelData = createNoise();
-
-  std::memcpy(ubo->kernel, kernelData.kernel, mg::sizeofArrayInBytes(kernelData.kernel));
+  std::memcpy(ubo->kernel, noise.ssaoKernel.kernel, mg::sizeofArrayInBytes(noise.ssaoKernel.kernel));
   ubo->projection = renderContext.projection;
-  ubo->noiseScale = kernelData.noiseScale;
-
-  const auto noiseTexture = mg::getTexture("noise");
-  const auto normalTexture = mg::getTexture("normal");
-  const auto wordViewPositionTexture = mg::getTexture("word view position");
+  ubo->noiseScale = noise.ssaoKernel.noiseScale;
 
   DescriptorSets descriptorSets = {};
   descriptorSets.ubo = uboSet;
-  descriptorSets.samplerNoise = noiseTexture.descriptorSet;
-  descriptorSets.samplerNormal = normalTexture.descriptorSet;
-  descriptorSets.samplerWordViewPosition = wordViewPositionTexture.descriptorSet;
+  descriptorSets.textures = mg::getTextureDescriptorSet();
 
   vkCmdBindDescriptorSets(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, ssaoPipeline.layout, 0,
                           mg::countof(descriptorSets.values), descriptorSets.values, 1, &uniformOffset);
+
+  TextureIndices textureIndices = {};
+  textureIndices.normalIndex = mg::getTextureDescriptorIndex(deferredRenderPass.normal);
+  textureIndices.wordViewPositionIndex = mg::getTextureDescriptorIndex(deferredRenderPass.worldViewPosition);
+  textureIndices.noiseIndex = mg::getTextureDescriptorIndex(noise.noiseTexture);
+  vkCmdPushConstants(mg::vkContext.commandBuffer, ssaoPipeline.layout, VK_SHADER_STAGE_ALL, 0, sizeof(TextureIndices),
+                     &textureIndices);
 
   vkCmdBindPipeline(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, ssaoPipeline.pipeline);
   vkCmdDraw(mg::vkContext.commandBuffer, 3, 1, 0, 0);
@@ -129,7 +125,7 @@ static mg::Pipeline createSSAOBlurPipeline(const mg::RenderContext &renderContex
   const auto pipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
   mg::PipelineStateDesc pipelineStateDesc = {};
   pipelineStateDesc.vkRenderPass = renderContext.renderPass;
-  pipelineStateDesc.vkPipelineLayout = mg::getPipelineLayout(shaderResource::resources, mg::countof(shaderResource::resources));
+  pipelineStateDesc.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
   pipelineStateDesc.graphics.subpass = renderContext.subpass;
   pipelineStateDesc.rasterization.cullMode = VK_CULL_MODE_NONE;
 
@@ -140,11 +136,8 @@ static mg::Pipeline createSSAOBlurPipeline(const mg::RenderContext &renderContex
   return pipeline;
 }
 
-void renderBlurSSAO(const mg::RenderContext &renderContext) {
+void renderBlurSSAO(const mg::RenderContext &renderContext, const DeferredRenderPass &deferredRenderPass) {
   using namespace mg::shaders::ssaoBlur;
-  using Ubo = UBO;
-  using DescriptorSets = shaderResource::DescriptorSets;
-
   auto ssaoBlurPipeline = createSSAOBlurPipeline(renderContext);
 
   VkBuffer uniformBuffer;
@@ -153,14 +146,20 @@ void renderBlurSSAO(const mg::RenderContext &renderContext) {
   Ubo *ubo = (Ubo *)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
   ubo->size = glm::vec2(mg::vkContext.screen.width, mg::vkContext.screen.height);
 
-  const auto ssaoTexture = mg::getTexture("ssao");
+  const auto ssaoTexture = mg::getTexture(deferredRenderPass.ssao);
 
   DescriptorSets descriptorSets = {};
   descriptorSets.ubo = uboSet;
-  descriptorSets.samplerSSAO = ssaoTexture.descriptorSet;
+  descriptorSets.textures = mg::getTextureDescriptorSet();
 
   vkCmdBindDescriptorSets(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, ssaoBlurPipeline.layout, 0,
                           mg::countof(descriptorSets.values), descriptorSets.values, 1, &uniformOffset);
+
+  TextureIndices textureIndices = {};
+  textureIndices.ssaoIndex = mg::getTextureDescriptorIndex(deferredRenderPass.ssao);
+  vkCmdPushConstants(mg::vkContext.commandBuffer, ssaoBlurPipeline.layout, VK_SHADER_STAGE_ALL, 0,
+                     sizeof(TextureIndices),
+                     &textureIndices);
 
   vkCmdBindPipeline(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, ssaoBlurPipeline.pipeline);
   vkCmdDraw(mg::vkContext.commandBuffer, 3, 1, 0, 0);
@@ -172,7 +171,7 @@ static mg::Pipeline createFinalDeferred(const mg::RenderContext &renderContext) 
   const auto pipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
   mg::PipelineStateDesc pipelineStateDesc = {};
   pipelineStateDesc.vkRenderPass = renderContext.renderPass;
-  pipelineStateDesc.vkPipelineLayout = mg::getPipelineLayout(shaderResource::resources, mg::countof(shaderResource::resources));
+  pipelineStateDesc.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
   pipelineStateDesc.graphics.subpass = renderContext.subpass;
   pipelineStateDesc.rasterization.cullMode = VK_CULL_MODE_NONE;
 
@@ -183,7 +182,7 @@ static mg::Pipeline createFinalDeferred(const mg::RenderContext &renderContext) 
   return pipeline;
 }
 
-static void setLightPositions(mg::shaders::final::UBO *ubo) {
+static void setLightPositions(mg::shaders::final::Ubo *ubo) {
   std::uniform_real_distribution<float> x(-300.0, 300.0);
   std::uniform_real_distribution<float> y(40, 60);
   std::uniform_real_distribution<float> z(-200, 200);
@@ -199,11 +198,8 @@ static void setLightPositions(mg::shaders::final::UBO *ubo) {
   }
 }
 
-void renderFinalDeferred(const mg::RenderContext &renderContext) {
+void renderFinalDeferred(const mg::RenderContext &renderContext, const DeferredRenderPass &deferredRenderPass) {
   using namespace mg::shaders::final;
-
-  using Ubo = UBO;
-  using DescriptorSets = shaderResource::DescriptorSets;
 
   const auto deferredPipeline = createFinalDeferred(renderContext);
 
@@ -216,20 +212,26 @@ void renderFinalDeferred(const mg::RenderContext &renderContext) {
   ubo->projection = renderContext.projection;
   setLightPositions(ubo);
 
-  const auto normalTexture = mg::getTexture("normal");
-  const auto albedoTexture = mg::getTexture("albedo");
-  const auto ssaoBlured = mg::getTexture("ssaoblur");
-  const auto wordViewPosition = mg::getTexture("word view position");
+  const auto normalTexture = mg::getTexture(deferredRenderPass.normal);
+  const auto albedoTexture = mg::getTexture(deferredRenderPass.albedo);
+  const auto ssaoBlured = mg::getTexture(deferredRenderPass.ssaoBlur);
+  const auto wordViewPosition = mg::getTexture(deferredRenderPass.worldViewPosition);
 
   DescriptorSets descriptorSets = {};
   descriptorSets.ubo = uboSet;
-  descriptorSets.samplerNormal = normalTexture.descriptorSet;
-  descriptorSets.samplerDiffuse = albedoTexture.descriptorSet;
-  descriptorSets.samplerSSAOBlured = ssaoBlured.descriptorSet;
-  descriptorSets.samplerWorldViewPostion = wordViewPosition.descriptorSet;
+  descriptorSets.textures = mg::getTextureDescriptorSet();
 
   vkCmdBindDescriptorSets(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, deferredPipeline.layout, 0,
                           mg::countof(descriptorSets.values), descriptorSets.values, 1, &uniformOffset);
+
+  TextureIndices textureIndices = {};
+  textureIndices.diffuseIndex = mg::getTextureDescriptorIndex(deferredRenderPass.albedo);
+  textureIndices.normalIndex = mg::getTextureDescriptorIndex(deferredRenderPass.normal);
+  textureIndices.ssaoBluredIndex = mg::getTextureDescriptorIndex(deferredRenderPass.ssaoBlur);
+  textureIndices.worldViewPostionIndex = mg::getTextureDescriptorIndex(deferredRenderPass.worldViewPosition);
+
+  vkCmdPushConstants(mg::vkContext.commandBuffer, deferredPipeline.layout, VK_SHADER_STAGE_ALL, 0,
+                     sizeof(TextureIndices), &textureIndices);
 
   vkCmdBindPipeline(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, deferredPipeline.pipeline);
   vkCmdDraw(mg::vkContext.commandBuffer, 3, 1, 0, 0);

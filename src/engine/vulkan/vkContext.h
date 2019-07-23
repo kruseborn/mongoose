@@ -12,6 +12,8 @@ struct GLFWwindow;
  
 namespace mg {
 
+constexpr uint32_t MAX_NR_OF_TEXTURES = 128;
+
 struct SwapChain;
 
 struct VulkanContext {
@@ -36,9 +38,9 @@ struct VulkanContext {
   uint32_t queueFamilyIndex;
   struct {
     VkDescriptorSetLayout ubo;
-    VkDescriptorSetLayout storageDynamic;
+    VkDescriptorSetLayout textures;
     VkDescriptorSetLayout storage;
-    VkDescriptorSetLayout texture;
+    VkDescriptorSetLayout storageDynamic;
   } descriptorSetLayout;
 
   VkPipelineCache pipelineCache;

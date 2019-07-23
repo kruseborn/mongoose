@@ -31,7 +31,7 @@ stb_uint stb_compress(stb_uchar *out,stb_uchar *in,stb_uint len);
 
 static bool binary_to_compressed_c(const char* filename, const char* symbol, bool use_base85_encoding, bool use_compression);
 
-int main(int argc, char** argv)
+int ubo(int argc, char** argv)
 {
     if (argc < 3)
     {

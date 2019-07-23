@@ -31,4 +31,4 @@
 
 };
 
-int main(int argc, char** argv) { (void)argv; return features[argc]; }
+int ubo(int argc, char** argv) { (void)argv; return features[argc]; }

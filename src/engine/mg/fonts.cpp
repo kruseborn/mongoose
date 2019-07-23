@@ -38,7 +38,7 @@ void Fonts::init() {
 
 void Fonts::destroy() {
   for(const auto& font : _fontTypeToFont) {
-    mg::mgSystem.textureContainer.removeTexture(font.fontGlyphMap.id);
+    mg::mgSystem.textureContainer.removeTexture(font.fontGlyphMap);
   }
   for(uint32_t i = 0; i < uint32_t(_fontTypeToFont.size()); ++i) {
     FT_Done_Face(_fontTypeToFont[i].ftFace);
@@ -68,7 +68,7 @@ glm::uvec2 Fonts::getFontMapSize(FONT_TYPE fontType) const {
   return getFont(fontType).fontMapSize;
 }
 
-Texture Fonts::getFontGlyphMap(FONT_TYPE fontType) const {
+TextureId Fonts::getFontGlyphMap(FONT_TYPE fontType) const {
   return getFont(fontType).fontGlyphMap;
 }
 
@@ -174,15 +174,13 @@ void Fonts::setupFontCharacterMap(Font* font) {
 
   mg::CreateTextureInfo createTextureInfo = {};
   createTextureInfo.id = mg::MakeString() << font->name << font->fontSize << "_Dpi" << horizontalDpi << "x" << verticalDpi;
-  createTextureInfo.textureSamplers = { TEXTURE_SAMPLER::POINT_CLAMP_TO_BORDER };
   createTextureInfo.type = mg::TEXTURE_TYPE::TEXTURE_2D;
   createTextureInfo.size = { uint32_t(font->fontMapSize.x), uint32_t(font->fontMapSize.y), 1 };
   createTextureInfo.format = VK_FORMAT_R8_UNORM;
   createTextureInfo.data = font->bitmapCharData.data();
   createTextureInfo.sizeInBytes = mg::sizeofContainerInBytes(font->bitmapCharData);
 
-  mg::mgSystem.textureContainer.createTexture(createTextureInfo);
-  font->fontGlyphMap = mg::mgSystem.textureContainer.getTexture(createTextureInfo.id, TEXTURE_SAMPLER::POINT_CLAMP_TO_BORDER);
+  font->fontGlyphMap = mg::mgSystem.textureContainer.createTexture(createTextureInfo);
 }
 
 int Fonts::loadFontCharacter(Font* font, int32_t characterCode, uint32_t offset, bool allocateNewTexture) {
@@ -236,18 +234,16 @@ int Fonts::loadFontCharacter(Font* font, int32_t characterCode, uint32_t offset,
 
   // Add it to the texture map
   if(allocateNewTexture) {
-    mg::mgSystem.textureContainer.removeTexture(font->fontGlyphMap.id);
+    mg::mgSystem.textureContainer.removeTexture(font->fontGlyphMap);
     mg::CreateTextureInfo createTextureInfo = {};
     createTextureInfo.id = mg::MakeString() << font->name << font->fontSize << "_Dpi" << horizontalDpi << "x" << verticalDpi;
-    createTextureInfo.textureSamplers = { TEXTURE_SAMPLER::POINT_CLAMP_TO_BORDER };
     createTextureInfo.type = mg::TEXTURE_TYPE::TEXTURE_2D;
     createTextureInfo.size = { font->fontMapSize.x, font->fontMapSize.y, 1 };
     createTextureInfo.format = VK_FORMAT_R8_UNORM;
     createTextureInfo.data = font->bitmapCharData.data();
     createTextureInfo.sizeInBytes = mg::sizeofContainerInBytes(font->bitmapCharData);
 
-    mg::mgSystem.textureContainer.createTexture(createTextureInfo);
-    font->fontGlyphMap = mg::mgSystem.textureContainer.getTexture(createTextureInfo.id, TEXTURE_SAMPLER::POINT_CLAMP_TO_BORDER);
+    font->fontGlyphMap = mg::mgSystem.textureContainer.createTexture(createTextureInfo);
   }
 
   FT_Bitmap_Done(_ftLibrary, &dstBitmap8bit);

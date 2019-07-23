@@ -36,11 +36,10 @@ void destroyMgSystem(MgSystem *system);
 extern MgSystem mgSystem;
 
 // helper function
-inline Texture getTexture(const std::string &id, mg::TEXTURE_SAMPLER sampler = mg::TEXTURE_SAMPLER::NONE) {
-  return mgSystem.textureContainer.getTexture(id, sampler);
-}
-
-inline void removeTexture(const std::string &id) { mgSystem.textureContainer.removeTexture(id); }
+inline VkDescriptorSet getTextureDescriptorSet() { return mgSystem.textureContainer.getDescriptorSet(); }
+inline uint32_t getTextureDescriptorIndex(mg::TextureId id) { return mgSystem.textureContainer.getTextureDescriptorIndex(id); }
+inline Texture getTexture(mg::TextureId id) { return mgSystem.textureContainer.getTexture(id); }
+inline void removeTexture(mg::TextureId id) { mgSystem.textureContainer.removeTexture(id); }
 inline Mesh getMesh(mg::MeshId meshId) { return mgSystem.meshContainer.getMesh(meshId); }
 inline StorageData getStorage(mg::StorageId storageId) { return mgSystem.storageContainer.getStorage(storageId); }
 inline void addImguiLog(const char *str) { mgSystem.imguiOverlay.addLog(str); }

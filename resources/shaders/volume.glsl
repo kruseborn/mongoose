@@ -2,7 +2,7 @@
 #extension GL_ARB_separate_shader_objects : enable
 #extension GL_ARB_shading_language_420pack : enable
 
-layout (std140, set = 0, binding = 0) uniform UBO {
+layout (std140, set = 0, binding = 0) uniform Ubo {
   mat4 boxToWorld;
   mat4 worldToBox;
   mat4 mv;

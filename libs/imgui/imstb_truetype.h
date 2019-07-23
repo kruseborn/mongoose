@@ -332,7 +332,7 @@ void my_stbtt_print(float x, float y, char *text)
 
 char ttf_buffer[1<<25];
 
-int main(int argc, char **argv)
+int ubo(int argc, char **argv)
 {
    stbtt_fontinfo font;
    unsigned char *bitmap;
@@ -373,7 +373,7 @@ int main(int argc, char **argv)
 char buffer[24<<20];
 unsigned char screen[20][79];
 
-int main(int arg, char **argv)
+int ubo(int arg, char **argv)
 {
    stbtt_fontinfo font;
    int i,j,ascent,baseline,ch=0;

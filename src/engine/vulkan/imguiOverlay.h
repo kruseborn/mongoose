@@ -2,6 +2,7 @@
 
 #include <string>
 #include <imgui.h>
+#include "mg/textureContainer.h"
 
 namespace mg {
 struct RenderContext;
@@ -22,7 +23,7 @@ private:
   void drawLog() const;
   void drawAllocations() const;
 
-  std::string _fontId = "imgui font";
+  mg::TextureId _fontId;
 
   struct Log {
     ImGuiTextBuffer     buffer;

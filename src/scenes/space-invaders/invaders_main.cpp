@@ -4,7 +4,7 @@
 #include <cmath>
 #include <thread>
 
-int main() {
+int ubo() {
   mg::initWindow(800, 600); 
   Invaders invaders = {}; 
   invadersInit(&invaders);

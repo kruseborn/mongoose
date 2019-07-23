@@ -14,7 +14,7 @@ static mg::Pipeline createFontPipeline(const mg::RenderContext &renderContext) {
   const auto pipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
   mg::PipelineStateDesc pipelineStateDesc = {};
   pipelineStateDesc.vkRenderPass = renderContext.renderPass;
-  pipelineStateDesc.vkPipelineLayout = mg::getPipelineLayout(shaderResource::resources, mg::countof(shaderResource::resources));
+  pipelineStateDesc.vkPipelineLayout = vkContext.pipelineLayouts.pipelineLayout;
   pipelineStateDesc.graphics.subpass = renderContext.subpass;
   pipelineStateDesc.rasterization.cullMode = VK_CULL_MODE_NONE;
   pipelineStateDesc.depth.TestEnable = VK_FALSE;
@@ -77,24 +77,29 @@ static void renderCharacters(const mg::RenderContext &renderContext, const mg::F
                              const std::vector<glm::vec4> &charVectorData, const mg::Fonts &fonts) {
   auto pipeline = createFontPipeline(renderContext);
 
-  using Ubo = mg::shaders::fontRendering::UBO;
-  using VertexInputData = mg::shaders::fontRendering::InputAssembler::VertexInputData;
-  using DescriptorSets = mg::shaders::fontRendering::shaderResource::DescriptorSets;
+  using namespace mg::shaders::fontRendering;
+  using VertexInputData = InputAssembler::VertexInputData;
 
   VkBuffer uniformBuffer;
   uint32_t uniformOffset;
   VkDescriptorSet uboSet;
 
-  Ubo *ubo = (Ubo *)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
+  Ubo *ubo = (Ubo*)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
 
   ubo->projection = glm::ortho(0.0f, float(mg::vkContext.screen.width), 0.0f, float(mg::vkContext.screen.height), -10.0f, 10.0f);
 
   DescriptorSets descriptorSets = {};
   descriptorSets.ubo = uboSet;
-  descriptorSets.glyphTexture = fonts.getFontGlyphMap(fontType).descriptorSet;
+  descriptorSets.textures = mg::getTextureDescriptorSet();
 
   vkCmdBindDescriptorSets(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.layout, 0,
                           mg::countof(descriptorSets.values), descriptorSets.values, 1, &uniformOffset);
+
+  TextureIndices textureIndices = {};
+  textureIndices.textureIndex = mg::getTextureDescriptorIndex(fonts.getFontGlyphMap(fontType));
+  vkCmdPushConstants(mg::vkContext.commandBuffer, pipeline.layout, VK_SHADER_STAGE_ALL, 0, sizeof(TextureIndices),
+                     &textureIndices);
+
   vkCmdBindPipeline(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.pipeline);
 
   VkBuffer buffer;

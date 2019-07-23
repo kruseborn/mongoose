@@ -9,7 +9,7 @@ struct Light {
 };
 const int lightCount = 32;
 
-layout (set = 0, binding = 0) uniform UBO  {
+layout (set = 0, binding = 0) uniform Ubo  {
 	mat4 projection;
 	mat4 view;
 	Light lights[lightCount];
@@ -29,18 +29,21 @@ void main() {
 @frag
 #include "utils.hglsl"
 
-layout (set = 1, binding = 0) uniform sampler2D samplerNormal;
-layout (set = 2, binding = 0) uniform sampler2D samplerDiffuse;
-layout (set = 3, binding = 0) uniform sampler2D samplerSSAOBlured;
-layout (set = 4, binding = 0) uniform sampler2D samplerWorldViewPostion;
+layout(set = 1, binding = 0) uniform sampler samplers[2];
+layout(set = 1, binding = 1) uniform texture2D textures[128];
+
+layout(push_constant) uniform TextureIndices {
+	int normalIndex;
+	int diffuseIndex;
+  int ssaoBluredIndex;
+  int worldViewPostionIndex;
+}pc;
 
 layout (location = 0) in vec2 inUV;
 layout (location = 0) out vec4 outFragcolor;
 
 vec3 lin2srgb(in vec3 color) { return sqrt(color); }
-
 vec3 srgb2lin(in vec3 color) { return color * color; }
-
 float diffuse(in vec3 N, in vec3 L) { return max(0.0, dot(N, L)); }
 
 float specularBlinnPhong(in vec3 N, in vec3 H, float specularPower) {
@@ -52,10 +55,10 @@ void main()  {
 	vec2 textCoord = inUV;
 	textCoord.y = 1.0 - textCoord.y;
 
-	vec3 N = normalize(sphericalToCartesian(texture(samplerNormal, textCoord).xy));
-	vec4 diffuse_material = texture(samplerDiffuse, textCoord);
-	float ssao = texture(samplerSSAOBlured, textCoord).r;	
-	vec3 V = texture(samplerWorldViewPostion, textCoord).xyz;
+	vec3 N = normalize(sphericalToCartesian(texture(sampler2D(textures[pc.normalIndex], samplers[linearBorder]), textCoord).xy));
+	vec4 diffuse_material = texture(sampler2D(textures[pc.diffuseIndex], samplers[linearBorder]), textCoord);
+	float ssao = texture(sampler2D(textures[pc.ssaoBluredIndex], samplers[linearBorder]), textCoord).r;	
+	vec3 V = texture(sampler2D(textures[pc.worldViewPostionIndex], samplers[linearBorder]), textCoord).xyz;
 
 	vec3 outputColor = vec3(0.0);
 	for(int i = 0; i < lightCount; i++) {

@@ -57,58 +57,14 @@ static ImageInfo createImageInfoFromType(mg::TEXTURE_TYPE type) {
   return imageInfo;
 }
 
-static VkSampler samplerToVkSampler(mg::TEXTURE_SAMPLER sampler) {
-  VkSampler res;
-  switch (sampler) {
-  case mg::TEXTURE_SAMPLER::POINT_CLAMP_TO_BORDER:
-    res = mg::vkContext.sampler.pointBorderSampler;
-    break;
-  case mg::TEXTURE_SAMPLER::LINEAR_CLAMP_TO_BORDER:
-    res = mg::vkContext.sampler.linearBorderSampler;
-    break;
-  case mg::TEXTURE_SAMPLER::LINEAR_CLAMP_TO_EDGE:
-    res = mg::vkContext.sampler.linearEdgeSampler;
-    break;
-  case mg::TEXTURE_SAMPLER::LINEAR_REPEAT:
-    res = mg::vkContext.sampler.linearRepeat;
-    break;
-  default:
-    mgAssert(false);
-  }
-  return res;
-}
+static void createDescriptorSet(VkDescriptorSet *descriptorSet) {
+  VkDescriptorSetAllocateInfo descriptorSetAllocateInfo = {};
+  descriptorSetAllocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+  descriptorSetAllocateInfo.descriptorPool = mg::vkContext.descriptorPool;
+  descriptorSetAllocateInfo.descriptorSetCount = 1;
+  descriptorSetAllocateInfo.pSetLayouts = &mg::vkContext.descriptorSetLayout.textures;
 
-static void createDescriptorSets(const mg::CreateTextureInfo &textureInfo, mg::_TextureData *texture) {
-  for (uint32_t i = 0; i < textureInfo.textureSamplers.size(); i++) {
-    VkDescriptorSetAllocateInfo descriptorSetAllocateInfo = {};
-    descriptorSetAllocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-    descriptorSetAllocateInfo.descriptorPool = mg::vkContext.descriptorPool;
-    descriptorSetAllocateInfo.descriptorSetCount = 1;
-    descriptorSetAllocateInfo.pSetLayouts = &mg::vkContext.descriptorSetLayout.texture;
-
-    vkAllocateDescriptorSets(mg::vkContext.device, &descriptorSetAllocateInfo, &texture->descriptorSets[i]);
-    texture->textureSamplers[i] = textureInfo.textureSamplers[i];
-  }
-}
-
-static void updateDescriptorSets(const mg::CreateTextureInfo &textureInfo, mg::_TextureData *texture) {
-  VkDescriptorImageInfo vkDescriptorImageInfo = {};
-  vkDescriptorImageInfo.imageView = texture->imageView;
-  vkDescriptorImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-
-  VkWriteDescriptorSet textureWrite = {};
-  textureWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-  textureWrite.dstBinding = 0;
-  textureWrite.dstArrayElement = 0;
-  textureWrite.descriptorCount = 1;
-  textureWrite.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-  textureWrite.pImageInfo = &vkDescriptorImageInfo;
-
-  for (uint32_t i = 0; i < textureInfo.textureSamplers.size(); i++) {
-    vkDescriptorImageInfo.sampler = samplerToVkSampler(textureInfo.textureSamplers[i]);
-    textureWrite.dstSet = texture->descriptorSets[i];
-    vkUpdateDescriptorSets(mg::vkContext.device, 1, &textureWrite, 0, nullptr);
-  }
+  vkAllocateDescriptorSets(mg::vkContext.device, &descriptorSetAllocateInfo, descriptorSet);
 }
 
 static void createDeviceTexture(const mg::CreateTextureInfo &textureInfo, const ImageInfo &imageInfo, mg::_TextureData *texture) {
@@ -201,22 +157,31 @@ static void createDepthTexture(const mg::CreateTextureInfo &textureInfo, mg::_Te
   checkResult(vkCreateImageView(mg::vkContext.device, &vkImageViewCreateInfo, nullptr, &texture->imageView));
 }
 
-TextureContainer::~TextureContainer() { mgAssert(_idToTexture.empty()); }
+void TextureContainer::createTextureContainer() { createDescriptorSet(&_descriptorSet); }
 
-void TextureContainer::destroyTextureContainer() {
-  for (auto &texture : _idToTexture) {
-    destroyTexture(texture.first);
-  }
-  _idToTexture.clear();
+TextureContainer::~TextureContainer() {
+  mgAssert(_idToTexture.empty());
 }
 
-void TextureContainer::createTexture(const CreateTextureInfo &textureInfo) {
+void TextureContainer::destroyTextureContainer() {
+  for (uint32_t i = 0; i < _idToTexture.size(); i++) {
+    if (_isAlive[i]) {
+      TextureId id = {i, _generations[i]};
+      removeTexture(id);
+    }
+  }
+  _idToTexture.clear();
+  _freeIndices.clear();
+  _generations.clear();
+  _isAlive.clear();
+  vkFreeDescriptorSets(vkContext.device, vkContext.descriptorPool, 1, &_descriptorSet);
+}
+
+TextureId TextureContainer::createTexture(const CreateTextureInfo &textureInfo) {
   const auto imageInfo = createImageInfoFromType(textureInfo.type);
 
   mg::_TextureData texture = {};
-  texture.nrOfDescriptorSets = uint32_t(textureInfo.textureSamplers.size());
   texture.format = textureInfo.format;
-
   VkImageCreateInfo imageCreateInfo = {};
   imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
   imageCreateInfo.imageType = imageInfo.vkImageType;
@@ -257,50 +222,106 @@ void TextureContainer::createTexture(const CreateTextureInfo &textureInfo) {
     mgAssert(false);
   };
 
-  createDescriptorSets(textureInfo, &texture);
-  updateDescriptorSets(textureInfo, &texture);
-  _idToTexture.emplace(textureInfo.id, texture);
-}
-
-Texture TextureContainer::getTexture(const std::string &id, TEXTURE_SAMPLER sampler) {
-  auto textureIt = _idToTexture.find(id);
-  mgAssert(textureIt != std::end(_idToTexture));
-  const auto &textureData = textureIt->second;
-
-  if (sampler == TEXTURE_SAMPLER::NONE)
-    mgAssert(textureData.nrOfDescriptorSets == 1);
-
-  for (uint32_t i = 0; i < textureData.nrOfDescriptorSets; i++) {
-    if (textureData.textureSamplers[i] == sampler || sampler == TEXTURE_SAMPLER::NONE) {
-      Texture texture = {};
-      texture.id = id;
-      texture.descriptorSet = textureData.descriptorSets[i];
-      texture.imageView = textureData.imageView;
-      texture.format = textureData.format;
-      return texture;
-    }
+  uint32_t currentIndex = 0;
+  if (_freeIndices.size()) {
+    currentIndex = _freeIndices.back();
+    _freeIndices.pop_back();
+  } else {
+    currentIndex = _idToTexture.size();
+    _idToTexture.push_back({});
+    _generations.push_back(0);
+    _isAlive.push_back(true);
   }
-  mgAssertDesc(false, "Could not found descriptorSet matching the correct sampler" << uint32_t(sampler));
-  return {};
+
+  _idToTexture[currentIndex] = texture;
+  _isAlive[currentIndex] = true;
+
+  TextureId textureId = {};
+  textureId.generation = _generations[currentIndex];
+  textureId.index = currentIndex;
+  return textureId;
 }
 
-void TextureContainer::destroyTexture(const std::string &id) {
-  const auto textureIt = _idToTexture.find(id);
-  mgAssert(textureIt != std::end(_idToTexture));
-  const auto &texture = textureIt->second;
+uint32_t TextureContainer::getTextureDescriptorIndex(TextureId textureId) {
+  mgAssert(textureId.index < _idToTexture.size());
+  mgAssert(textureId.generation == _generations[textureId.index]);
+  mgAssert(_isAlive[textureId.index]);
+  mgAssert(_idToTexture.size() == _idToDescriptorIndex.size());
+
+  return _idToDescriptorIndex[textureId.index];
+}
+Texture TextureContainer::getTexture(TextureId textureId) {
+  mgAssert(textureId.index < _idToTexture.size());
+  mgAssert(textureId.generation == _generations[textureId.index]);
+  mgAssert(_isAlive[textureId.index]);
+
+  const auto &textureData = _idToTexture[textureId.index];
+
+  Texture texture = {};
+  texture.imageView = textureData.imageView;
+  texture.format = textureData.format;
+  return texture;
+}
+
+void TextureContainer::removeTexture(TextureId textureId) {
+  mgAssert(textureId.index < _idToTexture.size());
+  mgAssert(textureId.generation == _generations[textureId.index]);
+  mgAssert(_isAlive[textureId.index]);
+
+  const auto &texture = _idToTexture[textureId.index];
   vkDestroyImage(mg::vkContext.device, texture.image, nullptr);
   vkDestroyImageView(mg::vkContext.device, texture.imageView, nullptr);
-  for (uint32_t i = 0; i < _TextureData::MAX_DESCRIPTOR_SET; i++) {
-    if (texture.descriptorSets[i] != nullptr) {
-      vkFreeDescriptorSets(mg::vkContext.device, mg::vkContext.descriptorPool, 1, &texture.descriptorSets[i]);
-    }
-  }
   mgSystem.textureDeviceMemoryAllocator.freeDeviceOnlyMemory(texture.heapAllocation);
+  _generations[textureId.index]++;
+  _isAlive[textureId.index] = false;
+  _freeIndices.push_back(textureId.index);
 }
 
-void TextureContainer::removeTexture(const std::string &id) {
-  destroyTexture(id);
-  _idToTexture.erase(id);
+void TextureContainer::setupDescriptorSets() {
+  // Textures
+  {
+    VkDescriptorImageInfo descriptorImageInfos[MAX_NR_OF_TEXTURES] = {};
+    uint32_t currentIndex = 0;
+    _idToDescriptorIndex.clear();
+    _idToDescriptorIndex.resize(_idToTexture.size());
+    for (uint32_t i = 0; i < uint32_t(_idToTexture.size()); ++i) {
+      if (!_isAlive[i])
+        continue;
+      descriptorImageInfos[currentIndex].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+      descriptorImageInfos[currentIndex].imageView = _idToTexture[i].imageView;
+      _idToDescriptorIndex[i] = currentIndex;
+      currentIndex++;
+    }
+
+    VkWriteDescriptorSet writeDescriptorSet = {};
+    writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    writeDescriptorSet.dstBinding = 1;
+    writeDescriptorSet.dstArrayElement = 0;
+    writeDescriptorSet.descriptorCount = _idToTexture.size();
+    writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+    writeDescriptorSet.pImageInfo = descriptorImageInfos;
+    writeDescriptorSet.dstSet = _descriptorSet;
+
+    vkUpdateDescriptorSets(mg::vkContext.device, 1, &writeDescriptorSet, 0, nullptr);
+  }
+  // Samplers
+  {
+    VkDescriptorImageInfo descriptorImageInfos[2] = {};
+    descriptorImageInfos[0].sampler = vkContext.sampler.linearBorderSampler;
+    descriptorImageInfos[1].sampler = vkContext.sampler.linearRepeat;
+
+    VkWriteDescriptorSet writeDescriptorSet = {};
+    writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    writeDescriptorSet.dstBinding = 0;
+    writeDescriptorSet.dstArrayElement = 0;
+    writeDescriptorSet.descriptorCount = mg::countof(descriptorImageInfos);
+    writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER;
+    writeDescriptorSet.pImageInfo = descriptorImageInfos;
+    writeDescriptorSet.dstSet = _descriptorSet;
+
+    vkUpdateDescriptorSets(mg::vkContext.device, 1, &writeDescriptorSet, 0, nullptr);
+  }
 }
 
+VkDescriptorSet TextureContainer::getDescriptorSet() { return _descriptorSet; }
 } // namespace mg
