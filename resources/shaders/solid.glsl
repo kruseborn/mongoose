@@ -13,7 +13,7 @@ struct StorageData {
 	vec4 position;
 };
 
-layout(set = 1, binding = 0) readonly buffer Storage {
+layout(set = 0, binding = 1) readonly buffer Storage {
      StorageData storageData[];
 } storage;
 
@@ -36,7 +36,6 @@ void main() {
 @frag
 layout (location = 0) in vec4 in_color;
 layout (location = 0) out vec4 out_frag_color;
-
 
 void main() {
 	out_frag_color = in_color;

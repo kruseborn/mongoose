@@ -28,13 +28,20 @@ void main ()  {
 }
 
 @frag
+#include "utils.hglsl"
+
 layout (location = 0) in float inGradient;
 layout (location = 0) out vec4 outFragColor;
 
-layout (set = 1, binding = 0) uniform sampler2D particleTexture;
+layout(set = 1, binding = 0) uniform sampler samplers[2];
+layout(set = 1, binding = 1) uniform texture2D textures[128];
+
+layout(push_constant) uniform TextureIndices {
+	int textureIndex;
+}pc;
 
 void main () {
-	vec4 particleColor = texture(particleTexture, gl_PointCoord);
+	vec4 particleColor = texture(sampler2D(textures[pc.textureIndex], samplers[linearBorder]), gl_PointCoord);
 	particleColor.xyz *= vec3(0.0,0.4,0.9);
 	outFragColor = particleColor;
 }

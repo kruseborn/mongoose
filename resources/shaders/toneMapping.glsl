@@ -23,7 +23,14 @@ void main() {
 }
 
 @frag
-layout (set = 1, binding = 0) uniform sampler2D imageSampler;
+#include "utils.hglsl"
+
+layout(set = 1, binding = 0) uniform sampler samplers[2];
+layout(set = 1, binding = 1) uniform texture2D textures[128];
+
+layout(push_constant) uniform TextureIndices {
+	int textureIndex;
+}pc;
 
 layout (location = 0) in vec2 inUV;
 layout (location = 0) out vec4 outFragColor;
@@ -31,7 +38,7 @@ layout (location = 0) out vec4 outFragColor;
 void main() {
     vec2 textCoord = inUV;
     textCoord.y = 1.0-textCoord.y;
-	vec4 textureColor = texture(imageSampler, textCoord);
+	vec4 textureColor = texture(sampler2D(textures[pc.textureIndex], samplers[linearBorder]), textCoord);
 
     vec4 hdrColor = textureColor.rgba;
     vec4 mapped = hdrColor / (hdrColor + vec4(1.0));

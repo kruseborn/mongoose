@@ -21,12 +21,10 @@ struct _Buffer {
 
 struct _UniformBuffer {
   _Buffer buffer;
-  VkDescriptorSet vkDescriptorSet[NrOfBuffers];
 };
 
 struct _StorageBuffer {
   _Buffer buffer;
-  VkDescriptorSet vkDescriptorSet[NrOfBuffers];
 };
 
 struct _StagingBuffer {
@@ -62,6 +60,8 @@ private:
   _StagingBuffer _stagingBuffer;
   _StorageBuffer _storageBuffer;
   uint32_t _currentBufferIndex = 0;
+  VkDescriptorSet _vkDescriptorSets[NrOfBuffers];
+
   // allocations larger than the staging buffer
   struct LargeLinearStagingAllocation {
     VkDeviceMemory deviceMemory;
@@ -70,6 +70,7 @@ private:
     VkDeviceSize alignSize;
     VkCommandBuffer commandBuffer;
   };
+
   std::vector<LargeLinearStagingAllocation> _largeLinearStagingAllocation;
   std::vector<VkDeviceSize> _largeAllocationHistory;
   bool _hasBeenDelete;

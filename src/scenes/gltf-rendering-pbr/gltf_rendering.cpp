@@ -29,7 +29,7 @@ void drawGltfMesh(const mg::RenderContext &renderContext, mg::MeshId meshId, con
   VkBuffer uniformBuffer;
   uint32_t uniformOffset;
   VkDescriptorSet uboSet;
-  Ubo *ubo = (Ubo *)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
+  Ubo *dynamic = (Ubo *)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
 
   glm::mat4 projectionMatrix, viewMatrix;
 
@@ -37,17 +37,18 @@ void drawGltfMesh(const mg::RenderContext &renderContext, mg::MeshId meshId, con
       glm::perspective(glm::radians(45.0f), mg::vkContext.screen.width / float(mg::vkContext.screen.height), 0.1f, 256.f);
   viewMatrix = glm::lookAt(camera.position, camera.aim, camera.up);
 
-  ubo->model = glm::scale(glm::mat4(1), {-1, 1, 1});
-  ubo->view = viewMatrix;
-  ubo->projection = projectionMatrix;
-  ubo->cameraPosition = glm::vec4{camera.position, 1.0f};
+  dynamic->model = glm::scale(glm::mat4(1), {-1, 1, 1});
+  dynamic->view = viewMatrix;
+  dynamic->projection = projectionMatrix;
+  dynamic->cameraPosition = glm::vec4{camera.position, 1.0f};
 
   DescriptorSets descriptorSets = {};
   descriptorSets.ubo = uboSet;
   descriptorSets.textures = mg::getTextureDescriptorSet();
 
+  uint32_t dynamicOffsets[] = {uniformOffset, 0};
   vkCmdBindDescriptorSets(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.layout, 0,
-                          mg::countof(descriptorSets.values), descriptorSets.values, 1, &uniformOffset);
+                          mg::countof(descriptorSets.values), descriptorSets.values, mg::countof(dynamicOffsets), dynamicOffsets);
   
   TextureIndices textureIndices = {};
   textureIndices.baseColorIndex = mg::getTexture2DDescriptorIndex(nameToTextureId.at("WaterBottle_baseColor.png"));

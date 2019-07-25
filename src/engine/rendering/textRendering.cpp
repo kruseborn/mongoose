@@ -84,16 +84,17 @@ static void renderCharacters(const mg::RenderContext &renderContext, const mg::F
   uint32_t uniformOffset;
   VkDescriptorSet uboSet;
 
-  Ubo *ubo = (Ubo*)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
+  Ubo *dynamic = (Ubo*)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
 
-  ubo->projection = glm::ortho(0.0f, float(mg::vkContext.screen.width), 0.0f, float(mg::vkContext.screen.height), -10.0f, 10.0f);
+  dynamic->projection = glm::ortho(0.0f, float(mg::vkContext.screen.width), 0.0f, float(mg::vkContext.screen.height), -10.0f, 10.0f);
 
   DescriptorSets descriptorSets = {};
   descriptorSets.ubo = uboSet;
   descriptorSets.textures = mg::getTextureDescriptorSet();
 
+  uint32_t dynamicOffsets[] = {uniformOffset, 0};
   vkCmdBindDescriptorSets(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.layout, 0,
-                          mg::countof(descriptorSets.values), descriptorSets.values, 1, &uniformOffset);
+                          mg::countof(descriptorSets.values), descriptorSets.values, mg::countof(dynamicOffsets), dynamicOffsets);
 
   TextureIndices textureIndices = {};
   textureIndices.textureIndex = mg::getTexture2DDescriptorIndex(fonts.getFontGlyphMap(fontType));

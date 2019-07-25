@@ -249,6 +249,9 @@ struct Ubo {
   glm::mat4 modelview;
   glm::vec2 screendim;
 };
+struct TextureIndices {
+  int32_t textureIndex;
+};
 namespace InputAssembler {
   static VertexInputState vertexInputState[2] = {
     { VK_FORMAT_R32G32B32A32_SFLOAT, 0, 0, 0, 16 },
@@ -262,7 +265,7 @@ namespace InputAssembler {
 union DescriptorSets {
   struct {
     VkDescriptorSet ubo;
-    VkDescriptorSet particleTexture;
+    VkDescriptorSet textures;
   };
   VkDescriptorSet values[2];
 };
@@ -370,9 +373,8 @@ namespace InputAssembler {
 union DescriptorSets {
   struct {
     VkDescriptorSet ubo;
-    VkDescriptorSet storage;
   };
-  VkDescriptorSet values[2];
+  VkDescriptorSet values[1];
 };
 } //solid
 
@@ -440,10 +442,13 @@ namespace toneMapping {
 struct Ubo {
   glm::vec4 color;
 };
+struct TextureIndices {
+  int32_t textureIndex;
+};
 union DescriptorSets {
   struct {
     VkDescriptorSet ubo;
-    VkDescriptorSet imageSampler;
+    VkDescriptorSet textures;
   };
   VkDescriptorSet values[2];
 };

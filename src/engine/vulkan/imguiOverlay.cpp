@@ -90,9 +90,9 @@ static void renderCommandList(const ImguiBuffer &imguiBuffer, const mg::Pipeline
   VkBuffer uniformBuffer;
   uint32_t uniformOffset;
   VkDescriptorSet uboSet;
-  Ubo *ubo = (Ubo*)mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
-  ubo->uScale = glm::vec2{ 2.0f / imDrawData->DisplaySize.x, 2.0f / imDrawData->DisplaySize.y };
-  ubo->uTranslate = glm::vec2{ translate[0] = -1.0f - imDrawData->DisplayPos.x * scale[0], translate[1] = -1.0f - imDrawData->DisplayPos.y * scale[1] };
+  Ubo *dynamic = (Ubo*)mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
+  dynamic->uScale = glm::vec2{ 2.0f / imDrawData->DisplaySize.x, 2.0f / imDrawData->DisplaySize.y };
+  dynamic->uTranslate = glm::vec2{ translate[0] = -1.0f - imDrawData->DisplayPos.x * scale[0], translate[1] = -1.0f - imDrawData->DisplayPos.y * scale[1] };
 
   vkCmdBindVertexBuffers(mg::vkContext.commandBuffer, 0, 1, &imguiBuffer.buffer, &imguiBuffer.bufferOffset);
   vkCmdBindIndexBuffer(mg::vkContext.commandBuffer, imguiBuffer.buffer, imguiBuffer.indicesOffset, VK_INDEX_TYPE_UINT16);
@@ -101,7 +101,9 @@ static void renderCommandList(const ImguiBuffer &imguiBuffer, const mg::Pipeline
   DescriptorSets descriptorSets = {};
   descriptorSets.ubo = uboSet;
   descriptorSets.textures = mg::getTextureDescriptorSet();
-  vkCmdBindDescriptorSets(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.layout, 0, mg::countof(descriptorSets.values), descriptorSets.values, 1, &uniformOffset);
+
+  uint32_t dynamicOffsets[] = {uniformOffset, 0};
+  vkCmdBindDescriptorSets(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.layout, 0, mg::countof(descriptorSets.values), descriptorSets.values, mg::countof(dynamicOffsets), dynamicOffsets);
 
   TextureIndices textureIndices = {};
   textureIndices.textureIndex = mg::getTexture2DDescriptorIndex(fontTextureId);

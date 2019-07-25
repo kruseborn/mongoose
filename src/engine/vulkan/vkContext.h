@@ -30,20 +30,16 @@ struct VulkanContext {
 
   struct {
     VkPipelineLayout pipelineLayout;
-    VkPipelineLayout pipelineLayout3DTextures;
-    VkPipelineLayout pipelineStorageLayout;
-    VkPipelineLayout pipelineLayoutMultiTexture;
-    VkPipelineLayout pipelineComputeLayout;
+    VkPipelineLayout pipelineLayoutStorage;
   } pipelineLayouts;
 
   VkCommandPool commandPool;
   uint32_t queueFamilyIndex;
   struct {
-    VkDescriptorSetLayout ubo;
+    VkDescriptorSetLayout dynamic;
     VkDescriptorSetLayout textures;
     VkDescriptorSetLayout textures3D;
     VkDescriptorSetLayout storage;
-    VkDescriptorSetLayout storageDynamic;
   } descriptorSetLayout;
 
   VkPipelineCache pipelineCache;

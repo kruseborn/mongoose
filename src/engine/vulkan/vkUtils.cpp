@@ -135,7 +135,7 @@ void endRendering() {
   vkContext.commandBuffers.currentIndex = (vkContext.commandBuffers.currentIndex + 1) % vkContext.commandBuffers.nrOfBuffers;
 }
 
-void uploadPngImage(const std::string &name) {
+mg::TextureId uploadPngImage(const std::string &name) {
   std::vector<unsigned char> imageData;
   uint32_t width, height;
   const auto error = lodepng::decode(imageData, width, height, getTexturePath() + name);
@@ -148,6 +148,6 @@ void uploadPngImage(const std::string &name) {
   createTextureInfo.size = {width, height, 1};
   createTextureInfo.sizeInBytes = mg::sizeofContainerInBytes(imageData);
   createTextureInfo.type = mg::TEXTURE_TYPE::TEXTURE_2D;
-  mg::mgSystem.textureContainer.createTexture(createTextureInfo);
+  return mg::mgSystem.textureContainer.createTexture(createTextureInfo);
 }
 } // namespace mg

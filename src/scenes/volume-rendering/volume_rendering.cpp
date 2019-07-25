@@ -38,9 +38,9 @@ void drawFrontAndBack(const mg::RenderContext &renderContext, const VolumeInfo &
   VkBuffer uniformBuffer;
   uint32_t uniformOffset;
   VkDescriptorSet uboSet;
-  Ubo *ubo = (Ubo *)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
-  ubo->mvp = renderContext.projection * renderContext.view;
-  ubo->worldToBox = worldToBoxMatrix(volumeInfo);
+  Ubo *dynamic = (Ubo *)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
+  dynamic->mvp = renderContext.projection * renderContext.view;
+  dynamic->worldToBox = worldToBoxMatrix(volumeInfo);
 
   VkBuffer buffer;
   VkDeviceSize bufferOffset;
@@ -57,8 +57,9 @@ void drawFrontAndBack(const mg::RenderContext &renderContext, const VolumeInfo &
   DescriptorSets descriptorSets = {};
   descriptorSets.ubo = uboSet;
 
+  uint32_t dynamicOffsets[] =  {uniformOffset, 0};
   vkCmdBindDescriptorSets(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, frontAndBackPipeline.layout, 0,
-                          mg::countof(descriptorSets.values), descriptorSets.values, 1, &uniformOffset);
+                          mg::countof(descriptorSets.values), descriptorSets.values, mg::countof(dynamicOffsets), dynamicOffsets);
 
   vkCmdBindVertexBuffers(mg::vkContext.commandBuffer, 0, 1, &buffer, &bufferOffset);
   vkCmdBindIndexBuffer(mg::vkContext.commandBuffer, indexBuffer, indexBufferOffset, VK_INDEX_TYPE_UINT32);
@@ -71,7 +72,7 @@ static mg::Pipeline createVolumePipeline(const mg::RenderContext &renderContext)
 
   mg::PipelineStateDesc pipelineStateDesc = {};
   pipelineStateDesc.vkRenderPass = renderContext.renderPass;
-  pipelineStateDesc.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout3DTextures;
+  pipelineStateDesc.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
   pipelineStateDesc.rasterization.cullMode = VK_CULL_MODE_NONE;
   pipelineStateDesc.graphics.subpass = renderContext.subpass;
   pipelineStateDesc.depth.TestEnable = VK_FALSE;
@@ -100,21 +101,22 @@ void drawVolume(const mg::RenderContext &renderContext, const mg::Camera &camera
   VkBuffer uniformBuffer;
   uint32_t uniformOffset;
   VkDescriptorSet uboSet;
-  Ubo *ubo = (Ubo *)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
-  ubo->color = glm::vec4{1, 0, 0, 1};
-  ubo->minMaxIsoValue = glm::vec4{volumeInfo.min, volumeInfo.max, isoValue, 0.0f};
-  ubo->boxToWorld = boxToWorldMatrix(volumeInfo);
-  ubo->worldToBox = worldToBoxMatrix(volumeInfo);
-  ubo->mv = renderContext.view;
-  ubo->cameraPosition = glm::vec4{camera.position.x, camera.position.y, camera.position.z, 1.0f};
+  Ubo *dynamic = (Ubo *)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
+  dynamic->color = glm::vec4{1, 0, 0, 1};
+  dynamic->minMaxIsoValue = glm::vec4{volumeInfo.min, volumeInfo.max, isoValue, 0.0f};
+  dynamic->boxToWorld = boxToWorldMatrix(volumeInfo);
+  dynamic->worldToBox = worldToBoxMatrix(volumeInfo);
+  dynamic->mv = renderContext.view;
+  dynamic->cameraPosition = glm::vec4{camera.position.x, camera.position.y, camera.position.z, 1.0f};
 
   DescriptorSets descriptorSets = {};
   descriptorSets.ubo = uboSet;
   descriptorSets.textures = mg::getTextureDescriptorSet();
   descriptorSets.volumeTexture = mg::getTextureDescriptorSet3D();
 
+  uint32_t dynamicOffsets[] = {uniformOffset, 0};
   vkCmdBindDescriptorSets(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, volumePipeline.layout, 0,
-                          mg::countof(descriptorSets.values), descriptorSets.values, 1, &uniformOffset);
+                          mg::countof(descriptorSets.values), descriptorSets.values, mg::countof(dynamicOffsets), dynamicOffsets);
 
   TextureIndices textureIndices = {};
   textureIndices.backIndex = mg::getTexture2DDescriptorIndex(volumeRenderPass.back);
@@ -154,14 +156,16 @@ void drawDenoise(const mg::RenderContext &renderContext, const VolumeRenderPass 
   VkBuffer uniformBuffer;
   uint32_t uniformOffset;
   VkDescriptorSet uboSet;
-  Ubo *ubo = (Ubo *)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
-  ubo->color = glm::vec4{1, 0, 0, 1};
+  Ubo *dynamic = (Ubo *)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
+  dynamic->color = glm::vec4{1, 0, 0, 1};
 
   DescriptorSets descriptorSets = {};
   descriptorSets.ubo = uboSet;
   descriptorSets.textures = mg::getTextureDescriptorSet();
+
+  uint32_t dynamicOffsets[] = {uniformOffset, 0};
   vkCmdBindDescriptorSets(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, denoisePipeline.layout, 0,
-                          mg::countof(descriptorSets.values), descriptorSets.values, 1, &uniformOffset);
+                          mg::countof(descriptorSets.values), descriptorSets.values, mg::countof(dynamicOffsets), dynamicOffsets);
 
   TextureIndices textureIndices = {};
   textureIndices.textureIndex = mg::getTexture2DDescriptorIndex(volumeRenderPass.color);

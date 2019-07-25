@@ -101,7 +101,5 @@ struct Pipelines {
   Pipeline patientPlaneDose;
 };
 
-VkPipelineLayout getPipelineLayout(mg::shaders::Resources *resources, uint32_t resourcesCount);
-
 } // namespace
 

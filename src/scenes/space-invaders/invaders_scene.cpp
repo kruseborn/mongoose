@@ -21,6 +21,8 @@ void invadersInit(Invaders *invaders) {
   assert(invaders);
   device.linearAllocator.init(1024 * 1024);
   invadersReset(invaders);
+
+  mg::mgSystem.textureContainer.setupDescriptorSets();
 }
 
 void invadersDestroy(Invaders *invaders) {

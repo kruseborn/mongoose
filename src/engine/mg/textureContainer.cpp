@@ -364,17 +364,18 @@ void TextureContainer::setupDescriptorSets() {
       currentIndex++;
       mgAssert(MAX_NR_OF_3D_TEXTURES > currentIndex);
     }
+    if (currentIndex > 0) {
+      VkWriteDescriptorSet writeDescriptorSet = {};
+      writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+      writeDescriptorSet.dstBinding = 0;
+      writeDescriptorSet.dstArrayElement = 0;
+      writeDescriptorSet.descriptorCount = currentIndex;
+      writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+      writeDescriptorSet.pImageInfo = descriptorImageInfos;
+      writeDescriptorSet.dstSet = _descriptorSet3D;
 
-    VkWriteDescriptorSet writeDescriptorSet = {};
-    writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-    writeDescriptorSet.dstBinding = 0;
-    writeDescriptorSet.dstArrayElement = 0;
-    writeDescriptorSet.descriptorCount = currentIndex;
-    writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
-    writeDescriptorSet.pImageInfo = descriptorImageInfos;
-    writeDescriptorSet.dstSet = _descriptorSet3D;
-
-    vkUpdateDescriptorSets(mg::vkContext.device, 1, &writeDescriptorSet, 0, nullptr);
+      vkUpdateDescriptorSets(mg::vkContext.device, 1, &writeDescriptorSet, 0, nullptr);
+    }
   }
 }
 

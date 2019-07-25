@@ -625,12 +625,12 @@ const char* info_language_dialect_default =
 /*--------------------------------------------------------------------------*/
 
 #ifdef ID_VOID_MAIN
-void ubo() {}
+void dynamic() {}
 #else
 # if defined(__CLASSIC_C__)
-int ubo(argc, argv) int argc; char *argv[];
+int dynamic(argc, argv) int argc; char *argv[];
 # else
-int ubo(int argc, char* argv[])
+int dynamic(int argc, char* argv[])
 # endif
 {
   int require = 0;
