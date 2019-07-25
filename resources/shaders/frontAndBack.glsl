@@ -18,7 +18,6 @@ void main(void) {
 }
 
 @frag
-
 layout (location = 0) in vec4 inPosition;
 layout (location = 0) out vec4 outFragColorBack;
 layout (location = 1) out vec4 outFragColorFront;
@@ -27,7 +26,7 @@ void main(void) {
   vec4 posInTexture = vec4((ubo.worldToBox * inPosition).xyz, 1.0);
   if(!gl_FrontFacing) {
     outFragColorFront = vec4(0);
-	  outFragColorBack = posInTexture;
+	  outFragColorBack = posInTexture; 
    } else {
      outFragColorFront = posInTexture;
      outFragColorBack = vec4(0);

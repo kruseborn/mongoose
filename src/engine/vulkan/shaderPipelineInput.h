@@ -466,8 +466,8 @@ struct TextureIndices {
 union DescriptorSets {
   struct {
     VkDescriptorSet ubo;
-    VkDescriptorSet volumeTexture;
     VkDescriptorSet textures;
+    VkDescriptorSet volumeTexture;
   };
   VkDescriptorSet values[3];
 };
