@@ -6,21 +6,19 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <vector>
 
-void uploadVolumeToGpu(const std::vector<uint16_t> &data, const glm::uvec3 &size) {
+static mg::TextureId uploadVolumeToGpu(const std::vector<uint16_t> &data, const glm::uvec3 &size) {
   mg::CreateTextureInfo createTextureInfo = {};
   createTextureInfo.id = "stagbeetle";
-  createTextureInfo.textureSamplers = {mg::TEXTURE_SAMPLER::LINEAR_CLAMP_TO_BORDER};
   createTextureInfo.type = mg::TEXTURE_TYPE::TEXTURE_3D;
   createTextureInfo.size = {size.x, size.y, size.z};
   createTextureInfo.data = (void *)data.data();
   createTextureInfo.sizeInBytes = mg::sizeofContainerInBytes(data);
   createTextureInfo.format = VK_FORMAT_R16_UNORM;
 
-  mg::mgSystem.textureContainer.createTexture(createTextureInfo);
+  return mg::mgSystem.textureContainer.createTexture(createTextureInfo);
 }
 
 VolumeInfo parseDatFile() {
-
   const auto filePath = mg::getDataPath() + "stagbeetle_dat/stagbeetle277x277x164.dat";
   auto stream = std::ifstream(filePath, std::fstream::binary);
   uint16_t sizeX, sizeY, sizeZ;
@@ -31,9 +29,10 @@ VolumeInfo parseDatFile() {
   std::vector<uint16_t> data(sizeX * sizeY * sizeZ);
   stream.read((char *)data.data(), mg::sizeofContainerInBytes(data));
 
-  uploadVolumeToGpu(data, {sizeX, sizeY, sizeZ});
-
   VolumeInfo volumeInfo = {};
+
+  volumeInfo.textureId = uploadVolumeToGpu(data, {sizeX, sizeY, sizeZ});
+
   volumeInfo.corner = {0, 0, 0};
   volumeInfo.voxelSize = {1, 1, 1};
   volumeInfo.nrOfVoxels = {277, 277, 164};
@@ -44,9 +43,15 @@ VolumeInfo parseDatFile() {
       volumeInfo.nrOfVoxels.y * volumeInfo.voxelSize.y,
       volumeInfo.nrOfVoxels.z * volumeInfo.voxelSize.z,
   };
+  int count = 0;
+  int index = 0;
   for (uint32_t i = 0; i < uint32_t(data.size()); i++) {
     volumeInfo.min = std::min(volumeInfo.min, data[i]);
     volumeInfo.max = std::max(volumeInfo.max, data[i]);
+    if (data[i] > 2000) {
+      count++;
+      index = i;
+    }
   }
   return volumeInfo;
 }

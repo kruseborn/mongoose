@@ -109,9 +109,9 @@ void renderSSAO(const mg::RenderContext &renderContext, const DeferredRenderPass
                           mg::countof(descriptorSets.values), descriptorSets.values, 1, &uniformOffset);
 
   TextureIndices textureIndices = {};
-  textureIndices.normalIndex = mg::getTextureDescriptorIndex(deferredRenderPass.normal);
-  textureIndices.wordViewPositionIndex = mg::getTextureDescriptorIndex(deferredRenderPass.worldViewPosition);
-  textureIndices.noiseIndex = mg::getTextureDescriptorIndex(noise.noiseTexture);
+  textureIndices.normalIndex = mg::getTexture2DDescriptorIndex(deferredRenderPass.normal);
+  textureIndices.wordViewPositionIndex = mg::getTexture2DDescriptorIndex(deferredRenderPass.worldViewPosition);
+  textureIndices.noiseIndex = mg::getTexture2DDescriptorIndex(noise.noiseTexture);
   vkCmdPushConstants(mg::vkContext.commandBuffer, ssaoPipeline.layout, VK_SHADER_STAGE_ALL, 0, sizeof(TextureIndices),
                      &textureIndices);
 
@@ -156,7 +156,7 @@ void renderBlurSSAO(const mg::RenderContext &renderContext, const DeferredRender
                           mg::countof(descriptorSets.values), descriptorSets.values, 1, &uniformOffset);
 
   TextureIndices textureIndices = {};
-  textureIndices.ssaoIndex = mg::getTextureDescriptorIndex(deferredRenderPass.ssao);
+  textureIndices.ssaoIndex = mg::getTexture2DDescriptorIndex(deferredRenderPass.ssao);
   vkCmdPushConstants(mg::vkContext.commandBuffer, ssaoBlurPipeline.layout, VK_SHADER_STAGE_ALL, 0,
                      sizeof(TextureIndices),
                      &textureIndices);
@@ -225,10 +225,10 @@ void renderFinalDeferred(const mg::RenderContext &renderContext, const DeferredR
                           mg::countof(descriptorSets.values), descriptorSets.values, 1, &uniformOffset);
 
   TextureIndices textureIndices = {};
-  textureIndices.diffuseIndex = mg::getTextureDescriptorIndex(deferredRenderPass.albedo);
-  textureIndices.normalIndex = mg::getTextureDescriptorIndex(deferredRenderPass.normal);
-  textureIndices.ssaoBluredIndex = mg::getTextureDescriptorIndex(deferredRenderPass.ssaoBlur);
-  textureIndices.worldViewPostionIndex = mg::getTextureDescriptorIndex(deferredRenderPass.worldViewPosition);
+  textureIndices.diffuseIndex = mg::getTexture2DDescriptorIndex(deferredRenderPass.albedo);
+  textureIndices.normalIndex = mg::getTexture2DDescriptorIndex(deferredRenderPass.normal);
+  textureIndices.ssaoBluredIndex = mg::getTexture2DDescriptorIndex(deferredRenderPass.ssaoBlur);
+  textureIndices.worldViewPostionIndex = mg::getTexture2DDescriptorIndex(deferredRenderPass.worldViewPosition);
 
   vkCmdPushConstants(mg::vkContext.commandBuffer, deferredPipeline.layout, VK_SHADER_STAGE_ALL, 0,
                      sizeof(TextureIndices), &textureIndices);

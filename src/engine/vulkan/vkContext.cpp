@@ -27,12 +27,14 @@ void destroyVulkan() {
 
   vkDestroyPipelineCache(mg::vkContext.device, mg::vkContext.pipelineCache, nullptr);
   vkDestroyPipelineLayout(mg::vkContext.device, mg::vkContext.pipelineLayouts.pipelineLayout, nullptr);
+  vkDestroyPipelineLayout(mg::vkContext.device, mg::vkContext.pipelineLayouts.pipelineLayout3DTextures, nullptr);
   vkDestroyPipelineLayout(mg::vkContext.device, mg::vkContext.pipelineLayouts.pipelineLayoutMultiTexture, nullptr);
   vkDestroyPipelineLayout(mg::vkContext.device, mg::vkContext.pipelineLayouts.pipelineStorageLayout, nullptr);
   vkDestroyPipelineLayout(mg::vkContext.device, mg::vkContext.pipelineLayouts.pipelineComputeLayout, nullptr);
 
   vkDestroyDescriptorSetLayout(mg::vkContext.device, mg::vkContext.descriptorSetLayout.ubo, nullptr);
   vkDestroyDescriptorSetLayout(mg::vkContext.device, mg::vkContext.descriptorSetLayout.textures, nullptr);
+  vkDestroyDescriptorSetLayout(mg::vkContext.device, mg::vkContext.descriptorSetLayout.textures3D, nullptr);
   vkDestroyDescriptorSetLayout(mg::vkContext.device, mg::vkContext.descriptorSetLayout.storageDynamic, nullptr);
   vkDestroyDescriptorSetLayout(mg::vkContext.device, mg::vkContext.descriptorSetLayout.storage, nullptr);
 
@@ -65,7 +67,7 @@ static void createDescriptorLayout() {
     checkResult(vkCreateDescriptorSetLayout(mg::vkContext.device, &descriptorSetLayoutCreateInfo, nullptr,
                                             &mg::vkContext.descriptorSetLayout.ubo));
   }
-  // textures
+  // textures 2D
   {
     VkDescriptorSetLayoutBinding descriptorSetLayoutBindings[2] = {};
     descriptorSetLayoutBindings[0].binding = 0;
@@ -74,7 +76,7 @@ static void createDescriptorLayout() {
     descriptorSetLayoutBindings[0].stageFlags = VK_SHADER_STAGE_ALL;
 
     descriptorSetLayoutBindings[1].binding = 1;
-    descriptorSetLayoutBindings[1].descriptorCount = MAX_NR_OF_TEXTURES;
+    descriptorSetLayoutBindings[1].descriptorCount = MAX_NR_OF_2D_TEXTURES;
     descriptorSetLayoutBindings[1].descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
     descriptorSetLayoutBindings[1].stageFlags = VK_SHADER_STAGE_ALL;
 
@@ -92,6 +94,29 @@ static void createDescriptorLayout() {
 
     checkResult(vkCreateDescriptorSetLayout(mg::vkContext.device, &descriptorSetLayoutCreateInfo, nullptr,
                                             &mg::vkContext.descriptorSetLayout.textures));
+  }
+  // textures 3D
+  {
+    VkDescriptorSetLayoutBinding descriptorSetLayoutBindings[1] = {};
+    descriptorSetLayoutBindings[0].binding = 0;
+    descriptorSetLayoutBindings[0].descriptorCount = MAX_NR_OF_3D_TEXTURES;
+    descriptorSetLayoutBindings[0].descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+    descriptorSetLayoutBindings[0].stageFlags = VK_SHADER_STAGE_ALL;
+
+    VkDescriptorBindingFlagsEXT descriptorBindingFlags[] = {VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT_EXT};
+    VkDescriptorSetLayoutBindingFlagsCreateInfoEXT setLayoutBindingFlags = {};
+    setLayoutBindingFlags.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO_EXT;
+    setLayoutBindingFlags.bindingCount = mg::countof(descriptorBindingFlags);
+    setLayoutBindingFlags.pBindingFlags = descriptorBindingFlags;
+
+    VkDescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo = {};
+    descriptorSetLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+    descriptorSetLayoutCreateInfo.bindingCount = mg::countof(descriptorSetLayoutBindings);
+    descriptorSetLayoutCreateInfo.pBindings = descriptorSetLayoutBindings;
+    descriptorSetLayoutCreateInfo.pNext = &setLayoutBindingFlags;
+
+    checkResult(vkCreateDescriptorSetLayout(mg::vkContext.device, &descriptorSetLayoutCreateInfo, nullptr,
+                                            &mg::vkContext.descriptorSetLayout.textures3D));
   }
   // storage
   {
@@ -134,6 +159,7 @@ static void createDescriptorLayout() {
 }
 
 static void createPipelineLayout() {
+  // default pipeline
   {
     VkDescriptorSetLayout descriptorSetLayoutsStorages[3] = {
         mg::vkContext.descriptorSetLayout.ubo,
@@ -154,6 +180,28 @@ static void createPipelineLayout() {
     layoutCreateInfo.pushConstantRangeCount = 1;
     checkResult(
         vkCreatePipelineLayout(mg::vkContext.device, &layoutCreateInfo, nullptr, &mg::vkContext.pipelineLayouts.pipelineLayout));
+  }
+  // 3D textures
+  {
+    VkDescriptorSetLayout descriptorSetLayoutsStorages[3] = {
+        mg::vkContext.descriptorSetLayout.ubo,
+        mg::vkContext.descriptorSetLayout.textures,
+        mg::vkContext.descriptorSetLayout.textures3D,
+    };
+
+    VkPipelineLayoutCreateInfo layoutCreateInfo = {};
+    layoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+    layoutCreateInfo.setLayoutCount = mg::countof(descriptorSetLayoutsStorages);
+    layoutCreateInfo.pSetLayouts = descriptorSetLayoutsStorages;
+
+    VkPushConstantRange pushConstantRange = {};
+    pushConstantRange.stageFlags = VK_SHADER_STAGE_ALL;
+    pushConstantRange.size = 256;
+
+    layoutCreateInfo.pPushConstantRanges = &pushConstantRange;
+    layoutCreateInfo.pushConstantRangeCount = 1;
+    checkResult(
+        vkCreatePipelineLayout(mg::vkContext.device, &layoutCreateInfo, nullptr, &mg::vkContext.pipelineLayouts.pipelineLayout3DTextures));
   }
 }
 
@@ -182,13 +230,13 @@ static void createDescriptorPool() {
   descriptorPoolSizes[1].descriptorCount = 2;
 
   descriptorPoolSizes[2].type = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
-  descriptorPoolSizes[2].descriptorCount = MAX_NR_OF_TEXTURES;
+  descriptorPoolSizes[2].descriptorCount = MAX_NR_OF_2D_TEXTURES;
 
   VkDescriptorPoolCreateInfo createInfo = {};
   createInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
   createInfo.poolSizeCount = mg::countof(descriptorPoolSizes);
   createInfo.pPoolSizes = descriptorPoolSizes;
-  createInfo.maxSets = MAX_NR_OF_TEXTURES + 32;
+  createInfo.maxSets = MAX_NR_OF_2D_TEXTURES + 32;
   createInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
 
   checkResult(vkCreateDescriptorPool(mg::vkContext.device, &createInfo, nullptr, &mg::vkContext.descriptorPool));

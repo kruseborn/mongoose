@@ -37,7 +37,10 @@ extern MgSystem mgSystem;
 
 // helper function
 inline VkDescriptorSet getTextureDescriptorSet() { return mgSystem.textureContainer.getDescriptorSet(); }
-inline uint32_t getTextureDescriptorIndex(mg::TextureId id) { return mgSystem.textureContainer.getTextureDescriptorIndex(id); }
+inline VkDescriptorSet getTextureDescriptorSet3D() { return mgSystem.textureContainer.getDescriptorSet3D(); }
+
+inline uint32_t getTexture2DDescriptorIndex(mg::TextureId id) { return mgSystem.textureContainer.getTexture2DDescriptorIndex(id); }
+inline uint32_t getTexture3DDescriptorIndex(mg::TextureId id) { return mgSystem.textureContainer.getTexture3DDescriptorIndex(id); }
 inline Texture getTexture(mg::TextureId id) { return mgSystem.textureContainer.getTexture(id); }
 inline void removeTexture(mg::TextureId id) { mgSystem.textureContainer.removeTexture(id); }
 inline Mesh getMesh(mg::MeshId meshId) { return mgSystem.meshContainer.getMesh(meshId); }

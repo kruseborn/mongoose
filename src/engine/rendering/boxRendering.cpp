@@ -122,7 +122,7 @@ void renderBoxWithTexture(mg::RenderContext &renderContext, const glm::vec4 &pos
   descriptorSets.textures = mg::getTextureDescriptorSet();
 
   TextureIndices textureIndices = {};
-  textureIndices.textureIndex = mg::getTextureDescriptorIndex(textureId);
+  textureIndices.textureIndex = mg::getTexture2DDescriptorIndex(textureId);
   vkCmdPushConstants(mg::vkContext.commandBuffer, texturePipeline.layout, VK_SHADER_STAGE_ALL, 0, sizeof(TextureIndices),
                      &textureIndices);
 
@@ -191,7 +191,7 @@ void renderBoxWithDepthTexture(mg::RenderContext &renderContext, const glm::vec4
   descriptorSets.textures = mg::getTextureDescriptorSet();
 
   TextureIndices textureIndices = {};
-  textureIndices.textureIndex = mg::getTextureDescriptorIndex(textureId);
+  textureIndices.textureIndex = mg::getTexture2DDescriptorIndex(textureId);
   vkCmdPushConstants(mg::vkContext.commandBuffer, texturePipeline.layout, VK_SHADER_STAGE_ALL, 0, sizeof(TextureIndices), &textureIndices);
 
   glm::vec4 vertexInputData[4] = {

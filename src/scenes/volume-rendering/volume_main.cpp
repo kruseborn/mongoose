@@ -1,7 +1,7 @@
 #include "mg/window.h"
 #include "volume_scene.h"
 
-int ubo() {
+int main() {
   mg::initWindow(1500, 1024);
   initScene();
   while (mg::startFrame()) {

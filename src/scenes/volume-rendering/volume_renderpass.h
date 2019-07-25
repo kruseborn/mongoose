@@ -1,5 +1,6 @@
 #include "vulkan/vkContext.h"
 #include "vulkan/swapChain.h"
+#include "mg/textureContainer.h"
 
 namespace VOLUME_ATTACHMENTS {
 enum { FRONT, BACK, COLOR, SWAPCHAIN, DEPTH, SIZE };
@@ -12,6 +13,7 @@ enum { FRONT_BACK, VOLUME, DENOISE };
 struct VolumeRenderPass {
   VkFramebuffer vkFrameBuffers[mg::MAX_SWAP_CHAIN_IMAGES];
   VkRenderPass vkRenderPass;
+  mg::TextureId front, back, color, depth;
 };
 
 void initVolumeRenderPass(VolumeRenderPass *volumeRenderPass);

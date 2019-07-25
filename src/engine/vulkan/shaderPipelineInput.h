@@ -19,10 +19,13 @@ struct Ubo {
   glm::mat4 mvp;
   glm::vec4 color;
 };
+struct TextureIndices {
+  int32_t textureIndex;
+};
 union DescriptorSets {
   struct {
     VkDescriptorSet ubo;
-    VkDescriptorSet imageSampler;
+    VkDescriptorSet textures;
   };
   VkDescriptorSet values[2];
 };
@@ -456,14 +459,18 @@ struct Ubo {
   glm::vec4 minMaxIsoValue;
   glm::vec4 nrOfVoxels;
 };
+struct TextureIndices {
+  int32_t frontIndex;
+  int32_t backIndex;
+  int32_t volumeIndex;
+};
 union DescriptorSets {
   struct {
     VkDescriptorSet ubo;
-    VkDescriptorSet samplerFront;
-    VkDescriptorSet samplerBack;
-    VkDescriptorSet samplerVolume;
+    VkDescriptorSet textures;
+    VkDescriptorSet textures3D;
   };
-  VkDescriptorSet values[4];
+  VkDescriptorSet values[3];
 };
 } //volume
 

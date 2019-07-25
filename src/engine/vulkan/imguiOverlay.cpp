@@ -104,7 +104,7 @@ static void renderCommandList(const ImguiBuffer &imguiBuffer, const mg::Pipeline
   vkCmdBindDescriptorSets(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.layout, 0, mg::countof(descriptorSets.values), descriptorSets.values, 1, &uniformOffset);
 
   TextureIndices textureIndices = {};
-  textureIndices.textureIndex = mg::getTextureDescriptorIndex(fontTextureId);
+  textureIndices.textureIndex = mg::getTexture2DDescriptorIndex(fontTextureId);
   vkCmdPushConstants(mg::vkContext.commandBuffer, pipeline.layout, VK_SHADER_STAGE_ALL, 0, sizeof(TextureIndices),
                      &textureIndices);
 

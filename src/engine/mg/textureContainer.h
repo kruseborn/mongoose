@@ -20,6 +20,7 @@ struct _TextureData {
   VkImageView imageView;
   mg::DeviceHeapAllocation heapAllocation;
   VkFormat format;
+  VkImageType imageType;
 };
 
 struct CreateTextureInfo {
@@ -41,11 +42,16 @@ class TextureContainer : mg::nonCopyable {
 public:
   void createTextureContainer();
   TextureId createTexture(const CreateTextureInfo &textureInfo);
-  uint32_t getTextureDescriptorIndex(TextureId textureId);
+  uint32_t getTexture2DDescriptorIndex(TextureId textureId);
+  uint32_t getTexture3DDescriptorIndex(TextureId textureId);
+
+
   Texture getTexture(TextureId textureId);
   void removeTexture(TextureId textureId);
 
-  VkDescriptorSet getDescriptorSet();  
+  VkDescriptorSet getDescriptorSet(); 
+  VkDescriptorSet getDescriptorSet3D(); 
+
   void setupDescriptorSets();
 
   void destroyTextureContainer();
@@ -54,12 +60,15 @@ public:
 
 private:
   VkDescriptorSet _descriptorSet;
-
+  VkDescriptorSet _descriptorSet3D;
+  
   std::vector<_TextureData> _idToTexture;
   std::vector<uint32_t> _freeIndices;
   std::vector<uint32_t> _generations;
   std::vector<bool> _isAlive;
-  std::vector<uint32_t> _idToDescriptorIndex;
+  std::vector<uint32_t> _idToDescriptorIndex2D;
+  std::vector<uint32_t> _idToDescriptorIndex3D;
+
 
 };
 

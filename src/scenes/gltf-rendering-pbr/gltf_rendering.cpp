@@ -50,10 +50,10 @@ void drawGltfMesh(const mg::RenderContext &renderContext, mg::MeshId meshId, con
                           mg::countof(descriptorSets.values), descriptorSets.values, 1, &uniformOffset);
   
   TextureIndices textureIndices = {};
-  textureIndices.baseColorIndex = mg::getTextureDescriptorIndex(nameToTextureId.at("WaterBottle_baseColor.png"));
-  textureIndices.normalIndex = mg::getTextureDescriptorIndex(nameToTextureId.at("WaterBottle_normal.png"));
-  textureIndices.roughnessMetallicIndex = mg::getTextureDescriptorIndex(nameToTextureId.at("WaterBottle_occlusionRoughnessMetallic.png"));
-  textureIndices.emissiveIndex = mg::getTextureDescriptorIndex(nameToTextureId.at("WaterBottle_emissive.png"));
+  textureIndices.baseColorIndex = mg::getTexture2DDescriptorIndex(nameToTextureId.at("WaterBottle_baseColor.png"));
+  textureIndices.normalIndex = mg::getTexture2DDescriptorIndex(nameToTextureId.at("WaterBottle_normal.png"));
+  textureIndices.roughnessMetallicIndex = mg::getTexture2DDescriptorIndex(nameToTextureId.at("WaterBottle_occlusionRoughnessMetallic.png"));
+  textureIndices.emissiveIndex = mg::getTexture2DDescriptorIndex(nameToTextureId.at("WaterBottle_emissive.png"));
 
   vkCmdPushConstants(mg::vkContext.commandBuffer, pipeline.layout, VK_SHADER_STAGE_ALL, 0, sizeof(TextureIndices),
                      &textureIndices);

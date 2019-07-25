@@ -96,7 +96,7 @@ static void renderCharacters(const mg::RenderContext &renderContext, const mg::F
                           mg::countof(descriptorSets.values), descriptorSets.values, 1, &uniformOffset);
 
   TextureIndices textureIndices = {};
-  textureIndices.textureIndex = mg::getTextureDescriptorIndex(fonts.getFontGlyphMap(fontType));
+  textureIndices.textureIndex = mg::getTexture2DDescriptorIndex(fonts.getFontGlyphMap(fontType));
   vkCmdPushConstants(mg::vkContext.commandBuffer, pipeline.layout, VK_SHADER_STAGE_ALL, 0, sizeof(TextureIndices),
                      &textureIndices);
 

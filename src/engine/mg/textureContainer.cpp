@@ -57,16 +57,6 @@ static ImageInfo createImageInfoFromType(mg::TEXTURE_TYPE type) {
   return imageInfo;
 }
 
-static void createDescriptorSet(VkDescriptorSet *descriptorSet) {
-  VkDescriptorSetAllocateInfo descriptorSetAllocateInfo = {};
-  descriptorSetAllocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-  descriptorSetAllocateInfo.descriptorPool = mg::vkContext.descriptorPool;
-  descriptorSetAllocateInfo.descriptorSetCount = 1;
-  descriptorSetAllocateInfo.pSetLayouts = &mg::vkContext.descriptorSetLayout.textures;
-
-  vkAllocateDescriptorSets(mg::vkContext.device, &descriptorSetAllocateInfo, descriptorSet);
-}
-
 static void createDeviceTexture(const mg::CreateTextureInfo &textureInfo, const ImageInfo &imageInfo, mg::_TextureData *texture) {
   // staging memory
   VkCommandBuffer copyCommandBuffer;
@@ -157,7 +147,26 @@ static void createDepthTexture(const mg::CreateTextureInfo &textureInfo, mg::_Te
   checkResult(vkCreateImageView(mg::vkContext.device, &vkImageViewCreateInfo, nullptr, &texture->imageView));
 }
 
-void TextureContainer::createTextureContainer() { createDescriptorSet(&_descriptorSet); }
+void TextureContainer::createTextureContainer() {
+  {
+    VkDescriptorSetAllocateInfo descriptorSetAllocateInfo = {};
+    descriptorSetAllocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    descriptorSetAllocateInfo.descriptorPool = mg::vkContext.descriptorPool;
+    descriptorSetAllocateInfo.descriptorSetCount = 1;
+    descriptorSetAllocateInfo.pSetLayouts = &mg::vkContext.descriptorSetLayout.textures;
+
+    vkAllocateDescriptorSets(mg::vkContext.device, &descriptorSetAllocateInfo, &_descriptorSet);
+  }
+  {
+    VkDescriptorSetAllocateInfo descriptorSetAllocateInfo = {};
+    descriptorSetAllocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    descriptorSetAllocateInfo.descriptorPool = mg::vkContext.descriptorPool;
+    descriptorSetAllocateInfo.descriptorSetCount = 1;
+    descriptorSetAllocateInfo.pSetLayouts = &mg::vkContext.descriptorSetLayout.textures3D;
+
+    vkAllocateDescriptorSets(mg::vkContext.device, &descriptorSetAllocateInfo, &_descriptorSet3D);
+  }
+}
 
 TextureContainer::~TextureContainer() {
   mgAssert(_idToTexture.empty());
@@ -175,12 +184,14 @@ void TextureContainer::destroyTextureContainer() {
   _generations.clear();
   _isAlive.clear();
   vkFreeDescriptorSets(vkContext.device, vkContext.descriptorPool, 1, &_descriptorSet);
+  vkFreeDescriptorSets(vkContext.device, vkContext.descriptorPool, 1, &_descriptorSet3D);
 }
 
 TextureId TextureContainer::createTexture(const CreateTextureInfo &textureInfo) {
   const auto imageInfo = createImageInfoFromType(textureInfo.type);
 
   mg::_TextureData texture = {};
+  texture.imageType = imageInfo.vkImageType;
   texture.format = textureInfo.format;
   VkImageCreateInfo imageCreateInfo = {};
   imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -242,14 +253,24 @@ TextureId TextureContainer::createTexture(const CreateTextureInfo &textureInfo) 
   return textureId;
 }
 
-uint32_t TextureContainer::getTextureDescriptorIndex(TextureId textureId) {
+uint32_t TextureContainer::getTexture2DDescriptorIndex(TextureId textureId) {
   mgAssert(textureId.index < _idToTexture.size());
   mgAssert(textureId.generation == _generations[textureId.index]);
   mgAssert(_isAlive[textureId.index]);
-  mgAssert(_idToTexture.size() == _idToDescriptorIndex.size());
+  mgAssert(_idToTexture.size() == _idToDescriptorIndex2D.size());
 
-  return _idToDescriptorIndex[textureId.index];
+  return _idToDescriptorIndex2D[textureId.index];
 }
+
+uint32_t TextureContainer::getTexture3DDescriptorIndex(TextureId textureId) {
+  mgAssert(textureId.index < _idToTexture.size());
+  mgAssert(textureId.generation == _generations[textureId.index]);
+  mgAssert(_isAlive[textureId.index]);
+  mgAssert(_idToTexture.size() == _idToDescriptorIndex3D.size());
+
+  return _idToDescriptorIndex3D[textureId.index];
+}
+
 Texture TextureContainer::getTexture(TextureId textureId) {
   mgAssert(textureId.index < _idToTexture.size());
   mgAssert(textureId.generation == _generations[textureId.index]);
@@ -278,32 +299,6 @@ void TextureContainer::removeTexture(TextureId textureId) {
 }
 
 void TextureContainer::setupDescriptorSets() {
-  // Textures
-  {
-    VkDescriptorImageInfo descriptorImageInfos[MAX_NR_OF_TEXTURES] = {};
-    uint32_t currentIndex = 0;
-    _idToDescriptorIndex.clear();
-    _idToDescriptorIndex.resize(_idToTexture.size());
-    for (uint32_t i = 0; i < uint32_t(_idToTexture.size()); ++i) {
-      if (!_isAlive[i])
-        continue;
-      descriptorImageInfos[currentIndex].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-      descriptorImageInfos[currentIndex].imageView = _idToTexture[i].imageView;
-      _idToDescriptorIndex[i] = currentIndex;
-      currentIndex++;
-    }
-
-    VkWriteDescriptorSet writeDescriptorSet = {};
-    writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-    writeDescriptorSet.dstBinding = 1;
-    writeDescriptorSet.dstArrayElement = 0;
-    writeDescriptorSet.descriptorCount = _idToTexture.size();
-    writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
-    writeDescriptorSet.pImageInfo = descriptorImageInfos;
-    writeDescriptorSet.dstSet = _descriptorSet;
-
-    vkUpdateDescriptorSets(mg::vkContext.device, 1, &writeDescriptorSet, 0, nullptr);
-  }
   // Samplers
   {
     VkDescriptorImageInfo descriptorImageInfos[2] = {};
@@ -321,7 +316,69 @@ void TextureContainer::setupDescriptorSets() {
 
     vkUpdateDescriptorSets(mg::vkContext.device, 1, &writeDescriptorSet, 0, nullptr);
   }
+  // 2D Textures
+  {
+    VkDescriptorImageInfo descriptorImageInfos[MAX_NR_OF_2D_TEXTURES] = {};
+    uint32_t currentIndex = 0;
+    _idToDescriptorIndex2D.clear();
+    _idToDescriptorIndex2D.resize(_idToTexture.size());
+    for (uint32_t i = 0; i < uint32_t(_idToTexture.size()); ++i) {
+      if (!_isAlive[i])
+        continue;
+      if (_idToTexture[i].imageType != VK_IMAGE_TYPE_2D)
+        continue;
+      
+      descriptorImageInfos[currentIndex].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+      descriptorImageInfos[currentIndex].imageView = _idToTexture[i].imageView;
+      _idToDescriptorIndex2D[i] = currentIndex;
+      currentIndex++;
+    }
+
+    VkWriteDescriptorSet writeDescriptorSet = {};
+    writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    writeDescriptorSet.dstBinding = 1;
+    writeDescriptorSet.dstArrayElement = 0;
+    writeDescriptorSet.descriptorCount = currentIndex;
+    writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+    writeDescriptorSet.pImageInfo = descriptorImageInfos;
+    writeDescriptorSet.dstSet = _descriptorSet;
+
+    vkUpdateDescriptorSets(mg::vkContext.device, 1, &writeDescriptorSet, 0, nullptr);
+    mgAssert(MAX_NR_OF_2D_TEXTURES > currentIndex);
+  }
+  // 3D Textures
+  {
+    VkDescriptorImageInfo descriptorImageInfos[MAX_NR_OF_3D_TEXTURES] = {};
+    uint32_t currentIndex = 0;
+    _idToDescriptorIndex3D.clear();
+    _idToDescriptorIndex3D.resize(_idToTexture.size());
+    for (uint32_t i = 0; i < uint32_t(_idToTexture.size()); ++i) {
+      if (!_isAlive[i])
+        continue;
+      if (_idToTexture[i].imageType != VK_IMAGE_TYPE_3D)
+        continue;
+
+      descriptorImageInfos[currentIndex].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+      descriptorImageInfos[currentIndex].imageView = _idToTexture[i].imageView;
+      _idToDescriptorIndex3D[i] = currentIndex;
+      currentIndex++;
+      mgAssert(MAX_NR_OF_3D_TEXTURES > currentIndex);
+    }
+
+    VkWriteDescriptorSet writeDescriptorSet = {};
+    writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    writeDescriptorSet.dstBinding = 0;
+    writeDescriptorSet.dstArrayElement = 0;
+    writeDescriptorSet.descriptorCount = currentIndex;
+    writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+    writeDescriptorSet.pImageInfo = descriptorImageInfos;
+    writeDescriptorSet.dstSet = _descriptorSet3D;
+
+    vkUpdateDescriptorSets(mg::vkContext.device, 1, &writeDescriptorSet, 0, nullptr);
+  }
 }
 
 VkDescriptorSet TextureContainer::getDescriptorSet() { return _descriptorSet; }
+VkDescriptorSet TextureContainer::getDescriptorSet3D() { return _descriptorSet3D; }
+
 } // namespace mg

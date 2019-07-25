@@ -29,9 +29,16 @@ void main() {
 #include "utils.hglsl"
 #include "pbr.hglsl"
 
-layout (set = 1, binding = 0) uniform sampler2D samplerFront;
-layout (set = 2, binding = 0) uniform sampler2D samplerBack;
-layout (set = 3, binding = 0) uniform sampler3D samplerVolume;
+layout(set = 1, binding = 0) uniform sampler samplers[2];
+layout(set = 1, binding = 1) uniform texture2D textures[128];
+
+layout (set = 2, binding = 0) uniform texture3D textures3D;
+
+layout(push_constant) uniform TextureIndices {
+	int frontIndex;
+	int backIndex;
+  int volumeIndex;
+}pc;
 
 layout (location = 0) in vec2 inUV;
 layout (location = 0) out vec4 outFragColor;
@@ -43,14 +50,14 @@ float normalizeVoxelValue(float value) {
   return reinterval(value, ubo.minMaxIsoValue.x, ubo.minMaxIsoValue.y, 0, 1);
 }
 
-vec3 computeGradient(sampler3D volume, vec3 texcoord3d, vec3 delta) {
+vec3 computeGradient(texture3D volume, sampler volumeSampler, vec3 texcoord3d, vec3 delta) {
   vec3 gradient = vec3(0.0);
-  gradient.x = (normalizeVoxelValue(texture(volume, texcoord3d + vec3(-delta.x, 0.0, 0.0)).r) -
-                normalizeVoxelValue(texture(volume, texcoord3d + vec3(delta.x, 0.0, 0.0)).r));
-  gradient.y = (normalizeVoxelValue(texture(volume, texcoord3d + vec3(0.0, -delta.y, 0.0)).r) -
-                normalizeVoxelValue(texture(volume, texcoord3d + vec3(0.0, delta.y, 0.0)).r));
-  gradient.z = (normalizeVoxelValue(texture(volume, texcoord3d + vec3(0.0, 0.0, -delta.z)).r) -
-                normalizeVoxelValue(texture(volume, texcoord3d + vec3(0.0, 0.0, delta.z)).r));
+  gradient.x = (normalizeVoxelValue(texture(sampler3D(volume, volumeSampler), texcoord3d + vec3(-delta.x, 0.0, 0.0)).r) -
+                normalizeVoxelValue(texture(sampler3D(volume, volumeSampler), texcoord3d + vec3(delta.x, 0.0, 0.0)).r));
+  gradient.y = (normalizeVoxelValue(texture(sampler3D(volume, volumeSampler), texcoord3d + vec3(0.0, -delta.y, 0.0)).r) -
+                normalizeVoxelValue(texture(sampler3D(volume, volumeSampler), texcoord3d + vec3(0.0, delta.y, 0.0)).r));
+  gradient.z = (normalizeVoxelValue(texture(sampler3D(volume, volumeSampler), texcoord3d + vec3(0.0, 0.0, -delta.z)).r) -
+                normalizeVoxelValue(texture(sampler3D(volume, volumeSampler), texcoord3d + vec3(0.0, 0.0, delta.z)).r));
   return gradient;
 }
 
@@ -100,7 +107,7 @@ RayHit castRay(vec3 startPosition, Ray ray, float stepSize, float threshold, int
     position = startPosition + ray.rayDir * float(i) * stepSize;
     if(!isInside(position))
       continue;
-    isoValue = normalizeVoxelValue(texture(samplerVolume, position).r);
+    isoValue = normalizeVoxelValue(texture(sampler3D(textures3D, samplers[linearBorder]), position).r);
     if(isoValue >= threshold) {
       hit = true;
       break;
@@ -115,7 +122,7 @@ vec3 binarySearch(vec3 position, Ray ray, float stepSize, float threshold) {
 
   for(int i = 0; i < 5; i++) {
     vec3 middle = (left + right) / 2;
-    float isoValue = normalizeVoxelValue(texture(samplerVolume, middle).r);
+    float isoValue = normalizeVoxelValue(texture(sampler3D(textures3D, samplers[linearBorder]), middle).r);
     if(isoValue > threshold)
       right = middle;
     else
@@ -143,8 +150,8 @@ vec3 isoSurface(vec3 rayStart, vec3 rayStop, float stepSize, float threshold) {
   vec3 lightPos = ubo.cameraPosition.xyz;
 
   // set color  
-  vec3 delta = 1.0 / textureSize(samplerVolume, 0);
-  vec3 gradient = computeGradient(samplerVolume, position, delta);
+  vec3 delta = 1.0 / textureSize(sampler3D(textures3D, samplers[linearBorder]), 0);
+  vec3 gradient = computeGradient(textures3D, samplers[linearBorder], position, delta);
 
   mat4 toWorldSpace = ubo.boxToWorld;
   vec3 N =  normalize(transpose(inverse(mat3(toWorldSpace))) * gradient);
@@ -211,8 +218,8 @@ vec3 isoSurface(vec3 rayStart, vec3 rayStop, float stepSize, float threshold) {
 void main() {
   vec2 textCoord = inUV;
   textCoord.y = 1.0 - textCoord.y;
-  vec3 rayStart = texture(samplerFront, textCoord).xyz;
-  vec3 rayStop = texture(samplerBack, textCoord).xyz;
+  vec3 rayStart = texture(sampler2D(textures[pc.frontIndex], samplers[linearBorder]), textCoord).xyz;
+  vec3 rayStop = texture(sampler2D(textures[pc.backIndex], samplers[linearBorder]), textCoord).xyz;
 
   vec3 color = isoSurface(rayStart, rayStop, 0.001, normalizeVoxelValue(ubo.minMaxIsoValue.z/ uint16MaxValue));
   color = pow(color, vec3(0.45));
