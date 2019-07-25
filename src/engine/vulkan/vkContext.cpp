@@ -99,7 +99,7 @@ static void createDescriptorLayout() {
   {
     VkDescriptorSetLayoutBinding descriptorSetLayoutBindings[1] = {};
     descriptorSetLayoutBindings[0].binding = 0;
-    descriptorSetLayoutBindings[0].descriptorCount = MAX_NR_OF_3D_TEXTURES;
+    descriptorSetLayoutBindings[0].descriptorCount = 1;
     descriptorSetLayoutBindings[0].descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
     descriptorSetLayoutBindings[0].stageFlags = VK_SHADER_STAGE_ALL;
 
@@ -113,7 +113,7 @@ static void createDescriptorLayout() {
     descriptorSetLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
     descriptorSetLayoutCreateInfo.bindingCount = mg::countof(descriptorSetLayoutBindings);
     descriptorSetLayoutCreateInfo.pBindings = descriptorSetLayoutBindings;
-    descriptorSetLayoutCreateInfo.pNext = &setLayoutBindingFlags;
+    //descriptorSetLayoutCreateInfo.pNext = &setLayoutBindingFlags;
 
     checkResult(vkCreateDescriptorSetLayout(mg::vkContext.device, &descriptorSetLayoutCreateInfo, nullptr,
                                             &mg::vkContext.descriptorSetLayout.textures3D));
@@ -185,8 +185,8 @@ static void createPipelineLayout() {
   {
     VkDescriptorSetLayout descriptorSetLayoutsStorages[3] = {
         mg::vkContext.descriptorSetLayout.ubo,
-        mg::vkContext.descriptorSetLayout.textures,
         mg::vkContext.descriptorSetLayout.textures3D,
+        mg::vkContext.descriptorSetLayout.textures,
     };
 
     VkPipelineLayoutCreateInfo layoutCreateInfo = {};

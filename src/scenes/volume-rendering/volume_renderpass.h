@@ -3,7 +3,7 @@
 #include "mg/textureContainer.h"
 
 namespace VOLUME_ATTACHMENTS {
-enum { FRONT, BACK, COLOR, SWAPCHAIN, DEPTH, SIZE };
+enum { BACK, FRONT, COLOR, SWAPCHAIN, DEPTH, SIZE };
 };
 
 namespace SUBPASSES {

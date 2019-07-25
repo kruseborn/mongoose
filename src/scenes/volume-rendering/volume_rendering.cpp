@@ -111,7 +111,7 @@ void drawVolume(const mg::RenderContext &renderContext, const mg::Camera &camera
   DescriptorSets descriptorSets = {};
   descriptorSets.ubo = uboSet;
   descriptorSets.textures = mg::getTextureDescriptorSet();
-  descriptorSets.textures3D = mg::getTextureDescriptorSet3D();
+  descriptorSets.volumeTexture = mg::getTextureDescriptorSet3D();
 
   vkCmdBindDescriptorSets(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, volumePipeline.layout, 0,
                           mg::countof(descriptorSets.values), descriptorSets.values, 1, &uniformOffset);

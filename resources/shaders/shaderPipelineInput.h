@@ -457,7 +457,6 @@ struct Ubo {
   glm::vec4 cameraPosition;
   glm::vec4 color;
   glm::vec4 minMaxIsoValue;
-  glm::vec4 nrOfVoxels;
 };
 struct TextureIndices {
   int32_t frontIndex;
@@ -467,8 +466,8 @@ struct TextureIndices {
 union DescriptorSets {
   struct {
     VkDescriptorSet ubo;
+    VkDescriptorSet volumeTexture;
     VkDescriptorSet textures;
-    VkDescriptorSet textures3D;
   };
   VkDescriptorSet values[3];
 };
