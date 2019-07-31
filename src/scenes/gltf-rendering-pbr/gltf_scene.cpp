@@ -11,10 +11,12 @@
 #include "vulkan/vkUtils.h"
 #include <lodepng.h>
 #include "vulkan/singleRenderpass.h"
- 
+#include <unordered_map>
+
 static mg::Camera camera;
 static mg::SingleRenderPass singleRenderPass;
 static mg::MeshId meshId;
+static std::unordered_map<std::string, mg::TextureId> nameToTextureId;
 
 void initScene() {
   mg::initSingleRenderPass(&singleRenderPass);
@@ -43,9 +45,10 @@ void initScene() {
     createTextureInfo.size = {width, height, 1};
     createTextureInfo.sizeInBytes = mg::sizeofContainerInBytes(imageData);
     createTextureInfo.type = mg::TEXTURE_TYPE::TEXTURE_2D;
-    createTextureInfo.textureSamplers = {mg::TEXTURE_SAMPLER::LINEAR_CLAMP_TO_EDGE};
-    mg::mgSystem.textureContainer.createTexture(createTextureInfo);
+    auto textureId = mg::mgSystem.textureContainer.createTexture(createTextureInfo);
+    nameToTextureId.emplace(image.name, textureId);
   }
+  mg::mgSystem.textureContainer.setupDescriptorSets();
 }
 
 void destroyScene() {
@@ -73,7 +76,7 @@ void renderScene(const mg::FrameData &frameData) {
   mg::RenderContext renderContext = {};
   renderContext.renderPass = singleRenderPass.vkRenderPass;
 
-  drawGltfMesh(renderContext, meshId, camera);
+  drawGltfMesh(renderContext, meshId, camera, nameToTextureId);
 
   mg::endSingleRenderPass();
 

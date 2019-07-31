@@ -8,26 +8,19 @@
 
 namespace mg {
 
-enum class TEXTURE_TYPE { TEXTURE_1D, TEXTURE_2D, TEXTURE_3D, ATTACHMENT, DEPTH };
-enum class TEXTURE_SAMPLER {
-  POINT_CLAMP_TO_BORDER,
-  LINEAR_CLAMP_TO_BORDER,
-  LINEAR__ANISOTROPIC,
-  LINEAR_CLAMP_TO_EDGE,
-  LINEAR_REPEAT,
-  NONE
+struct TextureId {
+  uint32_t index;
+  uint32_t generation;
 };
 
-struct _TextureData {
-  enum { MAX_DESCRIPTOR_SET = 5 };
+enum class TEXTURE_TYPE { TEXTURE_1D, TEXTURE_2D, TEXTURE_3D, ATTACHMENT, DEPTH };
 
-  uint32_t nrOfDescriptorSets;
-  VkDescriptorSet descriptorSets[MAX_DESCRIPTOR_SET];
-  mg::TEXTURE_SAMPLER textureSamplers[MAX_DESCRIPTOR_SET];
+struct _TextureData {
   VkImage image;
   VkImageView imageView;
   mg::DeviceHeapAllocation heapAllocation;
   VkFormat format;
+  VkImageType imageType;
 };
 
 struct CreateTextureInfo {
@@ -37,12 +30,9 @@ struct CreateTextureInfo {
   VkExtent3D size;
   uint32_t sizeInBytes;
   void *data;
-
-  std::vector<TEXTURE_SAMPLER> textureSamplers;
 };
 
 struct Texture {
-  VkDescriptorSet descriptorSet;
   VkImageView imageView;
   VkFormat format;
   std::string id;
@@ -50,17 +40,36 @@ struct Texture {
 
 class TextureContainer : mg::nonCopyable {
 public:
-  void createTextureContainer() {};
-  void createTexture(const CreateTextureInfo &textureInfo);
-  Texture getTexture(const std::string &id, TEXTURE_SAMPLER sampler = TEXTURE_SAMPLER::NONE);
-  void removeTexture(const std::string &id) ;
+  void createTextureContainer();
+  TextureId createTexture(const CreateTextureInfo &textureInfo);
+  uint32_t getTexture2DDescriptorIndex(TextureId textureId);
+  uint32_t getTexture3DDescriptorIndex(TextureId textureId);
+
+
+  Texture getTexture(TextureId textureId);
+  void removeTexture(TextureId textureId);
+
+  VkDescriptorSet getDescriptorSet(); 
+  VkDescriptorSet getDescriptorSet3D(); 
+
+  void setupDescriptorSets();
+
   void destroyTextureContainer();
 
   ~TextureContainer();
 
 private:
-  void destroyTexture(const std::string &id);
-  std::unordered_map<std::string, mg::_TextureData> _idToTexture;
+  VkDescriptorSet _descriptorSet;
+  VkDescriptorSet _descriptorSet3D;
+  
+  std::vector<_TextureData> _idToTexture;
+  std::vector<uint32_t> _freeIndices;
+  std::vector<uint32_t> _generations;
+  std::vector<bool> _isAlive;
+  std::vector<uint32_t> _idToDescriptorIndex2D;
+  std::vector<uint32_t> _idToDescriptorIndex3D;
+
+
 };
 
 } // namespace mg

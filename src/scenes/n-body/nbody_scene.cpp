@@ -21,10 +21,11 @@ static ComputeData computeData = {};
 void initScene() {
   initNBodyRenderPass(&nbodyRenderPass);
 
-  mg::uploadPngImage("particle2.png");
+  computeData.particleId = mg::uploadPngImage("particle2.png");
   camera = mg::create3DCamera(glm::vec3{0.0f, 0.0f, -5.0f}, glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f});
 
   initParticles(&computeData);
+  mg::mgSystem.textureContainer.setupDescriptorSets();
 }
 
 void destroyScene() {
@@ -65,7 +66,7 @@ void renderScene(const mg::FrameData &frameData) {
   vkCmdNextSubpass(mg::vkContext.commandBuffer, VK_SUBPASS_CONTENTS_INLINE);
   renderContext.subpass = 1;
   
-  renderToneMapping(renderContext);
+  renderToneMapping(renderContext, nbodyRenderPass);
 
   mg::validateTexts(texts);
   mg::renderText(renderContext, texts);

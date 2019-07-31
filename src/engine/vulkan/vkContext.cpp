@@ -14,8 +14,6 @@ namespace mg {
 
 VulkanContext vkContext = {};
 
-static constexpr uint32_t maxNrOfTextures = 128;
-
 static void destroySampler();
 void destroyVulkan() {
   mg::vkContext.swapChain->destroy();
@@ -29,13 +27,11 @@ void destroyVulkan() {
 
   vkDestroyPipelineCache(mg::vkContext.device, mg::vkContext.pipelineCache, nullptr);
   vkDestroyPipelineLayout(mg::vkContext.device, mg::vkContext.pipelineLayouts.pipelineLayout, nullptr);
-  vkDestroyPipelineLayout(mg::vkContext.device, mg::vkContext.pipelineLayouts.pipelineLayoutMultiTexture, nullptr);
-  vkDestroyPipelineLayout(mg::vkContext.device, mg::vkContext.pipelineLayouts.pipelineStorageLayout, nullptr);
-  vkDestroyPipelineLayout(mg::vkContext.device, mg::vkContext.pipelineLayouts.pipelineComputeLayout, nullptr);
+  vkDestroyPipelineLayout(mg::vkContext.device, mg::vkContext.pipelineLayouts.pipelineLayoutStorage, nullptr);
 
-  vkDestroyDescriptorSetLayout(mg::vkContext.device, mg::vkContext.descriptorSetLayout.ubo, nullptr);
-  vkDestroyDescriptorSetLayout(mg::vkContext.device, mg::vkContext.descriptorSetLayout.texture, nullptr);
-  vkDestroyDescriptorSetLayout(mg::vkContext.device, mg::vkContext.descriptorSetLayout.storageDynamic, nullptr);
+  vkDestroyDescriptorSetLayout(mg::vkContext.device, mg::vkContext.descriptorSetLayout.dynamic, nullptr);
+  vkDestroyDescriptorSetLayout(mg::vkContext.device, mg::vkContext.descriptorSetLayout.textures, nullptr);
+  vkDestroyDescriptorSetLayout(mg::vkContext.device, mg::vkContext.descriptorSetLayout.textures3D, nullptr);
   vkDestroyDescriptorSetLayout(mg::vkContext.device, mg::vkContext.descriptorSetLayout.storage, nullptr);
 
   vkDestroyCommandPool(mg::vkContext.device, mg::vkContext.commandPool, nullptr);
@@ -48,54 +44,95 @@ void destroyVulkan() {
 }
 
 static void createDescriptorLayout() {
-  VkDescriptorSetLayoutBinding uboSamplerLayoutBindings[1] = {};
-  uboSamplerLayoutBindings[0].binding = 0;
-  uboSamplerLayoutBindings[0].descriptorCount = 1;
-  uboSamplerLayoutBindings[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
-  uboSamplerLayoutBindings[0].stageFlags = VK_SHADER_STAGE_ALL;
-
-  VkDescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo = {};
-  descriptorSetLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-  descriptorSetLayoutCreateInfo.bindingCount = mg::countof(uboSamplerLayoutBindings);
-  descriptorSetLayoutCreateInfo.pBindings = uboSamplerLayoutBindings;
-
-  checkResult(vkCreateDescriptorSetLayout(mg::vkContext.device, &descriptorSetLayoutCreateInfo, nullptr,
-                                          &mg::vkContext.descriptorSetLayout.ubo));
-
-  VkDescriptorSetLayoutBinding textureLayout = {};
-  textureLayout.binding = 0;
-  textureLayout.descriptorCount = 1;
-  textureLayout.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-  textureLayout.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-
-  descriptorSetLayoutCreateInfo.bindingCount = 1;
-  descriptorSetLayoutCreateInfo.pBindings = &textureLayout;
-
-  checkResult(vkCreateDescriptorSetLayout(mg::vkContext.device, &descriptorSetLayoutCreateInfo, nullptr,
-                                          &mg::vkContext.descriptorSetLayout.texture));
-
+  // ubo && storage, dynamic
   {
-    VkDescriptorSetLayoutBinding storageLayout = {};
-    storageLayout.binding = 0;
-    storageLayout.descriptorCount = 1;
-    storageLayout.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC;
-    storageLayout.stageFlags = VK_SHADER_STAGE_ALL;
+    VkDescriptorSetLayoutBinding descriptorSetLayoutBindings[2] = {};
+    descriptorSetLayoutBindings[0].binding = 0;
+    descriptorSetLayoutBindings[0].descriptorCount = 1;
+    descriptorSetLayoutBindings[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+    descriptorSetLayoutBindings[0].stageFlags = VK_SHADER_STAGE_ALL;
 
-    descriptorSetLayoutCreateInfo.bindingCount = 1;
-    descriptorSetLayoutCreateInfo.pBindings = &storageLayout;
+    descriptorSetLayoutBindings[1].binding = 1;
+    descriptorSetLayoutBindings[1].descriptorCount = 1;
+    descriptorSetLayoutBindings[1].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC;
+    descriptorSetLayoutBindings[1].stageFlags = VK_SHADER_STAGE_ALL;
+
+    VkDescriptorSetLayoutBindingFlagsCreateInfoEXT setLayoutBindingFlags = {};
+    setLayoutBindingFlags.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO_EXT;
+
+    VkDescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo = {};
+    descriptorSetLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+    descriptorSetLayoutCreateInfo.bindingCount = mg::countof(descriptorSetLayoutBindings);
+    descriptorSetLayoutCreateInfo.pBindings = descriptorSetLayoutBindings;
 
     checkResult(vkCreateDescriptorSetLayout(mg::vkContext.device, &descriptorSetLayoutCreateInfo, nullptr,
-                                            &mg::vkContext.descriptorSetLayout.storageDynamic));
+                                            &mg::vkContext.descriptorSetLayout.dynamic));
   }
+  // textures 2D
   {
-    VkDescriptorSetLayoutBinding storageLayout[1] = {};
-    storageLayout[0].binding = 0;
-    storageLayout[0].descriptorCount = 1;
-    storageLayout[0].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-    storageLayout[0].stageFlags = VK_SHADER_STAGE_ALL;
+    VkDescriptorSetLayoutBinding descriptorSetLayoutBindings[2] = {};
+    descriptorSetLayoutBindings[0].binding = 0;
+    descriptorSetLayoutBindings[0].descriptorCount = 2;
+    descriptorSetLayoutBindings[0].descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER;
+    descriptorSetLayoutBindings[0].stageFlags = VK_SHADER_STAGE_ALL;
 
-    descriptorSetLayoutCreateInfo.bindingCount = mg::countof(storageLayout);
-    descriptorSetLayoutCreateInfo.pBindings = storageLayout;
+    descriptorSetLayoutBindings[1].binding = 1;
+    descriptorSetLayoutBindings[1].descriptorCount = MAX_NR_OF_2D_TEXTURES;
+    descriptorSetLayoutBindings[1].descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+    descriptorSetLayoutBindings[1].stageFlags = VK_SHADER_STAGE_ALL;
+
+    VkDescriptorBindingFlagsEXT descriptorBindingFlags[] = {0, VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT_EXT};
+    VkDescriptorSetLayoutBindingFlagsCreateInfoEXT setLayoutBindingFlags = {};
+    setLayoutBindingFlags.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO_EXT;
+    setLayoutBindingFlags.bindingCount = mg::countof(descriptorBindingFlags);
+    setLayoutBindingFlags.pBindingFlags = descriptorBindingFlags;
+
+    VkDescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo = {};
+    descriptorSetLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+    descriptorSetLayoutCreateInfo.bindingCount = mg::countof(descriptorSetLayoutBindings);
+    descriptorSetLayoutCreateInfo.pBindings = descriptorSetLayoutBindings;
+    descriptorSetLayoutCreateInfo.pNext = &setLayoutBindingFlags;
+
+    checkResult(vkCreateDescriptorSetLayout(mg::vkContext.device, &descriptorSetLayoutCreateInfo, nullptr,
+                                            &mg::vkContext.descriptorSetLayout.textures));
+  }
+  // textures 3D
+  {
+    VkDescriptorSetLayoutBinding descriptorSetLayoutBindings[1] = {};
+    descriptorSetLayoutBindings[0].binding = 0;
+    descriptorSetLayoutBindings[0].descriptorCount = 1;
+    descriptorSetLayoutBindings[0].descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+    descriptorSetLayoutBindings[0].stageFlags = VK_SHADER_STAGE_ALL;
+
+    VkDescriptorBindingFlagsEXT descriptorBindingFlags[] = {VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT_EXT};
+    VkDescriptorSetLayoutBindingFlagsCreateInfoEXT setLayoutBindingFlags = {};
+    setLayoutBindingFlags.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO_EXT;
+    setLayoutBindingFlags.bindingCount = mg::countof(descriptorBindingFlags);
+    setLayoutBindingFlags.pBindingFlags = descriptorBindingFlags;
+
+    VkDescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo = {};
+    descriptorSetLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+    descriptorSetLayoutCreateInfo.bindingCount = mg::countof(descriptorSetLayoutBindings);
+    descriptorSetLayoutCreateInfo.pBindings = descriptorSetLayoutBindings;
+
+    checkResult(vkCreateDescriptorSetLayout(mg::vkContext.device, &descriptorSetLayoutCreateInfo, nullptr,
+                                            &mg::vkContext.descriptorSetLayout.textures3D));
+  }
+  // storage
+  {
+    VkDescriptorSetLayoutBinding descriptorSetLayoutBinding = {};
+    descriptorSetLayoutBinding.binding = 0;
+    descriptorSetLayoutBinding.descriptorCount = 1;
+    descriptorSetLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+    descriptorSetLayoutBinding.stageFlags = VK_SHADER_STAGE_ALL;
+
+    VkDescriptorSetLayoutBindingFlagsCreateInfoEXT setLayoutBindingFlags = {};
+    setLayoutBindingFlags.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO_EXT;
+
+    VkDescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo = {};
+    descriptorSetLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+    descriptorSetLayoutCreateInfo.bindingCount = 1;
+    descriptorSetLayoutCreateInfo.pBindings = &descriptorSetLayoutBinding;
 
     checkResult(vkCreateDescriptorSetLayout(mg::vkContext.device, &descriptorSetLayoutCreateInfo, nullptr,
                                             &mg::vkContext.descriptorSetLayout.storage));
@@ -103,58 +140,49 @@ static void createDescriptorLayout() {
 }
 
 static void createPipelineLayout() {
-  const uint32_t nrOfDescriptorLayouts = 8;
-  VkDescriptorSetLayout descriptorSetLayouts[nrOfDescriptorLayouts] = {
-      mg::vkContext.descriptorSetLayout.ubo,     mg::vkContext.descriptorSetLayout.texture,
-      mg::vkContext.descriptorSetLayout.texture, mg::vkContext.descriptorSetLayout.texture,
-      mg::vkContext.descriptorSetLayout.texture, mg::vkContext.descriptorSetLayout.texture,
-      mg::vkContext.descriptorSetLayout.texture, mg::vkContext.descriptorSetLayout.texture,
-  };
+  // default pipeline
+  {
+    VkDescriptorSetLayout descriptorSetLayoutsStorages[3] = {
+        mg::vkContext.descriptorSetLayout.dynamic,
+        mg::vkContext.descriptorSetLayout.textures,
+        mg::vkContext.descriptorSetLayout.textures3D,
+    };
 
-  VkPipelineLayoutCreateInfo layoutCreateInfo = {};
-  layoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-  layoutCreateInfo.setLayoutCount = 3;
-  layoutCreateInfo.pSetLayouts = descriptorSetLayouts;
+    VkPipelineLayoutCreateInfo layoutCreateInfo = {};
+    layoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+    layoutCreateInfo.setLayoutCount = mg::countof(descriptorSetLayoutsStorages);
+    layoutCreateInfo.pSetLayouts = descriptorSetLayoutsStorages;
 
-  VkPushConstantRange pushConstantRange = {};
-  pushConstantRange.stageFlags = VK_SHADER_STAGE_ALL_GRAPHICS;
-  pushConstantRange.size = 256;
+    VkPushConstantRange pushConstantRange = {};
+    pushConstantRange.stageFlags = VK_SHADER_STAGE_ALL;
+    pushConstantRange.size = 256;
 
-  layoutCreateInfo.pPushConstantRanges = &pushConstantRange;
-  layoutCreateInfo.pushConstantRangeCount = 1;
-  checkResult(
-      vkCreatePipelineLayout(mg::vkContext.device, &layoutCreateInfo, nullptr, &mg::vkContext.pipelineLayouts.pipelineLayout));
+    layoutCreateInfo.pPushConstantRanges = &pushConstantRange;
+    layoutCreateInfo.pushConstantRangeCount = 1;
+    checkResult(
+        vkCreatePipelineLayout(mg::vkContext.device, &layoutCreateInfo, nullptr, &mg::vkContext.pipelineLayouts.pipelineLayout));
+  }
+  // 3D textures
+  {
+    VkDescriptorSetLayout descriptorSetLayoutsStorages[2] = {
+        mg::vkContext.descriptorSetLayout.dynamic,
+        mg::vkContext.descriptorSetLayout.storage,
+    };
 
-  layoutCreateInfo.setLayoutCount = nrOfDescriptorLayouts;
-  checkResult(vkCreatePipelineLayout(mg::vkContext.device, &layoutCreateInfo, nullptr,
-                                     &mg::vkContext.pipelineLayouts.pipelineLayoutMultiTexture));
+    VkPipelineLayoutCreateInfo layoutCreateInfo = {};
+    layoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+    layoutCreateInfo.setLayoutCount = mg::countof(descriptorSetLayoutsStorages);
+    layoutCreateInfo.pSetLayouts = descriptorSetLayoutsStorages;
 
-  const uint32_t nrOfDescriptorLayoutsStorage = 4;
-  VkDescriptorSetLayout descriptorSetLayoutsStorage[nrOfDescriptorLayoutsStorage] = {
-      mg::vkContext.descriptorSetLayout.ubo,
-      mg::vkContext.descriptorSetLayout.storageDynamic,
-      mg::vkContext.descriptorSetLayout.texture,
-      mg::vkContext.descriptorSetLayout.texture,
-  };
-  VkPipelineLayoutCreateInfo layoutCreateInfoStorage = {};
-  layoutCreateInfoStorage.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-  layoutCreateInfoStorage.setLayoutCount = nrOfDescriptorLayoutsStorage;
-  layoutCreateInfoStorage.pSetLayouts = descriptorSetLayoutsStorage;
+    VkPushConstantRange pushConstantRange = {};
+    pushConstantRange.stageFlags = VK_SHADER_STAGE_ALL;
+    pushConstantRange.size = 256;
 
-  checkResult(vkCreatePipelineLayout(mg::vkContext.device, &layoutCreateInfoStorage, nullptr,
-                                     &mg::vkContext.pipelineLayouts.pipelineStorageLayout));
-
-  VkDescriptorSetLayout descriptorSetLayoutCompute[2] = {
-      mg::vkContext.descriptorSetLayout.ubo,
-      mg::vkContext.descriptorSetLayout.storage,
-  };
-  VkPipelineLayoutCreateInfo layoutCreateInfoCompute = {};
-  layoutCreateInfoCompute.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-  layoutCreateInfoCompute.setLayoutCount = mg::countof(descriptorSetLayoutCompute);
-  layoutCreateInfoCompute.pSetLayouts = descriptorSetLayoutCompute;
-
-  checkResult(vkCreatePipelineLayout(mg::vkContext.device, &layoutCreateInfoCompute, nullptr,
-                                     &mg::vkContext.pipelineLayouts.pipelineComputeLayout));
+    layoutCreateInfo.pPushConstantRanges = &pushConstantRange;
+    layoutCreateInfo.pushConstantRangeCount = 1;
+    checkResult(
+        vkCreatePipelineLayout(mg::vkContext.device, &layoutCreateInfo, nullptr, &mg::vkContext.pipelineLayouts.pipelineLayoutStorage));
+  }
 }
 
 static void createPipelineCache() {
@@ -173,20 +201,22 @@ static void createCommandPool() {
 }
 
 static void createDescriptorPool() {
-  const uint32_t poolSize = 2;
-  VkDescriptorPoolSize descriptorPoolSize[poolSize] = {};
+  VkDescriptorPoolSize descriptorPoolSizes[3] = {};
 
-  descriptorPoolSize[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
-  descriptorPoolSize[0].descriptorCount = 2;
+  descriptorPoolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+  descriptorPoolSizes[0].descriptorCount = 1;
 
-  descriptorPoolSize[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-  descriptorPoolSize[1].descriptorCount = maxNrOfTextures;
+  descriptorPoolSizes[1].type = VK_DESCRIPTOR_TYPE_SAMPLER;
+  descriptorPoolSizes[1].descriptorCount = 2;
+
+  descriptorPoolSizes[2].type = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+  descriptorPoolSizes[2].descriptorCount = MAX_NR_OF_2D_TEXTURES;
 
   VkDescriptorPoolCreateInfo createInfo = {};
   createInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-  createInfo.poolSizeCount = poolSize;
-  createInfo.pPoolSizes = descriptorPoolSize;
-  createInfo.maxSets = maxNrOfTextures + 32;
+  createInfo.poolSizeCount = mg::countof(descriptorPoolSizes);
+  createInfo.pPoolSizes = descriptorPoolSizes;
+  createInfo.maxSets = MAX_NR_OF_2D_TEXTURES + 32;
   createInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
 
   checkResult(vkCreateDescriptorPool(mg::vkContext.device, &createInfo, nullptr, &mg::vkContext.descriptorPool));

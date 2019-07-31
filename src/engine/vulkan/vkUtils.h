@@ -10,6 +10,8 @@
 
 namespace mg {
 
+struct TextureId;
+
 int32_t findMemoryTypeIndex(const VkPhysicalDeviceMemoryProperties &memoryProperties, uint32_t memoryTypeBitsRequirement,
                             VkMemoryPropertyFlags requiredProperties, VkMemoryPropertyFlags preferredProperties = 0);
 
@@ -81,6 +83,6 @@ struct GuiAllocation {
   bool largeDeviceAllocation;
 };
 
-void uploadPngImage(const std::string &name);
+mg::TextureId uploadPngImage(const std::string &name);
 
 } //namespace mg

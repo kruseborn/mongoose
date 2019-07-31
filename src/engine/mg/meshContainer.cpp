@@ -134,8 +134,6 @@ void MeshContainer::removeMesh(MeshId meshId) {
   mgAssert(meshId.index < _idToMesh.size());
   mgAssert(meshId.generation == _generations[meshId.index]);
 
-  _idToMesh[meshId.index].mesh;
-
   mg::mgSystem.meshDeviceMemoryAllocator.freeDeviceOnlyMemory(_idToMesh[meshId.index].heapAllocation);
   vkDestroyBuffer(mg::vkContext.device, _idToMesh[meshId.index].mesh.buffer, nullptr);
   _idToMesh = {};

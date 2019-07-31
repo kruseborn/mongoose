@@ -2,7 +2,7 @@
 #extension GL_ARB_separate_shader_objects : enable
 #extension GL_ARB_shading_language_420pack : enable
 
-layout (std140, set = 0, binding = 0) uniform UBO {
+layout (std140, set = 0, binding = 0) uniform Ubo {
 	mat4 mvp;
 	mat4 worldToBox;
 } ubo;
@@ -18,16 +18,15 @@ void main(void) {
 }
 
 @frag
-
 layout (location = 0) in vec4 inPosition;
-layout (location = 0) out vec4 outFragColorFront;
-layout (location = 1) out vec4 outFragColorBack;
+layout (location = 0) out vec4 outFragColorBack;
+layout (location = 1) out vec4 outFragColorFront;
 
 void main(void) {
   vec4 posInTexture = vec4((ubo.worldToBox * inPosition).xyz, 1.0);
   if(!gl_FrontFacing) {
     outFragColorFront = vec4(0);
-	  outFragColorBack = posInTexture;
+	  outFragColorBack = posInTexture; 
    } else {
      outFragColorFront = posInTexture;
      outFragColorBack = vec4(0);

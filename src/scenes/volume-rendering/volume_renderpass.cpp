@@ -4,36 +4,35 @@
 #include "mg/textureContainer.h"
 #include "vulkan/vkContext.h"
 
-static void createTextures() {
+static void createTextures(VolumeRenderPass *volumeRenderPass) {
   mg::CreateTextureInfo createTextureInfo = {};
 
-  createTextureInfo.textureSamplers = {mg::TEXTURE_SAMPLER::LINEAR_CLAMP_TO_BORDER};
   createTextureInfo.type = mg::TEXTURE_TYPE::ATTACHMENT;
   createTextureInfo.size = {mg::vkContext.screen.width, mg::vkContext.screen.height, 1};
 
   createTextureInfo.id = "front";
   createTextureInfo.format = VK_FORMAT_R32G32B32A32_SFLOAT;
-  mg::mgSystem.textureContainer.createTexture(createTextureInfo);
+  volumeRenderPass->front = mg::mgSystem.textureContainer.createTexture(createTextureInfo);
 
   createTextureInfo.id = "back";
   createTextureInfo.format = VK_FORMAT_R32G32B32A32_SFLOAT;
-  mg::mgSystem.textureContainer.createTexture(createTextureInfo);
+  volumeRenderPass->back = mg::mgSystem.textureContainer.createTexture(createTextureInfo);
 
   createTextureInfo.id = "color";
   createTextureInfo.format = VK_FORMAT_R8G8B8A8_UNORM;
-  mg::mgSystem.textureContainer.createTexture(createTextureInfo);
+  volumeRenderPass->color = mg::mgSystem.textureContainer.createTexture(createTextureInfo);
 
   createTextureInfo.id = "depth";
   createTextureInfo.type = mg::TEXTURE_TYPE::DEPTH;
   createTextureInfo.format = mg::vkContext.formats.depth;
-  mg::mgSystem.textureContainer.createTexture(createTextureInfo);
+  volumeRenderPass->depth = mg::mgSystem.textureContainer.createTexture(createTextureInfo);
 }
 
 static void createRenderPass(VolumeRenderPass *volumeRenderPass) {
-  const auto frontTexture = mg::getTexture("front");
-  const auto backTexture = mg::getTexture("back");
-  const auto colorTexture = mg::getTexture("color");
-  const auto depthTexture = mg::getTexture("depth");
+  const auto frontTexture = mg::getTexture(volumeRenderPass->front);
+  const auto backTexture = mg::getTexture(volumeRenderPass->back);
+  const auto colorTexture = mg::getTexture(volumeRenderPass->color);
+  const auto depthTexture = mg::getTexture(volumeRenderPass->depth);
 
   // attachments
   VkAttachmentDescription attachmentDescs[VOLUME_ATTACHMENTS::SIZE] = {};
@@ -146,10 +145,10 @@ static void createRenderPass(VolumeRenderPass *volumeRenderPass) {
 }
 
 static void createFrameBuffer(VolumeRenderPass *volumeRenderPass) {
-  const auto frontTexture = mg::getTexture("front");
-  const auto backTexture = mg::getTexture("back");
-  const auto colorTexture = mg::getTexture("color");
-  const auto depthTexture = mg::getTexture("depth");
+  const auto frontTexture = mg::getTexture(volumeRenderPass->front);
+  const auto backTexture = mg::getTexture(volumeRenderPass->back);
+  const auto colorTexture = mg::getTexture(volumeRenderPass->color);
+  const auto depthTexture = mg::getTexture(volumeRenderPass->depth);
 
   VkImageView imageViews[VOLUME_ATTACHMENTS::SIZE] = {};
   imageViews[VOLUME_ATTACHMENTS::FRONT] = frontTexture.imageView;
@@ -174,11 +173,11 @@ static void createFrameBuffer(VolumeRenderPass *volumeRenderPass) {
   }
 }
 
-static void destroyTextures() {
-  mg::removeTexture("front");
-  mg::removeTexture("back");
-  mg::removeTexture("color");
-  mg::removeTexture("depth");
+static void destroyTextures(VolumeRenderPass *volumeRenderPass) {
+  mg::removeTexture(volumeRenderPass->front);
+  mg::removeTexture(volumeRenderPass->back);
+  mg::removeTexture(volumeRenderPass->color);
+  mg::removeTexture(volumeRenderPass->depth);
 }
 
 static void destroyFrameBuffers(VolumeRenderPass *volumeRenderPass) {
@@ -188,19 +187,19 @@ static void destroyFrameBuffers(VolumeRenderPass *volumeRenderPass) {
 }
 
 void initVolumeRenderPass(VolumeRenderPass *volumeRenderPass) {
-  createTextures();
+  createTextures(volumeRenderPass);
   createRenderPass(volumeRenderPass);
   createFrameBuffer(volumeRenderPass);
 }
 void resizeVolumeRenderPass(VolumeRenderPass *volumeRenderPass) {
   destroyFrameBuffers(volumeRenderPass);
-  destroyTextures();
-  createTextures();
+  destroyTextures(volumeRenderPass);
+  createTextures(volumeRenderPass);
   createFrameBuffer(volumeRenderPass);
 }
 void destroyVolumeRenderPass(VolumeRenderPass *volumeRenderPass) {
   destroyFrameBuffers(volumeRenderPass);
-  destroyTextures();
+  destroyTextures(volumeRenderPass);
   vkDestroyRenderPass(mg::vkContext.device, volumeRenderPass->vkRenderPass, nullptr);
 }
 

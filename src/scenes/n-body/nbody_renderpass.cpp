@@ -4,20 +4,19 @@
 #include "mg/textureContainer.h"
 #include "vulkan/vkContext.h"
 
-static void createTextures() {
+static void createTextures(NBodyRenderPass *nBodyRenderPass) {
   mg::CreateTextureInfo createTextureInfo = {};
 
-  createTextureInfo.textureSamplers = {mg::TEXTURE_SAMPLER::LINEAR_CLAMP_TO_BORDER};
   createTextureInfo.type = mg::TEXTURE_TYPE::ATTACHMENT;
   createTextureInfo.size = {mg::vkContext.screen.width, mg::vkContext.screen.height, 1};
 
   createTextureInfo.id = "toneMapping";
   createTextureInfo.format = VK_FORMAT_R32G32B32A32_SFLOAT;
-  mg::mgSystem.textureContainer.createTexture(createTextureInfo);
+  nBodyRenderPass->toneMapping = mg::mgSystem.textureContainer.createTexture(createTextureInfo);
 }
 
 static void createRenderPass(NBodyRenderPass *nBodyRenderPass) {
-  const auto toneTexture = mg::getTexture("toneMapping");
+  const auto toneTexture = mg::getTexture(nBodyRenderPass->toneMapping);
 
   // attachments
   VkAttachmentDescription attachmentDescs[NBODY_ATTACHMENTS::SIZE] = {};
@@ -103,7 +102,7 @@ static void createRenderPass(NBodyRenderPass *nBodyRenderPass) {
 }
 
 static void createFrameBuffer(NBodyRenderPass *nBodyRenderPass) {
-  const auto toneMappingTexture = mg::getTexture("toneMapping");
+  const auto toneMappingTexture = mg::getTexture(nBodyRenderPass->toneMapping);
 
   VkImageView imageViews[NBODY_ATTACHMENTS::SIZE] = {};
   imageViews[NBODY_ATTACHMENTS::TONE_MAPPING] = toneMappingTexture.imageView;
@@ -125,31 +124,29 @@ static void createFrameBuffer(NBodyRenderPass *nBodyRenderPass) {
   }
 }
 
-static void destroyTextures() {
-  mg::removeTexture("toneMapping"); 
-}
+static void destroyTextures(NBodyRenderPass *nBodyRenderPass) { mg::removeTexture(nBodyRenderPass->toneMapping); }
 
-static void destroyFrameBuffers(NBodyRenderPass *NBodyRenderPass) {
+static void destroyFrameBuffers(NBodyRenderPass *nBodyRenderPass) {
   for (size_t i = 0; i < mg::vkContext.swapChain->numOfImages; i++) {
-    vkDestroyFramebuffer(mg::vkContext.device, NBodyRenderPass->vkFrameBuffers[i], nullptr);
+    vkDestroyFramebuffer(mg::vkContext.device, nBodyRenderPass->vkFrameBuffers[i], nullptr);
   }
 }
 
-void initNBodyRenderPass(NBodyRenderPass *NBodyRenderPass) {
-  createTextures();
-  createRenderPass(NBodyRenderPass);
-  createFrameBuffer(NBodyRenderPass);
+void initNBodyRenderPass(NBodyRenderPass *nBodyRenderPass) {
+  createTextures(nBodyRenderPass);
+  createRenderPass(nBodyRenderPass);
+  createFrameBuffer(nBodyRenderPass);
 }
-void resizeNBodyRenderPass(NBodyRenderPass *NBodyRenderPass) {
-  destroyFrameBuffers(NBodyRenderPass);
-  destroyTextures();
-  createTextures();
-  createFrameBuffer(NBodyRenderPass);
+void resizeNBodyRenderPass(NBodyRenderPass *nBodyRenderPass) {
+  destroyFrameBuffers(nBodyRenderPass);
+  destroyTextures(nBodyRenderPass);
+  createTextures(nBodyRenderPass);
+  createFrameBuffer(nBodyRenderPass);
 }
-void destroyNBodyRenderPass(NBodyRenderPass *NBodyRenderPass) {
-  destroyFrameBuffers(NBodyRenderPass);
-  destroyTextures();
-  vkDestroyRenderPass(mg::vkContext.device, NBodyRenderPass->vkRenderPass, nullptr);
+void destroyNBodyRenderPass(NBodyRenderPass *nBodyRenderPass) {
+  destroyFrameBuffers(nBodyRenderPass);
+  destroyTextures(nBodyRenderPass);
+  vkDestroyRenderPass(mg::vkContext.device, nBodyRenderPass->vkRenderPass, nullptr);
 }
 
 void beginNBodyRenderPass(const NBodyRenderPass &nBodyRenderPass) {

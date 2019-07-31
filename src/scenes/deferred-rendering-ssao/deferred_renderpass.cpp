@@ -4,46 +4,45 @@
 #include "mg/textureContainer.h"
 #include "vulkan/vkContext.h"
 
-static void createTextures() {
+static void createTextures(DeferredRenderPass *deferredRenderPass) {
   mg::CreateTextureInfo createTextureInfo = {};
 
-  createTextureInfo.textureSamplers = {mg::TEXTURE_SAMPLER::LINEAR_CLAMP_TO_BORDER};
   createTextureInfo.type = mg::TEXTURE_TYPE::ATTACHMENT;
   createTextureInfo.size = {mg::vkContext.screen.width, mg::vkContext.screen.height, 1};
 
   createTextureInfo.id = "normal";
   createTextureInfo.format = VK_FORMAT_R16G16_SFLOAT;
-  mg::mgSystem.textureContainer.createTexture(createTextureInfo);
+  deferredRenderPass->normal = mg::mgSystem.textureContainer.createTexture(createTextureInfo);
 
   createTextureInfo.id = "albedo";
   createTextureInfo.format = VK_FORMAT_R8G8B8A8_UNORM;
-  mg::mgSystem.textureContainer.createTexture(createTextureInfo);
+  deferredRenderPass->albedo = mg::mgSystem.textureContainer.createTexture(createTextureInfo);
 
   createTextureInfo.id = "word view position";
   createTextureInfo.format = VK_FORMAT_R16G16B16A16_SFLOAT;
-  mg::mgSystem.textureContainer.createTexture(createTextureInfo);
+  deferredRenderPass->worldViewPosition = mg::mgSystem.textureContainer.createTexture(createTextureInfo);
 
   createTextureInfo.id = "ssao";
   createTextureInfo.format = VK_FORMAT_R16G16B16A16_SFLOAT;
-  mg::mgSystem.textureContainer.createTexture(createTextureInfo);
+  deferredRenderPass->ssao = mg::mgSystem.textureContainer.createTexture(createTextureInfo);
 
   createTextureInfo.id = "ssaoblur";
   createTextureInfo.format = VK_FORMAT_R16G16B16A16_SFLOAT;
-  mg::mgSystem.textureContainer.createTexture(createTextureInfo);
+  deferredRenderPass->ssaoBlur = mg::mgSystem.textureContainer.createTexture(createTextureInfo);
 
   createTextureInfo.id = "depth";
   createTextureInfo.type = mg::TEXTURE_TYPE::DEPTH;
   createTextureInfo.format = mg::vkContext.formats.depth;
-  mg::mgSystem.textureContainer.createTexture(createTextureInfo);
+  deferredRenderPass->depth = mg::mgSystem.textureContainer.createTexture(createTextureInfo);
 }
 
 static void createRenderPass(DeferredRenderPass *deferredRenderPass) {
-  const auto normalTexture = mg::getTexture("normal");
-  const auto albedoTexture = mg::getTexture("albedo");
-  const auto wordViewPostionTexture = mg::getTexture("word view position");
-  const auto depthTexture = mg::getTexture("depth");
-  const auto ssaoTexture = mg::getTexture("ssao");
-  const auto ssaoblurTexture = mg::getTexture("ssaoblur");
+  const auto normalTexture = mg::getTexture(deferredRenderPass->normal);
+  const auto albedoTexture = mg::getTexture(deferredRenderPass->albedo);
+  const auto wordViewPostionTexture = mg::getTexture(deferredRenderPass->worldViewPosition);
+  const auto depthTexture = mg::getTexture(deferredRenderPass->depth);
+  const auto ssaoTexture = mg::getTexture(deferredRenderPass->ssao);
+  const auto ssaoblurTexture = mg::getTexture(deferredRenderPass->ssaoBlur);
 
   // attachments
   VkAttachmentDescription attachmentDescs[DEFERRED_ATTACHMENTS::SIZE] = {};
@@ -204,12 +203,12 @@ static void createRenderPass(DeferredRenderPass *deferredRenderPass) {
 }
 
 static void createFrameBuffer(DeferredRenderPass *deferredRenderPass) {
-  const auto normalTexture = mg::getTexture("normal");
-  const auto albedoTexture = mg::getTexture("albedo");
-  const auto wordViewPostionTexture = mg::getTexture("word view position");
-  const auto depthTexture = mg::getTexture("depth");
-  const auto ssaoTexture = mg::getTexture("ssao");
-  const auto ssaoblur = mg::getTexture("ssaoblur");
+  const auto normalTexture = mg::getTexture(deferredRenderPass->normal);
+  const auto albedoTexture = mg::getTexture(deferredRenderPass->albedo);
+  const auto wordViewPostionTexture = mg::getTexture(deferredRenderPass->worldViewPosition);
+  const auto depthTexture = mg::getTexture(deferredRenderPass->depth);
+  const auto ssaoTexture = mg::getTexture(deferredRenderPass->ssao);
+  const auto ssaoblurTexture = mg::getTexture(deferredRenderPass->ssaoBlur);
 
   VkImageView imageViews[DEFERRED_ATTACHMENTS::SIZE] = {};
   imageViews[DEFERRED_ATTACHMENTS::NORMAL] = normalTexture.imageView;
@@ -217,7 +216,7 @@ static void createFrameBuffer(DeferredRenderPass *deferredRenderPass) {
   imageViews[DEFERRED_ATTACHMENTS::WORLD_POS] = wordViewPostionTexture.imageView;
   imageViews[DEFERRED_ATTACHMENTS::DEPTH] = depthTexture.imageView;
   imageViews[DEFERRED_ATTACHMENTS::SSAO] = ssaoTexture.imageView;
-  imageViews[DEFERRED_ATTACHMENTS::SSAOBLUR] = ssaoblur.imageView;
+  imageViews[DEFERRED_ATTACHMENTS::SSAOBLUR] = ssaoblurTexture.imageView;
 
   for (uint32_t i = 0; i < mg::vkContext.swapChain->numOfImages; i++) {
     imageViews[DEFERRED_ATTACHMENTS::SWAPCHAIN] = mg::vkContext.swapChain->imageViews[i];
@@ -235,13 +234,13 @@ static void createFrameBuffer(DeferredRenderPass *deferredRenderPass) {
   }
 }
 
-static void destroyTextures() {
-  mg::removeTexture("normal");
-  mg::removeTexture("albedo");
-  mg::removeTexture("depth");
-  mg::removeTexture("word view position");
-  mg::removeTexture("ssao");
-  mg::removeTexture("ssaoblur");
+static void destroyTextures(DeferredRenderPass *deferredRenderPass) {
+  mg::removeTexture(deferredRenderPass->normal);
+  mg::removeTexture(deferredRenderPass->albedo);
+  mg::removeTexture(deferredRenderPass->worldViewPosition);
+  mg::removeTexture(deferredRenderPass->depth);
+  mg::removeTexture(deferredRenderPass->ssao);
+  mg::removeTexture(deferredRenderPass->ssaoBlur);
 }
 
 static void destroyFrameBuffers(DeferredRenderPass *deferredRenderPass) {
@@ -251,19 +250,19 @@ static void destroyFrameBuffers(DeferredRenderPass *deferredRenderPass) {
 }
 
 void initDeferredRenderPass(DeferredRenderPass *deferredRenderPass) {
-  createTextures();
+  createTextures(deferredRenderPass);
   createRenderPass(deferredRenderPass);
   createFrameBuffer(deferredRenderPass);
 }
 void resizeDeferredRenderPass(DeferredRenderPass *deferredRenderPass) {
   destroyFrameBuffers(deferredRenderPass);
-  destroyTextures();
-  createTextures();
+  destroyTextures(deferredRenderPass);
+  createTextures(deferredRenderPass);
   createFrameBuffer(deferredRenderPass);
 }
 void destroyDeferredRenderPass(DeferredRenderPass *deferredRenderPass) {
   destroyFrameBuffers(deferredRenderPass);
-  destroyTextures();
+  destroyTextures(deferredRenderPass);
   vkDestroyRenderPass(mg::vkContext.device, deferredRenderPass->vkRenderPass, nullptr);
 }
 

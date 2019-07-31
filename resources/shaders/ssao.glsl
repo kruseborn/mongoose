@@ -5,7 +5,7 @@
 
 const int kernelSize = 64;
 
-layout (set = 0, binding = 0) uniform UBO  {
+layout (set = 0, binding = 0) uniform Ubo  {
 	mat4 projection;
 	vec4 kernel[kernelSize];
 	vec2 noiseScale;
@@ -24,10 +24,14 @@ void main() {
 
 @frag
 #include "utils.hglsl"
+layout(set = 1, binding = 0) uniform sampler samplers[2];
+layout(set = 1, binding = 1) uniform texture2D textures[128];
 
-layout (set = 1, binding = 0) uniform sampler2D samplerNormal;
-layout (set = 2, binding = 0) uniform sampler2D samplerNoise;
-layout (set = 3, binding = 0) uniform sampler2D samplerWordViewPosition;
+layout(push_constant) uniform TextureIndices {
+	int normalIndex;
+    int wordViewPositionIndex;
+    int noiseIndex;
+}pc;
 
 layout (location = 0) in vec2 inUV;
 
@@ -41,9 +45,9 @@ void main()  {
 	textCoord.y = 1.0 - textCoord.y;
 
 	// get fragPosition from depth value
-	vec3 fragPos = texture(samplerWordViewPosition, textCoord).xyz;
-	vec3 normal = sphericalToCartesian(texture(samplerNormal, textCoord).xy).xyz;
-	vec3 randomVec = texture(samplerNoise, textCoord * ubo.noiseScale).xyz;
+	vec3 fragPos = texture(sampler2D(textures[pc.wordViewPositionIndex], samplers[linearBorder]), textCoord).xyz;
+	vec3 normal = sphericalToCartesian(texture(sampler2D(textures[pc.normalIndex], samplers[linearBorder]), textCoord).xy).xyz;
+	vec3 randomVec = texture(sampler2D(textures[pc.noiseIndex], samplers[linearRepeat]), textCoord * ubo.noiseScale).xyz;
 	
 	// create TBN change-of-basis matrix: from tangent-space to view-space
 	vec3 tangent = normalize(randomVec - normal * dot(randomVec, normal));
@@ -64,7 +68,8 @@ void main()  {
         
         // get sample depth
 		offset.y = 1.0-offset.y;
-        const float sampleDepth = texture(samplerWordViewPosition, offset.xy).z; // get depth value of kernel sample
+        const float sampleDepth = texture(sampler2D(textures[pc.wordViewPositionIndex], samplers[linearBorder]
+        ), offset.xy).z; // get depth value of kernel sample
         
         // range check & accumulate
 		const float depthDiff = max(abs(fragPos.z - sampleDepth), 0.00001);
@@ -73,5 +78,5 @@ void main()  {
     }
 
 	occlusion = 1.0 - (occlusion / float(kernelSize));
-	outFragcolor = vec4(occlusion, occlusion, occlusion, 1.0);
+	outFragcolor = vec4(vec3(occlusion), 1.0);
 }

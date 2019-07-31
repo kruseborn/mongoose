@@ -9,12 +9,13 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-void drawGltfMesh(const mg::RenderContext &renderContext, mg::MeshId meshId, const mg::Camera &camera) {
+void drawGltfMesh(const mg::RenderContext &renderContext, mg::MeshId meshId, const mg::Camera &camera,
+                  const std::unordered_map<std::string, mg::TextureId> &nameToTextureId) {
   using namespace mg::shaders::gltf;
 
   mg::PipelineStateDesc pipelineStateDesc = {};
   pipelineStateDesc.vkRenderPass = renderContext.renderPass;
-  pipelineStateDesc.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayoutMultiTexture;
+  pipelineStateDesc.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
 
   mg::CreatePipelineInfo createPipelineInfo = {};
   createPipelineInfo.shaderName = "gltf";
@@ -23,14 +24,12 @@ void drawGltfMesh(const mg::RenderContext &renderContext, mg::MeshId meshId, con
 
   const auto pipeline = mg::mgSystem.pipelineContainer.createPipeline(pipelineStateDesc, createPipelineInfo);
 
-  using Ubo = UBO;
   using VertexInputData = InputAssembler::VertexInputData;
-  using DescriptorSets = shaderResource::DescriptorSets;
 
   VkBuffer uniformBuffer;
   uint32_t uniformOffset;
   VkDescriptorSet uboSet;
-  Ubo *ubo = (Ubo *)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
+  Ubo *dynamic = (Ubo *)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
 
   glm::mat4 projectionMatrix, viewMatrix;
 
@@ -38,25 +37,28 @@ void drawGltfMesh(const mg::RenderContext &renderContext, mg::MeshId meshId, con
       glm::perspective(glm::radians(45.0f), mg::vkContext.screen.width / float(mg::vkContext.screen.height), 0.1f, 256.f);
   viewMatrix = glm::lookAt(camera.position, camera.aim, camera.up);
 
-  ubo->model = glm::scale(glm::mat4(1), {-1, 1, 1});
-  ubo->view = viewMatrix;
-  ubo->projection = projectionMatrix;
-  ubo->cameraPosition = glm::vec4{camera.position, 1.0f};
-
-  const auto baseColorTexture = mg::getTexture("WaterBottle_baseColor.png");
-  const auto normalTexture = mg::getTexture("WaterBottle_normal.png");
-  const auto roughnessMetallic = mg::getTexture("WaterBottle_occlusionRoughnessMetallic.png");
-  const auto emissive = mg::getTexture("WaterBottle_emissive.png");
+  dynamic->model = glm::scale(glm::mat4(1), {-1, 1, 1});
+  dynamic->view = viewMatrix;
+  dynamic->projection = projectionMatrix;
+  dynamic->cameraPosition = glm::vec4{camera.position, 1.0f};
 
   DescriptorSets descriptorSets = {};
   descriptorSets.ubo = uboSet;
-  descriptorSets.baseColorTexture = baseColorTexture.descriptorSet;
-  descriptorSets.normalTexture = normalTexture.descriptorSet;
-  descriptorSets.roughnessMetallicTexture = roughnessMetallic.descriptorSet;
-  descriptorSets.emissiveTexture = emissive.descriptorSet;
+  descriptorSets.textures = mg::getTextureDescriptorSet();
 
+  uint32_t dynamicOffsets[] = {uniformOffset, 0};
   vkCmdBindDescriptorSets(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.layout, 0,
-                          mg::countof(descriptorSets.values), descriptorSets.values, 1, &uniformOffset);
+                          mg::countof(descriptorSets.values), descriptorSets.values, mg::countof(dynamicOffsets), dynamicOffsets);
+  
+  TextureIndices textureIndices = {};
+  textureIndices.baseColorIndex = mg::getTexture2DDescriptorIndex(nameToTextureId.at("WaterBottle_baseColor.png"));
+  textureIndices.normalIndex = mg::getTexture2DDescriptorIndex(nameToTextureId.at("WaterBottle_normal.png"));
+  textureIndices.roughnessMetallicIndex = mg::getTexture2DDescriptorIndex(nameToTextureId.at("WaterBottle_occlusionRoughnessMetallic.png"));
+  textureIndices.emissiveIndex = mg::getTexture2DDescriptorIndex(nameToTextureId.at("WaterBottle_emissive.png"));
+
+  vkCmdPushConstants(mg::vkContext.commandBuffer, pipeline.layout, VK_SHADER_STAGE_ALL, 0, sizeof(TextureIndices),
+                     &textureIndices);
+
   vkCmdBindPipeline(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.pipeline);
 
   const auto mesh = mg::getMesh(meshId);

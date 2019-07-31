@@ -72,31 +72,26 @@ static void destroyLinearBuffer(mg::_Buffer *dynamicBuffer) {
   dynamicBuffer->deviceMemory = VK_NULL_HANDLE;
 }
 
-static _UniformBuffer createUniformBuffer(VkDeviceSize bufferSizeInBytes, VkMemoryPropertyFlags requiredProperties, VkMemoryPropertyFlags preferredProperties) {
+static _UniformBuffer createUniformBuffer(VkDeviceSize bufferSizeInBytes, VkMemoryPropertyFlags requiredProperties,
+                                          VkMemoryPropertyFlags preferredProperties,
+                                          VkDescriptorSet vkDescriptorSet[NrOfBuffers]) {
   _UniformBuffer dynamicUniformBuffer = {};
   dynamicUniformBuffer.buffer = _createLinearBuffer(uniformBufferSizeInBytes, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, requiredProperties, preferredProperties);
 
-  VkDescriptorSetAllocateInfo vkDescriptorSetAllocateInfo = {};
-  vkDescriptorSetAllocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-  vkDescriptorSetAllocateInfo.descriptorPool = mg::vkContext.descriptorPool;
-  vkDescriptorSetAllocateInfo.descriptorSetCount = NrOfBuffers;
-  vkDescriptorSetAllocateInfo.pSetLayouts = &mg::vkContext.descriptorSetLayout.ubo;
-  vkDescriptorSetAllocateInfo.descriptorSetCount = 1;
+
 
   for(uint32_t i = 0; i < NrOfBuffers; i++) {
-    vkAllocateDescriptorSets(mg::vkContext.device, &vkDescriptorSetAllocateInfo, &dynamicUniformBuffer.vkDescriptorSet[i]);
-
     VkDescriptorBufferInfo vkDescriptorBufferInfo = {};
     vkDescriptorBufferInfo.buffer = dynamicUniformBuffer.buffer.bufferViews[i].vkBuffer;
     vkDescriptorBufferInfo.range = VK_WHOLE_SIZE;
 
     VkWriteDescriptorSet vkWriteDescriptorSet = {};
     vkWriteDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-    vkWriteDescriptorSet.dstSet = dynamicUniformBuffer.vkDescriptorSet[i];
     vkWriteDescriptorSet.dstBinding = 0;
     vkWriteDescriptorSet.descriptorCount = 1;
     vkWriteDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
     vkWriteDescriptorSet.pBufferInfo = &vkDescriptorBufferInfo;
+    vkWriteDescriptorSet.dstSet = vkDescriptorSet[i];
 
     vkUpdateDescriptorSets(mg::vkContext.device, 1, &vkWriteDescriptorSet, 0, nullptr);
   }
@@ -104,27 +99,20 @@ static _UniformBuffer createUniformBuffer(VkDeviceSize bufferSizeInBytes, VkMemo
 }
 
 static _StorageBuffer createStorageBuffers(VkDeviceSize bufferSizeInBytes, VkMemoryPropertyFlags requiredProperties,
-                                          VkMemoryPropertyFlags preferredProperties) {
+                                           VkMemoryPropertyFlags preferredProperties,
+                                           VkDescriptorSet vkDescriptorSets[NrOfBuffers]) {
   _StorageBuffer dynamicStorageBuffer = {};
   dynamicStorageBuffer.buffer = _createLinearBuffer(storageBufferSizeInBytes, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, requiredProperties, preferredProperties);
 
-  VkDescriptorSetAllocateInfo vkDescriptorSetAllocateInfo = {};
-  vkDescriptorSetAllocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-  vkDescriptorSetAllocateInfo.descriptorPool = mg::vkContext.descriptorPool;
-  vkDescriptorSetAllocateInfo.pSetLayouts = &mg::vkContext.descriptorSetLayout.storageDynamic;
-  vkDescriptorSetAllocateInfo.descriptorSetCount = 1;
-
   for (uint32_t i = 0; i < NrOfBuffers; i++) {
-    vkAllocateDescriptorSets(mg::vkContext.device, &vkDescriptorSetAllocateInfo, &dynamicStorageBuffer.vkDescriptorSet[i]);
-
     VkDescriptorBufferInfo vkDescriptorBufferInfo = {};
     vkDescriptorBufferInfo.buffer = dynamicStorageBuffer.buffer.bufferViews[i].vkBuffer;
     vkDescriptorBufferInfo.range = VK_WHOLE_SIZE;
 
     VkWriteDescriptorSet vkWriteDescriptorSet = {};
     vkWriteDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-    vkWriteDescriptorSet.dstSet = dynamicStorageBuffer.vkDescriptorSet[i];
-    vkWriteDescriptorSet.dstBinding = 0;
+    vkWriteDescriptorSet.dstSet = vkDescriptorSets[i];
+    vkWriteDescriptorSet.dstBinding = 1;
     vkWriteDescriptorSet.descriptorCount = 1;
     vkWriteDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC;
     vkWriteDescriptorSet.pBufferInfo = &vkDescriptorBufferInfo;
@@ -160,7 +148,7 @@ void* LinearHeapAllocator::allocateUniform(VkDeviceSize sizeInBytes, VkBuffer *b
   VkDeviceSize vkDeviceSizeOffset;
   auto *data = allocateDynamicBuffer(&_uniformBuffer.buffer, _currentBufferIndex, alignedSize, buffer, &vkDeviceSizeOffset);
   *offset = static_cast<uint32_t>(vkDeviceSizeOffset);
-  *vkDescriptorSet = _uniformBuffer.vkDescriptorSet[_currentBufferIndex];
+  *vkDescriptorSet = _vkDescriptorSets[_currentBufferIndex];
 
   return data;
 }
@@ -173,7 +161,7 @@ void *LinearHeapAllocator::allocateStorage(VkDeviceSize sizeInBytes, VkBuffer *b
   VkDeviceSize vkDeviceSizeOffset;
   auto *data = allocateDynamicBuffer(&_storageBuffer.buffer, _currentBufferIndex, alignedSize, buffer, &vkDeviceSizeOffset);
   *offset = static_cast<uint32_t>(vkDeviceSizeOffset);
-  *vkDescriptorSet = _storageBuffer.vkDescriptorSet[_currentBufferIndex];
+  *vkDescriptorSet = _vkDescriptorSets[_currentBufferIndex];
 
   return data;
 }
@@ -268,10 +256,21 @@ void* LinearHeapAllocator::allocateStaging(VkDeviceSize sizeInBytes, VkDeviceSiz
 }
 
 void LinearHeapAllocator::create() {
+  VkDescriptorSetAllocateInfo vkDescriptorSetAllocateInfo = {};
+  vkDescriptorSetAllocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+  vkDescriptorSetAllocateInfo.descriptorPool = mg::vkContext.descriptorPool;
+  vkDescriptorSetAllocateInfo.descriptorSetCount = NrOfBuffers;
+  vkDescriptorSetAllocateInfo.pSetLayouts = &mg::vkContext.descriptorSetLayout.dynamic;
+  vkDescriptorSetAllocateInfo.descriptorSetCount = 1;
+
+  for (uint32_t i = 0; i < NrOfBuffers; i++) {
+    vkAllocateDescriptorSets(mg::vkContext.device, &vkDescriptorSetAllocateInfo, &_vkDescriptorSets[i]);
+  }
+
   // vertex and uniform buffers
   _vertexBuffer = _createLinearBuffer(vertexBufferSizeInBytes, usageFlags.vertexBufferUsageFlags, usageFlags.requiredProperties, 0);
-  _uniformBuffer = createUniformBuffer(uniformBufferSizeInBytes, usageFlags.requiredProperties, 0);
-  _storageBuffer = createStorageBuffers(uniformBufferSizeInBytes, usageFlags.requiredProperties, 0);
+  _uniformBuffer = createUniformBuffer(uniformBufferSizeInBytes, usageFlags.requiredProperties, 0, _vkDescriptorSets);
+  _storageBuffer = createStorageBuffers(uniformBufferSizeInBytes, usageFlags.requiredProperties, 0, _vkDescriptorSets);
 
   VkCommandBufferAllocateInfo vkCommandBufferAllocateInfo = {};
   vkCommandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -362,7 +361,7 @@ void LinearHeapAllocator::swapLinearHeapBuffers() {
 
 std::vector<GuiAllocation> LinearHeapAllocator::getAllocationForGUI() {
   GuiAllocation vertex = {};
-  GuiAllocation ubo = {};
+  GuiAllocation dynamic = {};
   GuiAllocation staging = {};
   GuiAllocation largStaging = {};
 
@@ -383,20 +382,20 @@ std::vector<GuiAllocation> LinearHeapAllocator::getAllocationForGUI() {
     if(subAllocationGuiEmpty.size) vertex.elements.push_back(subAllocationGuiEmpty);
   }
   {
-    ubo.type = "Uniform";
-    ubo.showFullSize = true;
-    ubo.totalSize = uniformBufferSizeInBytes;
-    ubo.memoryTypeIndex = _uniformBuffer.buffer.memoryTypeIndex;
+    dynamic.type = "Uniform";
+    dynamic.showFullSize = true;
+    dynamic.totalSize = uniformBufferSizeInBytes;
+    dynamic.memoryTypeIndex = _uniformBuffer.buffer.memoryTypeIndex;
     SubAllocationGui subAllocationGui = {};
     subAllocationGui.free = false;
     subAllocationGui.size = _previousUniformSize;
-    if(subAllocationGui.size) ubo.elements.push_back(subAllocationGui);
+    if(subAllocationGui.size) dynamic.elements.push_back(subAllocationGui);
 
     SubAllocationGui subAllocationGuiEmpty = {};
     subAllocationGuiEmpty.offset = subAllocationGui.size;
     subAllocationGuiEmpty.free = true;
     subAllocationGuiEmpty.size = uniformBufferSizeInBytes - _previousUniformSize;
-    if(subAllocationGuiEmpty.size) ubo.elements.push_back(subAllocationGuiEmpty);
+    if(subAllocationGuiEmpty.size) dynamic.elements.push_back(subAllocationGuiEmpty);
   }
   {
     staging.type = "Max staging size";
@@ -423,7 +422,7 @@ std::vector<GuiAllocation> LinearHeapAllocator::getAllocationForGUI() {
   }
   std::vector<GuiAllocation> res;
   res.push_back(vertex);
-  res.push_back(ubo);
+  res.push_back(dynamic);
   res.push_back(staging);
   return res;
 }

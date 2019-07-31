@@ -37,7 +37,7 @@ public:
 
   const Character &getFontCharacter(FONT_TYPE fontType, char characterCode) const;
   glm::uvec2 getFontMapSize(FONT_TYPE fontType) const;
-  mg::Texture getFontGlyphMap(FONT_TYPE fontType) const;
+  mg::TextureId getFontGlyphMap(FONT_TYPE fontType) const;
 
   float calcTextWidth(const std::string &text, FONT_TYPE fontType) const;
 
@@ -51,7 +51,7 @@ private:
     float descender;
     float ascender;
 
-    mg::Texture fontGlyphMap;
+    mg::TextureId fontGlyphMap;
     std::vector<uint8_t> bitmapCharData;
     std::unordered_map<int32_t, Character> characters;
   };

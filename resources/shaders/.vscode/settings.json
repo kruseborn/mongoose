@@ -1,0 +1,11 @@
+{
+  "files.associations": {
+    "*.hglsl": "glsl",
+    "initializer_list": "cpp",
+    "random": "cpp",
+    "type_traits": "cpp",
+    "vector": "cpp",
+    "xstring": "cpp",
+    "xutility": "cpp"
+  }
+}

@@ -226,19 +226,6 @@ static Pipeline _createPipeline(const _PipelineDesc &pipelineDesc) {
   return pipeline;
 }
 
-// hard coded for now, this should be created with a hashmap or something similar
-VkPipelineLayout getPipelineLayout(mg::shaders::Resources *resources, uint32_t resourcesCount) {
-  mgAssert(resourcesCount > 0);
-  for (uint32_t i = 0; i < resourcesCount; i++) {
-    if (resources[i] == mg::shaders::Resources::SSBO)
-      return mg::vkContext.pipelineLayouts.pipelineStorageLayout;
-  }
-  if (resourcesCount > 3)
-    return mg::vkContext.pipelineLayouts.pipelineLayoutMultiTexture;
-  else
-    return mg::vkContext.pipelineLayouts.pipelineLayout;
-}
-
 void PipelineContainer::createPipelineContainer() { 
   const auto shaders = shaderNames();
   mg::createShaders(shaders.graphics); 
@@ -326,4 +313,7 @@ Pipeline PipelineContainer::createComputePipeline(const ComputePipelineStateDesc
   _idToPipeline.emplace(hashValue, pipeline);
   return pipeline;
 }
+
+
+
 } // namespace mg

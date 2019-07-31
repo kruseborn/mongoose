@@ -8,7 +8,7 @@
 // - v0.52: (2017/09/26) fixes for imgui internal changes.
 // - v0.53: (2017/10/22) minor inconsequential change to match change in master (removed an unnecessary statement).
 // - v0.54: (2018/01/22) fix for addition of ImFontAtlas::TexUvscale member.
-// - v0.55: (2018/02/04) moved to main imgui repository (away from http://www.github.com/ocornut/imgui_club)
+// - v0.55: (2018/02/04) moved to dynamic imgui repository (away from http://www.github.com/ocornut/imgui_club)
 // - v0.56: (2018/06/08) added support for ImFontConfig::GlyphMinAdvanceX, GlyphMaxAdvanceX.
 // - v0.60: (2019/01/10) re-factored to match big update in STB builder. fixed texture height waste. fixed redundant glyphs when merging. support for glyph padding.
 // - v0.61: (2019/01/15) added support for imgui allocators + added FreeType only override function SetAllocatorFunctions().

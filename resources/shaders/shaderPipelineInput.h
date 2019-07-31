@@ -15,30 +15,29 @@ struct VertexInputState {
 };
 
 namespace denoise {
-struct UBO {
+struct Ubo {
   glm::mat4 mvp;
   glm::vec4 color;
 };
-namespace shaderResource {
-  static bool hasPushConstant = false;
-  static Resources resources[2] = {
-    Resources::UBO,
-    Resources::COMBINED_IMAGE_SAMPLER,
+struct TextureIndices {
+  int32_t textureIndex;
+};
+union DescriptorSets {
+  struct {
+    VkDescriptorSet ubo;
+    VkDescriptorSet textures;
   };
-  union DescriptorSets {
-    struct {
-      VkDescriptorSet ubo;
-      VkDescriptorSet imageSampler;
-    };
-    VkDescriptorSet values[2];
-  };
-  } // shaderResource
+  VkDescriptorSet values[2];
+};
 } //denoise
 
 namespace depth {
-struct UBO {
+struct Ubo {
   glm::mat4 mvp;
   glm::vec2 nearAndFar;
+};
+struct TextureIndices {
+  int32_t textureIndex;
 };
 namespace InputAssembler {
   static VertexInputState vertexInputState[1] = {
@@ -48,24 +47,17 @@ namespace InputAssembler {
     glm::vec4 positions;
   };
 };
-namespace shaderResource {
-  static bool hasPushConstant = false;
-  static Resources resources[2] = {
-    Resources::UBO,
-    Resources::COMBINED_IMAGE_SAMPLER,
+union DescriptorSets {
+  struct {
+    VkDescriptorSet ubo;
+    VkDescriptorSet textures;
   };
-  union DescriptorSets {
-    struct {
-      VkDescriptorSet ubo;
-      VkDescriptorSet samplerDepth;
-    };
-    VkDescriptorSet values[2];
-  };
-  } // shaderResource
+  VkDescriptorSet values[2];
+};
 } //depth
 
 namespace final {
-struct UBO {
+struct Ubo {
   struct Light {
     glm::vec4 position;
     glm::vec4 color;
@@ -74,31 +66,27 @@ struct UBO {
   glm::mat4 view;
   Light lights[32];
 };
-namespace shaderResource {
-  static bool hasPushConstant = false;
-  static Resources resources[5] = {
-    Resources::UBO,
-    Resources::COMBINED_IMAGE_SAMPLER,
-    Resources::COMBINED_IMAGE_SAMPLER,
-    Resources::COMBINED_IMAGE_SAMPLER,
-    Resources::COMBINED_IMAGE_SAMPLER,
+struct TextureIndices {
+  int32_t normalIndex;
+  int32_t diffuseIndex;
+  int32_t ssaoBluredIndex;
+  int32_t worldViewPostionIndex;
+};
+union DescriptorSets {
+  struct {
+    VkDescriptorSet ubo;
+    VkDescriptorSet textures;
   };
-  union DescriptorSets {
-    struct {
-      VkDescriptorSet ubo;
-      VkDescriptorSet samplerNormal;
-      VkDescriptorSet samplerDiffuse;
-      VkDescriptorSet samplerSSAOBlured;
-      VkDescriptorSet samplerWorldViewPostion;
-    };
-    VkDescriptorSet values[5];
-  };
-  } // shaderResource
+  VkDescriptorSet values[2];
+};
 } //final
 
 namespace fontRendering {
-struct UBO {
+struct Ubo {
   glm::mat4 projection;
+};
+struct TextureIndices {
+  int32_t textureIndex;
 };
 namespace InputAssembler {
   static VertexInputState vertexInputState[2] = {
@@ -110,24 +98,17 @@ namespace InputAssembler {
     glm::vec4 inColor;
   };
 };
-namespace shaderResource {
-  static bool hasPushConstant = false;
-  static Resources resources[2] = {
-    Resources::UBO,
-    Resources::COMBINED_IMAGE_SAMPLER,
+union DescriptorSets {
+  struct {
+    VkDescriptorSet ubo;
+    VkDescriptorSet textures;
   };
-  union DescriptorSets {
-    struct {
-      VkDescriptorSet ubo;
-      VkDescriptorSet glyphTexture;
-    };
-    VkDescriptorSet values[2];
-  };
-  } // shaderResource
+  VkDescriptorSet values[2];
+};
 } //fontRendering
 
 namespace frontAndBack {
-struct UBO {
+struct Ubo {
   glm::mat4 mvp;
   glm::mat4 worldToBox;
 };
@@ -139,26 +120,26 @@ namespace InputAssembler {
     glm::vec3 positions;
   };
 };
-namespace shaderResource {
-  static bool hasPushConstant = false;
-  static Resources resources[1] = {
-    Resources::UBO,
+union DescriptorSets {
+  struct {
+    VkDescriptorSet ubo;
   };
-  union DescriptorSets {
-    struct {
-      VkDescriptorSet ubo;
-    };
-    VkDescriptorSet values[1];
-  };
-  } // shaderResource
+  VkDescriptorSet values[1];
+};
 } //frontAndBack
 
 namespace gltf {
-struct UBO {
+struct Ubo {
   glm::mat4 model;
   glm::mat4 view;
   glm::mat4 projection;
   glm::vec4 cameraPosition;
+};
+struct TextureIndices {
+  int32_t baseColorIndex;
+  int32_t normalIndex;
+  int32_t roughnessMetallicIndex;
+  int32_t emissiveIndex;
 };
 namespace InputAssembler {
   static VertexInputState vertexInputState[4] = {
@@ -174,32 +155,22 @@ namespace InputAssembler {
     glm::vec2 in_texCoord;
   };
 };
-namespace shaderResource {
-  static bool hasPushConstant = false;
-  static Resources resources[5] = {
-    Resources::UBO,
-    Resources::COMBINED_IMAGE_SAMPLER,
-    Resources::COMBINED_IMAGE_SAMPLER,
-    Resources::COMBINED_IMAGE_SAMPLER,
-    Resources::COMBINED_IMAGE_SAMPLER,
+union DescriptorSets {
+  struct {
+    VkDescriptorSet ubo;
+    VkDescriptorSet textures;
   };
-  union DescriptorSets {
-    struct {
-      VkDescriptorSet ubo;
-      VkDescriptorSet baseColorTexture;
-      VkDescriptorSet normalTexture;
-      VkDescriptorSet roughnessMetallicTexture;
-      VkDescriptorSet emissiveTexture;
-    };
-    VkDescriptorSet values[5];
-  };
-  } // shaderResource
+  VkDescriptorSet values[2];
+};
 } //gltf
 
 namespace imgui {
-struct UBO {
+struct Ubo {
   glm::vec2 uScale;
   glm::vec2 uTranslate;
+};
+struct TextureIndices {
+  int32_t textureIndex;
 };
 namespace InputAssembler {
   static VertexInputState vertexInputState[3] = {
@@ -213,28 +184,24 @@ namespace InputAssembler {
     glm::vec4 inColor;
   };
 };
-namespace shaderResource {
-  static bool hasPushConstant = false;
-  static Resources resources[2] = {
-    Resources::UBO,
-    Resources::COMBINED_IMAGE_SAMPLER,
+union DescriptorSets {
+  struct {
+    VkDescriptorSet ubo;
+    VkDescriptorSet textures;
   };
-  union DescriptorSets {
-    struct {
-      VkDescriptorSet ubo;
-      VkDescriptorSet sTexture;
-    };
-    VkDescriptorSet values[2];
-  };
-  } // shaderResource
+  VkDescriptorSet values[2];
+};
 } //imgui
 
 namespace mrt {
-struct UBO {
+struct Ubo {
   glm::mat4 projection;
   glm::mat4 view;
   glm::mat4 model;
   glm::mat4 mNormal;
+};
+struct Material {
+  glm::vec4 diffuse;
 };
 namespace InputAssembler {
   static VertexInputState vertexInputState[3] = {
@@ -248,18 +215,12 @@ namespace InputAssembler {
     glm::vec2 texCoord;
   };
 };
-namespace shaderResource {
-  static bool hasPushConstant = true;
-  static Resources resources[1] = {
-    Resources::UBO,
+union DescriptorSets {
+  struct {
+    VkDescriptorSet ubo;
   };
-  union DescriptorSets {
-    struct {
-      VkDescriptorSet ubo;
-    };
-    VkDescriptorSet values[1];
-  };
-  } // shaderResource
+  VkDescriptorSet values[1];
+};
 } //mrt
 
 namespace nbody {
@@ -273,27 +234,23 @@ struct Storage {
   };
   Particle* particles = nullptr;
 };
-namespace shaderResource {
-  static bool hasPushConstant = false;
-  static Resources resources[2] = {
-    Resources::UBO,
-    Resources::SSBO,
+union DescriptorSets {
+  struct {
+    VkDescriptorSet ubo;
+    VkDescriptorSet storage;
   };
-  union DescriptorSets {
-    struct {
-      VkDescriptorSet ubo;
-      VkDescriptorSet storage;
-    };
-    VkDescriptorSet values[2];
-  };
-  } // shaderResource
+  VkDescriptorSet values[2];
+};
 } //nbody
 
 namespace particle {
-struct UBO {
+struct Ubo {
   glm::mat4 projection;
   glm::mat4 modelview;
   glm::vec2 screendim;
+};
+struct TextureIndices {
+  int32_t textureIndex;
 };
 namespace InputAssembler {
   static VertexInputState vertexInputState[2] = {
@@ -305,20 +262,13 @@ namespace InputAssembler {
     glm::vec4 in_velocity;
   };
 };
-namespace shaderResource {
-  static bool hasPushConstant = false;
-  static Resources resources[2] = {
-    Resources::UBO,
-    Resources::COMBINED_IMAGE_SAMPLER,
+union DescriptorSets {
+  struct {
+    VkDescriptorSet ubo;
+    VkDescriptorSet textures;
   };
-  union DescriptorSets {
-    struct {
-      VkDescriptorSet ubo;
-      VkDescriptorSet particleTexture;
-    };
-    VkDescriptorSet values[2];
-  };
-  } // shaderResource
+  VkDescriptorSet values[2];
+};
 } //particle
 
 namespace simulateVelocities {
@@ -332,20 +282,13 @@ struct Storage {
   };
   Particle* particles = nullptr;
 };
-namespace shaderResource {
-  static bool hasPushConstant = false;
-  static Resources resources[2] = {
-    Resources::UBO,
-    Resources::SSBO,
+union DescriptorSets {
+  struct {
+    VkDescriptorSet ubo;
+    VkDescriptorSet storage;
   };
-  union DescriptorSets {
-    struct {
-      VkDescriptorSet ubo;
-      VkDescriptorSet storage;
-    };
-    VkDescriptorSet values[2];
-  };
-  } // shaderResource
+  VkDescriptorSet values[2];
+};
 } //simulateVelocities
 
 namespace simulate_particles {
@@ -359,24 +302,17 @@ struct Storage {
   };
   Particle* particles = nullptr;
 };
-namespace shaderResource {
-  static bool hasPushConstant = false;
-  static Resources resources[2] = {
-    Resources::UBO,
-    Resources::SSBO,
+union DescriptorSets {
+  struct {
+    VkDescriptorSet ubo;
+    VkDescriptorSet storage;
   };
-  union DescriptorSets {
-    struct {
-      VkDescriptorSet ubo;
-      VkDescriptorSet storage;
-    };
-    VkDescriptorSet values[2];
-  };
-  } // shaderResource
+  VkDescriptorSet values[2];
+};
 } //simulate_particles
 
 namespace simulate_positions {
-struct UBO {
+struct Ubo {
   float dt;
 };
 struct Storage {
@@ -386,24 +322,17 @@ struct Storage {
   };
   Particle* particles = nullptr;
 };
-namespace shaderResource {
-  static bool hasPushConstant = false;
-  static Resources resources[2] = {
-    Resources::UBO,
-    Resources::SSBO,
+union DescriptorSets {
+  struct {
+    VkDescriptorSet ubo;
+    VkDescriptorSet storage;
   };
-  union DescriptorSets {
-    struct {
-      VkDescriptorSet ubo;
-      VkDescriptorSet storage;
-    };
-    VkDescriptorSet values[2];
-  };
-  } // shaderResource
+  VkDescriptorSet values[2];
+};
 } //simulate_positions
 
 namespace simulate_velocities {
-struct UBO {
+struct Ubo {
   float dt;
 };
 struct Storage {
@@ -413,24 +342,17 @@ struct Storage {
   };
   Particle* particles = nullptr;
 };
-namespace shaderResource {
-  static bool hasPushConstant = false;
-  static Resources resources[2] = {
-    Resources::UBO,
-    Resources::SSBO,
+union DescriptorSets {
+  struct {
+    VkDescriptorSet ubo;
+    VkDescriptorSet storage;
   };
-  union DescriptorSets {
-    struct {
-      VkDescriptorSet ubo;
-      VkDescriptorSet storage;
-    };
-    VkDescriptorSet values[2];
-  };
-  } // shaderResource
+  VkDescriptorSet values[2];
+};
 } //simulate_velocities
 
 namespace solid {
-struct UBO {
+struct Ubo {
   glm::mat4 mvp;
 };
 struct Storage {
@@ -448,71 +370,56 @@ namespace InputAssembler {
     glm::vec3 in_position;
   };
 };
-namespace shaderResource {
-  static bool hasPushConstant = false;
-  static Resources resources[2] = {
-    Resources::UBO,
-    Resources::SSBO,
+union DescriptorSets {
+  struct {
+    VkDescriptorSet ubo;
   };
-  union DescriptorSets {
-    struct {
-      VkDescriptorSet ubo;
-      VkDescriptorSet storage;
-    };
-    VkDescriptorSet values[2];
-  };
-  } // shaderResource
+  VkDescriptorSet values[1];
+};
 } //solid
 
 namespace ssao {
-struct UBO {
+struct Ubo {
   glm::mat4 projection;
   glm::vec4 kernel[64];
   glm::vec2 noiseScale;
 };
-namespace shaderResource {
-  static bool hasPushConstant = false;
-  static Resources resources[4] = {
-    Resources::UBO,
-    Resources::COMBINED_IMAGE_SAMPLER,
-    Resources::COMBINED_IMAGE_SAMPLER,
-    Resources::COMBINED_IMAGE_SAMPLER,
+struct TextureIndices {
+  int32_t normalIndex;
+  int32_t wordViewPositionIndex;
+  int32_t noiseIndex;
+};
+union DescriptorSets {
+  struct {
+    VkDescriptorSet ubo;
+    VkDescriptorSet textures;
   };
-  union DescriptorSets {
-    struct {
-      VkDescriptorSet ubo;
-      VkDescriptorSet samplerNormal;
-      VkDescriptorSet samplerNoise;
-      VkDescriptorSet samplerWordViewPosition;
-    };
-    VkDescriptorSet values[4];
-  };
-  } // shaderResource
+  VkDescriptorSet values[2];
+};
 } //ssao
 
 namespace ssaoBlur {
-struct UBO {
+struct Ubo {
   glm::vec2 size;
 };
-namespace shaderResource {
-  static bool hasPushConstant = false;
-  static Resources resources[2] = {
-    Resources::UBO,
-    Resources::COMBINED_IMAGE_SAMPLER,
+struct TextureIndices {
+  int32_t ssaoIndex;
+};
+union DescriptorSets {
+  struct {
+    VkDescriptorSet ubo;
+    VkDescriptorSet textures;
   };
-  union DescriptorSets {
-    struct {
-      VkDescriptorSet ubo;
-      VkDescriptorSet samplerSSAO;
-    };
-    VkDescriptorSet values[2];
-  };
-  } // shaderResource
+  VkDescriptorSet values[2];
+};
 } //ssaoBlur
 
 namespace textureRendering {
-struct UBO {
+struct Ubo {
   glm::mat4 mvp;
+};
+struct TextureIndices {
+  int32_t textureIndex;
 };
 namespace InputAssembler {
   static VertexInputState vertexInputState[1] = {
@@ -522,70 +429,53 @@ namespace InputAssembler {
     glm::vec4 positions;
   };
 };
-namespace shaderResource {
-  static bool hasPushConstant = false;
-  static Resources resources[2] = {
-    Resources::UBO,
-    Resources::COMBINED_IMAGE_SAMPLER,
+union DescriptorSets {
+  struct {
+    VkDescriptorSet ubo;
+    VkDescriptorSet textures;
   };
-  union DescriptorSets {
-    struct {
-      VkDescriptorSet ubo;
-      VkDescriptorSet samplerImage;
-    };
-    VkDescriptorSet values[2];
-  };
-  } // shaderResource
+  VkDescriptorSet values[2];
+};
 } //textureRendering
 
 namespace toneMapping {
-struct UBO {
+struct Ubo {
   glm::vec4 color;
 };
-namespace shaderResource {
-  static bool hasPushConstant = false;
-  static Resources resources[2] = {
-    Resources::UBO,
-    Resources::COMBINED_IMAGE_SAMPLER,
+struct TextureIndices {
+  int32_t textureIndex;
+};
+union DescriptorSets {
+  struct {
+    VkDescriptorSet ubo;
+    VkDescriptorSet textures;
   };
-  union DescriptorSets {
-    struct {
-      VkDescriptorSet ubo;
-      VkDescriptorSet imageSampler;
-    };
-    VkDescriptorSet values[2];
-  };
-  } // shaderResource
+  VkDescriptorSet values[2];
+};
 } //toneMapping
 
 namespace volume {
-struct UBO {
+struct Ubo {
   glm::mat4 boxToWorld;
   glm::mat4 worldToBox;
   glm::mat4 mv;
   glm::vec4 cameraPosition;
   glm::vec4 color;
   glm::vec4 minMaxIsoValue;
-  glm::vec4 nrOfVoxels;
 };
-namespace shaderResource {
-  static bool hasPushConstant = false;
-  static Resources resources[4] = {
-    Resources::UBO,
-    Resources::COMBINED_IMAGE_SAMPLER,
-    Resources::COMBINED_IMAGE_SAMPLER,
-    Resources::COMBINED_IMAGE_SAMPLER,
+struct TextureIndices {
+  int32_t frontIndex;
+  int32_t backIndex;
+  int32_t volumeIndex;
+};
+union DescriptorSets {
+  struct {
+    VkDescriptorSet ubo;
+    VkDescriptorSet textures;
+    VkDescriptorSet volumeTexture;
   };
-  union DescriptorSets {
-    struct {
-      VkDescriptorSet ubo;
-      VkDescriptorSet samplerFront;
-      VkDescriptorSet samplerBack;
-      VkDescriptorSet samplerVolume;
-    };
-    VkDescriptorSet values[4];
-  };
-  } // shaderResource
+  VkDescriptorSet values[3];
+};
 } //volume
 
 } // shaders

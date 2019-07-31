@@ -117,6 +117,7 @@ static bool createInstance() {
 
   std::vector<const char *> extensions;
   extensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
+  extensions.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
   extensions.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
 #elif defined(VK_USE_PLATFORM_IOS_MVK)
@@ -245,12 +246,25 @@ static void createLogicalDevice() {
   queueCreateInfo.queueCount = 1;
   queueCreateInfo.pQueuePriorities = &queuePriority;
 
+  VkPhysicalDeviceDescriptorIndexingFeaturesEXT physicalDeviceDescriptorIndexingFeatures = {};
+  physicalDeviceDescriptorIndexingFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES_EXT;
+  physicalDeviceDescriptorIndexingFeatures.shaderSampledImageArrayNonUniformIndexing = VK_TRUE;
+  physicalDeviceDescriptorIndexingFeatures.runtimeDescriptorArray = VK_TRUE;
+  physicalDeviceDescriptorIndexingFeatures.descriptorBindingVariableDescriptorCount = VK_TRUE;
+
   // Create logical device from physical device
   // Note: there are separate instance and device extensions!
   VkDeviceCreateInfo deviceCreateInfo = {};
   deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
   deviceCreateInfo.pQueueCreateInfos = &queueCreateInfo;
   deviceCreateInfo.queueCreateInfoCount = 1;
+  deviceCreateInfo.pNext = &physicalDeviceDescriptorIndexingFeatures;
+
+  VkPhysicalDeviceDescriptorIndexingFeaturesEXT descIndexFeatures = {};
+  descIndexFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES_EXT;
+  VkPhysicalDeviceFeatures2 supportedFeatures = {};
+  supportedFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
+  supportedFeatures.pNext = &descIndexFeatures;
 
   // Check for extensions
   uint32_t extensionCount = 0;
@@ -273,27 +287,11 @@ static void createLogicalDevice() {
 
   bool hasMaintenance1Extension = false;
   bool hasAmdExtension = false;
-  const char *deviceExtensions[2] = {VK_KHR_MAINTENANCE1_EXTENSION_NAME, VK_KHR_SWAPCHAIN_EXTENSION_NAME};
-  const char *deviceExtensionsAMD[2] = {VK_AMD_NEGATIVE_VIEWPORT_HEIGHT_EXTENSION_NAME, VK_KHR_SWAPCHAIN_EXTENSION_NAME};
-  for (const auto &extension : availableExtensions) {
-    if (std::string(extension.extensionName) == std::string(VK_KHR_MAINTENANCE1_EXTENSION_NAME)) {
-      hasMaintenance1Extension = true;
-      break;
-    }
-    if (std::string(extension.extensionName) == std::string(VK_AMD_NEGATIVE_VIEWPORT_HEIGHT_EXTENSION_NAME)) {
-      hasAmdExtension = true;
-      break;
-    }
-  }
-#ifdef _WIN32
-  mgAssertDesc(hasMaintenance1Extension || hasAmdExtension,
-               "Maintenance1 or amd negative viewport height extension needs to be supported, update the graphic driver");
-#endif
-  deviceCreateInfo.enabledExtensionCount = 2;
-  if (hasMaintenance1Extension)
-    deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions;
-  else
-    deviceCreateInfo.ppEnabledExtensionNames = deviceExtensionsAMD;
+  const char *deviceExtensions[4] = {VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME, VK_KHR_MAINTENANCE3_EXTENSION_NAME,
+                                     VK_KHR_MAINTENANCE1_EXTENSION_NAME, VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+
+  deviceCreateInfo.enabledExtensionCount = mg::countof(deviceExtensions);
+  deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions;
 
   deviceCreateInfo.pEnabledFeatures = &enabledFeatures;
   checkResult(vkCreateDevice(mg::vkContext.physicalDevice, &deviceCreateInfo, nullptr, &mg::vkContext.device));

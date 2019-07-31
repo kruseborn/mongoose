@@ -7,7 +7,7 @@ layout (location = 0) in vec3 position;
 layout (location = 1) in vec3 normal;
 layout (location = 2) in vec2 texCoord;
 
-layout (binding = 0) uniform UBO {
+layout (binding = 0) uniform Ubo {
 	mat4 projection;
 	mat4 view;
 	mat4 model;

@@ -280,7 +280,6 @@ ObjMeshes loadObjFromFile(const std::string &filename) {
 
           mg::CreateTextureInfo createTextureInfo = {};
           createTextureInfo.id = mp->diffuse_texname;
-          createTextureInfo.textureSamplers = {mg::TEXTURE_SAMPLER::LINEAR_CLAMP_TO_BORDER};
           createTextureInfo.type = mg::TEXTURE_TYPE::TEXTURE_2D;
           createTextureInfo.size = {uint32_t(w), uint32_t(h), 1};
           createTextureInfo.format = VK_FORMAT_R8G8B8A8_UINT;

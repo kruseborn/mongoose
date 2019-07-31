@@ -10,17 +10,19 @@
 #include "volume_utils.h"
 #include "vulkan/vkContext.h"
 #include <glm/gtc/matrix_transform.hpp>
+#include "mg/textureContainer.h"
 
 static mg::Camera camera;
 static VolumeRenderPass volumeRenderPass;
 static VolumeInfo volumeInfo;
 
 void initScene() {
-  volumeInfo = parseDatFile();
   camera = mg::create3DCamera(glm::vec3{277 / 2.0f, 277 / 2.0f, -400.0f}, glm::vec3{277 / 2.0f, 277 / 2.0f, 0.0f},
                               glm::vec3{0, 1, 0});
 
+  volumeInfo = parseDatFile();
   initVolumeRenderPass(&volumeRenderPass);
+  mg::mgSystem.textureContainer.setupDescriptorSets();
 }
 
 void destroyScene() { 
@@ -57,11 +59,11 @@ void renderScene(const mg::FrameData &frameData) {
     
     vkCmdNextSubpass(mg::vkContext.commandBuffer, VK_SUBPASS_CONTENTS_INLINE);
     renderContext.subpass = 1;
-    drawVolume(renderContext, camera, volumeInfo, frameData);
+    drawVolume(renderContext, camera, volumeInfo, frameData, volumeRenderPass);
 
     vkCmdNextSubpass(mg::vkContext.commandBuffer, VK_SUBPASS_CONTENTS_INLINE);
     renderContext.subpass = 2;
-    drawDenoise(renderContext);
+    drawDenoise(renderContext, volumeRenderPass);
   }
   endVolumeRenderPass();
 

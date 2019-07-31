@@ -1,3 +1,6 @@
+#define linearBorder 0
+#define linearRepeat 1
+
 float reinterval(float inVal, float oldMin, float oldMax, float newMin, float newMax) {
    return (((inVal - oldMin) * (newMax - newMin)) / (oldMax - oldMin)) + newMin;
 }
