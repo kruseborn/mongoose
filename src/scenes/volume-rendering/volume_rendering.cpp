@@ -130,7 +130,7 @@ void drawVolume(const mg::RenderContext &renderContext, const mg::Camera &camera
   vkCmdDraw(mg::vkContext.commandBuffer, 3, 1, 0, 0);
 }
 
-static mg::Pipeline createToneMappingPipeline(const mg::RenderContext &renderContext) {
+static mg::Pipeline createImageStoragePipeline(const mg::RenderContext &renderContext) {
   using namespace mg::shaders::denoise;
 
   mg::PipelineStateDesc pipelineStateDesc = {};
@@ -151,7 +151,7 @@ static mg::Pipeline createToneMappingPipeline(const mg::RenderContext &renderCon
 void drawDenoise(const mg::RenderContext &renderContext, const VolumeRenderPass &volumeRenderPass) {
   using namespace mg::shaders::denoise;
 
-  const auto denoisePipeline = createToneMappingPipeline(renderContext);
+  const auto denoisePipeline = createImageStoragePipeline(renderContext);
 
   VkBuffer uniformBuffer;
   uint32_t uniformOffset;

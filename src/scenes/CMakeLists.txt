@@ -3,3 +3,5 @@ add_subdirectory(gltf-rendering-pbr)
 add_subdirectory(volume-rendering)
 add_subdirectory(space-invaders)
 add_subdirectory(n-body)
+add_subdirectory(nv-ray)
+

@@ -48,6 +48,12 @@ struct ComputePipelineStateDesc {
   VkPipelineLayout pipelineLayout;
 };
 
+struct RayTracingPipelineStateDesc {
+  uint32_t depth;
+  std::string shaderName;
+  VkPipelineLayout pipelineLayout;
+};
+
 struct Pipeline {
   VkPipeline pipeline;
   VkPipelineLayout layout;
@@ -68,6 +74,7 @@ public:
 
   Pipeline createPipeline(const PipelineStateDesc &pipelineDesc, const CreatePipelineInfo &createPipelineInfo);
   Pipeline createComputePipeline(const ComputePipelineStateDesc &computePipelineStateDesc);
+  Pipeline createRayTracingPipeline(const RayTracingPipelineStateDesc &rayTracingPipelineStateDesc);
   ~PipelineContainer();
 
 private:

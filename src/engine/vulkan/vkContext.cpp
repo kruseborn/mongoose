@@ -28,11 +28,14 @@ void destroyVulkan() {
   vkDestroyPipelineCache(mg::vkContext.device, mg::vkContext.pipelineCache, nullptr);
   vkDestroyPipelineLayout(mg::vkContext.device, mg::vkContext.pipelineLayouts.pipelineLayout, nullptr);
   vkDestroyPipelineLayout(mg::vkContext.device, mg::vkContext.pipelineLayouts.pipelineLayoutStorage, nullptr);
+  vkDestroyPipelineLayout(mg::vkContext.device, mg::vkContext.pipelineLayouts.pipelineLayoutRayTracing, nullptr);
 
   vkDestroyDescriptorSetLayout(mg::vkContext.device, mg::vkContext.descriptorSetLayout.dynamic, nullptr);
   vkDestroyDescriptorSetLayout(mg::vkContext.device, mg::vkContext.descriptorSetLayout.textures, nullptr);
   vkDestroyDescriptorSetLayout(mg::vkContext.device, mg::vkContext.descriptorSetLayout.textures3D, nullptr);
   vkDestroyDescriptorSetLayout(mg::vkContext.device, mg::vkContext.descriptorSetLayout.storage, nullptr);
+  vkDestroyDescriptorSetLayout(mg::vkContext.device, mg::vkContext.descriptorSetLayout.storageImage, nullptr);
+  vkDestroyDescriptorSetLayout(mg::vkContext.device, mg::vkContext.descriptorSetLayout.accelerationStructure, nullptr);
 
   vkDestroyCommandPool(mg::vkContext.device, mg::vkContext.commandPool, nullptr);
 
@@ -137,10 +140,47 @@ static void createDescriptorLayout() {
     checkResult(vkCreateDescriptorSetLayout(mg::vkContext.device, &descriptorSetLayoutCreateInfo, nullptr,
                                             &mg::vkContext.descriptorSetLayout.storage));
   }
+    // storage image
+  {
+    VkDescriptorSetLayoutBinding descriptorSetLayoutBinding = {};
+    descriptorSetLayoutBinding.binding = 0;
+    descriptorSetLayoutBinding.descriptorCount = 1;
+    descriptorSetLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+    descriptorSetLayoutBinding.stageFlags = VK_SHADER_STAGE_ALL;
+
+    VkDescriptorSetLayoutBindingFlagsCreateInfoEXT setLayoutBindingFlags = {};
+    setLayoutBindingFlags.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO_EXT;
+
+    VkDescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo = {};
+    descriptorSetLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+    descriptorSetLayoutCreateInfo.bindingCount = 1;
+    descriptorSetLayoutCreateInfo.pBindings = &descriptorSetLayoutBinding;
+
+    checkResult(vkCreateDescriptorSetLayout(mg::vkContext.device, &descriptorSetLayoutCreateInfo, nullptr,
+                                            &mg::vkContext.descriptorSetLayout.storageImage));
+  }
+    // acceleration structure
+  {
+    VkDescriptorSetLayoutBinding descriptorSetLayoutBinding = {};
+    descriptorSetLayoutBinding.binding = 0;
+    descriptorSetLayoutBinding.descriptorCount = 1;
+    descriptorSetLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV;
+    descriptorSetLayoutBinding.stageFlags = VK_SHADER_STAGE_RAYGEN_BIT_NV;
+
+    VkDescriptorSetLayoutBindingFlagsCreateInfoEXT setLayoutBindingFlags = {};
+    setLayoutBindingFlags.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO_EXT;
+
+    VkDescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo = {};
+    descriptorSetLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+    descriptorSetLayoutCreateInfo.bindingCount = 1;
+    descriptorSetLayoutCreateInfo.pBindings = &descriptorSetLayoutBinding;
+
+    checkResult(vkCreateDescriptorSetLayout(mg::vkContext.device, &descriptorSetLayoutCreateInfo, nullptr,
+                                            &mg::vkContext.descriptorSetLayout.accelerationStructure));
+  }
 }
 
 static void createPipelineLayout() {
-  // default pipeline
   {
     VkDescriptorSetLayout descriptorSetLayoutsStorages[3] = {
         mg::vkContext.descriptorSetLayout.dynamic,
@@ -159,10 +199,9 @@ static void createPipelineLayout() {
 
     layoutCreateInfo.pPushConstantRanges = &pushConstantRange;
     layoutCreateInfo.pushConstantRangeCount = 1;
-    checkResult(
-        vkCreatePipelineLayout(mg::vkContext.device, &layoutCreateInfo, nullptr, &mg::vkContext.pipelineLayouts.pipelineLayout));
+    checkResult(vkCreatePipelineLayout(mg::vkContext.device, &layoutCreateInfo, nullptr,
+                                       &mg::vkContext.pipelineLayouts.pipelineLayout));
   }
-  // 3D textures
   {
     VkDescriptorSetLayout descriptorSetLayoutsStorages[2] = {
         mg::vkContext.descriptorSetLayout.dynamic,
@@ -180,15 +219,38 @@ static void createPipelineLayout() {
 
     layoutCreateInfo.pPushConstantRanges = &pushConstantRange;
     layoutCreateInfo.pushConstantRangeCount = 1;
-    checkResult(
-        vkCreatePipelineLayout(mg::vkContext.device, &layoutCreateInfo, nullptr, &mg::vkContext.pipelineLayouts.pipelineLayoutStorage));
+    checkResult(vkCreatePipelineLayout(mg::vkContext.device, &layoutCreateInfo, nullptr,
+                                       &mg::vkContext.pipelineLayouts.pipelineLayoutStorage));
+  }
+  // raytracing
+  {
+    VkDescriptorSetLayout descriptorSetLayoutsStorages[3] = {
+        mg::vkContext.descriptorSetLayout.dynamic,
+        mg::vkContext.descriptorSetLayout.storageImage,
+        mg::vkContext.descriptorSetLayout.accelerationStructure,
+    };
+
+    VkPipelineLayoutCreateInfo layoutCreateInfo = {};
+    layoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+    layoutCreateInfo.setLayoutCount = mg::countof(descriptorSetLayoutsStorages);
+    layoutCreateInfo.pSetLayouts = descriptorSetLayoutsStorages;
+
+    VkPushConstantRange pushConstantRange = {};
+    pushConstantRange.stageFlags = VK_SHADER_STAGE_ALL;
+    pushConstantRange.size = 256;
+
+    layoutCreateInfo.pPushConstantRanges = &pushConstantRange;
+    layoutCreateInfo.pushConstantRangeCount = 1;
+    checkResult(vkCreatePipelineLayout(mg::vkContext.device, &layoutCreateInfo, nullptr,
+                                       &mg::vkContext.pipelineLayouts.pipelineLayoutRayTracing));
   }
 }
 
 static void createPipelineCache() {
   VkPipelineCacheCreateInfo pipelineCacheCreateInfo = {};
   pipelineCacheCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
-  VkResult err = vkCreatePipelineCache(mg::vkContext.device, &pipelineCacheCreateInfo, nullptr, &mg::vkContext.pipelineCache);
+  VkResult err =
+      vkCreatePipelineCache(mg::vkContext.device, &pipelineCacheCreateInfo, nullptr, &mg::vkContext.pipelineCache);
   mgAssert(!err);
 }
 
@@ -239,18 +301,21 @@ static void initSampler() {
   sampler_create_info.anisotropyEnable = VK_FALSE;
   sampler_create_info.compareOp = VK_COMPARE_OP_NEVER;
 
-  checkResult(vkCreateSampler(mg::vkContext.device, &sampler_create_info, NULL, &mg::vkContext.sampler.pointBorderSampler));
+  checkResult(
+      vkCreateSampler(mg::vkContext.device, &sampler_create_info, NULL, &mg::vkContext.sampler.pointBorderSampler));
 
   sampler_create_info.magFilter = VK_FILTER_LINEAR;
   sampler_create_info.minFilter = VK_FILTER_LINEAR;
   sampler_create_info.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
 
-  checkResult(vkCreateSampler(mg::vkContext.device, &sampler_create_info, NULL, &mg::vkContext.sampler.linearBorderSampler));
+  checkResult(
+      vkCreateSampler(mg::vkContext.device, &sampler_create_info, NULL, &mg::vkContext.sampler.linearBorderSampler));
 
   sampler_create_info.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
   sampler_create_info.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
   sampler_create_info.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-  checkResult(vkCreateSampler(mg::vkContext.device, &sampler_create_info, NULL, &mg::vkContext.sampler.linearEdgeSampler));
+  checkResult(
+      vkCreateSampler(mg::vkContext.device, &sampler_create_info, NULL, &mg::vkContext.sampler.linearEdgeSampler));
 
   sampler_create_info.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
   sampler_create_info.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
@@ -264,6 +329,41 @@ static void destroySampler() {
   vkDestroySampler(mg::vkContext.device, mg::vkContext.sampler.linearEdgeSampler, nullptr);
   vkDestroySampler(mg::vkContext.device, mg::vkContext.sampler.linearRepeat, nullptr);
 }
+
+namespace nv {
+PFN_vkCreateAccelerationStructureNV vkCreateAccelerationStructureNV;
+PFN_vkDestroyAccelerationStructureNV vkDestroyAccelerationStructureNV;
+PFN_vkBindAccelerationStructureMemoryNV vkBindAccelerationStructureMemoryNV;
+PFN_vkGetAccelerationStructureHandleNV vkGetAccelerationStructureHandleNV;
+PFN_vkGetAccelerationStructureMemoryRequirementsNV vkGetAccelerationStructureMemoryRequirementsNV;
+PFN_vkCmdBuildAccelerationStructureNV vkCmdBuildAccelerationStructureNV;
+PFN_vkCreateRayTracingPipelinesNV vkCreateRayTracingPipelinesNV;
+PFN_vkGetRayTracingShaderGroupHandlesNV vkGetRayTracingShaderGroupHandlesNV;
+PFN_vkCmdTraceRaysNV vkCmdTraceRaysNV;
+
+static void initNvidiaFunctions() {
+  // Get VK_NV_ray_tracing related function pointers
+  vkCreateAccelerationStructureNV = reinterpret_cast<PFN_vkCreateAccelerationStructureNV>(
+      vkGetDeviceProcAddr(mg::vkContext.device, "vkCreateAccelerationStructureNV"));
+  vkDestroyAccelerationStructureNV = reinterpret_cast<PFN_vkDestroyAccelerationStructureNV>(
+      vkGetDeviceProcAddr(mg::vkContext.device, "vkDestroyAccelerationStructureNV"));
+  vkBindAccelerationStructureMemoryNV = reinterpret_cast<PFN_vkBindAccelerationStructureMemoryNV>(
+      vkGetDeviceProcAddr(mg::vkContext.device, "vkBindAccelerationStructureMemoryNV"));
+  vkGetAccelerationStructureHandleNV = reinterpret_cast<PFN_vkGetAccelerationStructureHandleNV>(
+      vkGetDeviceProcAddr(mg::vkContext.device, "vkGetAccelerationStructureHandleNV"));
+  vkGetAccelerationStructureMemoryRequirementsNV = reinterpret_cast<PFN_vkGetAccelerationStructureMemoryRequirementsNV>(
+      vkGetDeviceProcAddr(mg::vkContext.device, "vkGetAccelerationStructureMemoryRequirementsNV"));
+  vkCmdBuildAccelerationStructureNV = reinterpret_cast<PFN_vkCmdBuildAccelerationStructureNV>(
+      vkGetDeviceProcAddr(mg::vkContext.device, "vkCmdBuildAccelerationStructureNV"));
+  vkCreateRayTracingPipelinesNV = reinterpret_cast<PFN_vkCreateRayTracingPipelinesNV>(
+      vkGetDeviceProcAddr(mg::vkContext.device, "vkCreateRayTracingPipelinesNV"));
+  vkGetRayTracingShaderGroupHandlesNV = reinterpret_cast<PFN_vkGetRayTracingShaderGroupHandlesNV>(
+      vkGetDeviceProcAddr(mg::vkContext.device, "vkGetRayTracingShaderGroupHandlesNV"));
+  vkCmdTraceRaysNV =
+      reinterpret_cast<PFN_vkCmdTraceRaysNV>(vkGetDeviceProcAddr(mg::vkContext.device, "vkCmdTraceRaysNV"));
+
+}
+} // namespace nv
 
 bool initVulkan(GLFWwindow *window) {
   if (!createVulkanContext(window))
@@ -280,6 +380,7 @@ bool initVulkan(GLFWwindow *window) {
   createPipelineLayout();
 
   initSampler();
+  nv::initNvidiaFunctions();
   return true;
 }
 

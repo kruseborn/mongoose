@@ -3,7 +3,6 @@
 #include <glm/glm.hpp>
 #include <unordered_set>
 #include <vector>
-#include <iostream>
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <stb_image.h>

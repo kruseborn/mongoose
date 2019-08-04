@@ -171,7 +171,6 @@ void renderBlurSSAO(const mg::RenderContext &renderContext, const DeferredRender
 static mg::Pipeline createFinalDeferred(const mg::RenderContext &renderContext) {
   using namespace mg::shaders::final;
 
-  const auto pipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
   mg::PipelineStateDesc pipelineStateDesc = {};
   pipelineStateDesc.vkRenderPass = renderContext.renderPass;
   pipelineStateDesc.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;

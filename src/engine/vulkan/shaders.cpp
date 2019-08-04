@@ -1,18 +1,57 @@
 #include "shaders.h"
 
-#include <cassert>
-#include <string>
-#include <unordered_map>
-
 #include "mg/mgAssert.h"
 #include "mg/mgUtils.h"
 #include "vkContext.h"
+#include <cassert>
+#include <filesystem>
+#include <string>
+#include <unordered_map>
 
 namespace mg {
 
 static std::unordered_map<std::string, mg::Shader> _shaders;
 
-static VkShaderModule loadShader(const char *fileName, VkDevice device, VkShaderStageFlagBits stage) {
+static VkShaderStageFlagBits getShaderType(const std::string &fileName) {
+  if (fileName.find(".vert") != std::string::npos)
+    return VK_SHADER_STAGE_VERTEX_BIT;
+  else if (fileName.find(".frag") != std::string::npos)
+    return VK_SHADER_STAGE_FRAGMENT_BIT;
+  else if (fileName.find(".comp") != std::string::npos)
+    return VK_SHADER_STAGE_COMPUTE_BIT;
+  else if (fileName.find(".rgen") != std::string::npos)
+    return VK_SHADER_STAGE_RAYGEN_BIT_NV;
+  else if (fileName.find(".rchit") != std::string::npos)
+    return VK_SHADER_STAGE_CLOSEST_HIT_BIT_NV;
+  else if (fileName.find(".rmiss") != std::string::npos)
+    return VK_SHADER_STAGE_MISS_BIT_NV;
+  else {
+    mgAssertDesc(false, "Shader typ is not supported");
+  }
+}
+
+static mg::Shaders getShaderFiles() {
+  mg::Shaders shaders = {};
+
+  namespace fs = std::filesystem;
+  const auto shaderPath = mg::getShaderPath();
+  for (auto &file : fs::directory_iterator(shaderPath)) {
+    const auto path = fs::path(file);
+    auto fileName = path.filename().generic_string();
+    auto nameIt = fileName.find_first_of('.');
+    auto name = fileName.substr(0, nameIt);
+    auto &fileNames = shaders.nameToShaderFiles[name];
+    fileNames.files.push_back({fileName, getShaderType(fileName)});
+  }
+
+  for (auto &files : shaders.nameToShaderFiles) {
+    std::stable_sort(std::begin(files.second.files), std::end(files.second.files),
+                     [](const auto &a, const auto &b) { return a.stageFlag < b.stageFlag; });
+  }
+  return shaders;
+}
+
+static VkShaderModule loadShader(const char *fileName, VkDevice device, VkShaderStageFlagBits stageFlag) {
   auto shaderCode = mg::readBinaryFromDisc(fileName);
   VkShaderModule shaderModule;
   VkShaderModuleCreateInfo moduleCreateInfo;
@@ -39,32 +78,20 @@ static VkPipelineShaderStageCreateInfo createShader(std::string fileName, VkShad
   return shaderStage;
 }
 
-void createShaders(const std::vector<std::string> &shaderNames) {
-  for (uint32_t i = 0; i < shaderNames.size(); i++) {
-    std::string shaderName = shaderNames[i];
-    VkPipelineShaderStageCreateInfo shaderStageVert =
-        createShader(mg::getShaderPath() + shaderName + ".vert.spv", VK_SHADER_STAGE_VERTEX_BIT);
-    VkPipelineShaderStageCreateInfo shaderStageFrag =
-        createShader(mg::getShaderPath() + shaderName + ".frag.spv", VK_SHADER_STAGE_FRAGMENT_BIT);
+void createShaders() {
+  const auto shaderFiles = getShaderFiles();
+  for (const auto &files : shaderFiles.nameToShaderFiles) {
     Shader shader = {};
-    shader.vertex.shaderStage = shaderStageVert;
-    shader.fragment.shaderStage = shaderStageFrag;
-
-    _shaders.insert(make_pair(shaderName, shader));
+    shader.name = files.first;
+    for (uint32_t i = 0; i < files.second.files.size(); i++) {
+      VkPipelineShaderStageCreateInfo pipelineShaderStageCreateInfo =
+          createShader(mg::getShaderPath() + files.second.files[i].name, files.second.files[i].stageFlag);
+      shader.stageCreateInfo[shader.count++] = pipelineShaderStageCreateInfo;
+    }
+    _shaders.insert(make_pair(files.first, shader));
   }
 }
 
-void createComputeShaders(const std::vector<std::string> &shaderNames) {
-  for (uint32_t i = 0; i < shaderNames.size(); i++) {
-    std::string shaderName = shaderNames[i];
-    VkPipelineShaderStageCreateInfo shaderStageVert =
-        createShader(mg::getShaderPath() + shaderName + ".spv", VK_SHADER_STAGE_COMPUTE_BIT);
-    Shader shader = {};
-    shader.compute.shaderStage = shaderStageVert;
-    shader.isCompute = true;
-    _shaders.insert(make_pair(shaderName, shader));
-  }
-}
 Shader getShader(const std::string &name) {
   auto res = _shaders.find(name);
   mgAssert(res != _shaders.end());
@@ -73,11 +100,8 @@ Shader getShader(const std::string &name) {
 void deleteShaders() {
   for (auto &_shader : _shaders) {
     auto shader = _shader.second;
-    if (shader.isCompute) {
-      vkDestroyShaderModule(mg::vkContext.device, shader.compute.shaderStage.module, nullptr);
-    } else {
-      vkDestroyShaderModule(mg::vkContext.device, shader.vertex.shaderStage.module, nullptr);
-      vkDestroyShaderModule(mg::vkContext.device, shader.fragment.shaderStage.module, nullptr);
+    for (uint32_t i = 0; i < shader.count; i++) {
+      vkDestroyShaderModule(mg::vkContext.device, shader.stageCreateInfo[i].module, nullptr);
     }
   }
   _shaders.clear();

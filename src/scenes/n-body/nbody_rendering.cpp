@@ -154,7 +154,7 @@ void renderParticels(mg::RenderContext &renderContext, const ComputeData &comput
   vkCmdDraw(mg::vkContext.commandBuffer, count, 1, 0, 0);
 }
 
-static mg::Pipeline createToneMappingPipeline(const mg::RenderContext &renderContext) {
+static mg::Pipeline createImageStoragePipeline(const mg::RenderContext &renderContext) {
   using namespace mg::shaders::toneMapping;
 
   mg::PipelineStateDesc pipelineStateDesc = {};
@@ -174,7 +174,7 @@ static mg::Pipeline createToneMappingPipeline(const mg::RenderContext &renderCon
 void renderToneMapping(const mg::RenderContext &renderContext, const NBodyRenderPass &nBodyRenderPass) {
   using namespace mg::shaders::toneMapping;
 
-  const auto pipeline = createToneMappingPipeline(renderContext);
+  const auto pipeline = createImageStoragePipeline(renderContext);
 
   VkBuffer uniformBuffer;
   uint32_t uniformOffset;

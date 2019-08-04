@@ -12,7 +12,7 @@ MgSystem mgSystem = {};
 static void createAllocators(MgSystem *system) {
   {
     constexpr uint32_t mgTobytes = 1024 * 1024;
-    constexpr uint32_t heapSize = 128 * mgTobytes;
+    constexpr uint32_t heapSize = 1 * mgTobytes;
     CreateDeviceHeapAllocatorInfo vertexAllocationInfo = {};
     vertexAllocationInfo.heapSizes = { heapSize, heapSize, heapSize, heapSize };
     vertexAllocationInfo.useDifferentHeapsForSmallAllocations = false;
@@ -20,19 +20,11 @@ static void createAllocators(MgSystem *system) {
   }
   {
     constexpr uint32_t mgTobytes = 1024 * 1024;
-    constexpr uint32_t heapSize = 256 * mgTobytes;
+    constexpr uint32_t heapSize = 1 * mgTobytes;
     CreateDeviceHeapAllocatorInfo textureAllocationInfo = {};
     textureAllocationInfo.heapSizes = { heapSize, heapSize, heapSize, heapSize };
     textureAllocationInfo.useDifferentHeapsForSmallAllocations = false;
     system->textureDeviceMemoryAllocator.create(textureAllocationInfo);
-  }
-  {
-    constexpr uint32_t mgTobytes = 1024 * 1024;
-    constexpr uint32_t heapSize = 128 * mgTobytes;
-    CreateDeviceHeapAllocatorInfo storageAllocationInfo = {};
-    storageAllocationInfo.heapSizes = {heapSize, 0, 0, 0};
-    storageAllocationInfo.useDifferentHeapsForSmallAllocations = false;
-    system->storageDeviceMemoryAllocator.create(storageAllocationInfo);
   }
   system->linearHeapAllocator.create();
 }
@@ -41,7 +33,6 @@ static void destroyAllocators(MgSystem *system) {
   LOG("destroyAllocators");
   system->textureDeviceMemoryAllocator.destroy();
   system->meshDeviceMemoryAllocator.destroy();
-  system->storageDeviceMemoryAllocator.destroy();
   system->linearHeapAllocator.destroy();
 }
 

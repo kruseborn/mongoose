@@ -164,6 +164,19 @@ union DescriptorSets {
 };
 } //gltf
 
+namespace imageStorage {
+struct Ubo {
+  glm::vec4 temp;
+};
+union DescriptorSets {
+  struct {
+    VkDescriptorSet ubo;
+    VkDescriptorSet image;
+  };
+  VkDescriptorSet values[2];
+};
+} //imageStorage
+
 namespace imgui {
 struct Ubo {
   glm::vec2 uScale;
@@ -223,26 +236,6 @@ union DescriptorSets {
 };
 } //mrt
 
-namespace nbody {
-struct UBO {
-  float dt;
-};
-struct Storage {
-  struct Particle {
-    glm::vec4 position;
-    glm::vec4 velocity;
-  };
-  Particle* particles = nullptr;
-};
-union DescriptorSets {
-  struct {
-    VkDescriptorSet ubo;
-    VkDescriptorSet storage;
-  };
-  VkDescriptorSet values[2];
-};
-} //nbody
-
 namespace particle {
 struct Ubo {
   glm::mat4 projection;
@@ -270,46 +263,6 @@ union DescriptorSets {
   VkDescriptorSet values[2];
 };
 } //particle
-
-namespace simulateVelocities {
-struct UBO {
-  float dt;
-};
-struct Storage {
-  struct Particle {
-    glm::vec4 position;
-    glm::vec4 velocity;
-  };
-  Particle* particles = nullptr;
-};
-union DescriptorSets {
-  struct {
-    VkDescriptorSet ubo;
-    VkDescriptorSet storage;
-  };
-  VkDescriptorSet values[2];
-};
-} //simulateVelocities
-
-namespace simulate_particles {
-struct UBO {
-  float dt;
-};
-struct Storage {
-  struct Particle {
-    glm::vec4 position;
-    glm::vec4 velocity;
-  };
-  Particle* particles = nullptr;
-};
-union DescriptorSets {
-  struct {
-    VkDescriptorSet ubo;
-    VkDescriptorSet storage;
-  };
-  VkDescriptorSet values[2];
-};
-} //simulate_particles
 
 namespace simulate_positions {
 struct Ubo {
@@ -453,6 +406,21 @@ union DescriptorSets {
   VkDescriptorSet values[2];
 };
 } //toneMapping
+
+namespace tracing {
+struct Ubo {
+  glm::mat4 viewInverse;
+  glm::mat4 projInverse;
+};
+union DescriptorSets {
+  struct {
+    VkDescriptorSet ubo;
+    VkDescriptorSet image;
+    VkDescriptorSet topLevelAS;
+  };
+  VkDescriptorSet values[3];
+};
+} //tracing
 
 namespace volume {
 struct Ubo {

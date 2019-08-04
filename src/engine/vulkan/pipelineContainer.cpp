@@ -7,31 +7,9 @@
 #include "vkContext.h"
 #include "vkUtils.h"
 #include <cassert>
-#include <filesystem>
 #include <string>
 #include <unordered_map>
 #include <vector>
-
-
-static mg::Shaders shaderNames() {
-  mg::Shaders shaders = {};
-  shaders.graphics.reserve(20);
-  shaders.computes.reserve(20);
-
-  namespace fs = std::filesystem;
-  const auto shaderPath = mg::getShaderPath() + "../";
-  for (auto &file : fs::directory_iterator(shaderPath)) {
-    const auto path = fs::path(file);
-    if (path.extension().generic_string() == ".comp") {
-      shaders.computes.push_back(path.filename().generic_string());
-    } else if (path.extension().generic_string() == ".glsl") {
-        std::string str = path.filename().generic_string();
-        str.resize(str.size() - 5); // remove extension and .
-        shaders.graphics.push_back(str);
-    } 
-  }
-  return shaders;
-}
 
 // Fowler-Noll-Vo_hash_function
 // https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function
@@ -93,7 +71,9 @@ PipelineStateDesc::PipelineStateDesc() {
   graphics.nrOfColorAttachments = 1;
 }
 
-PipelineStateDesc::PipelineStateDesc(const PipelineStateDesc &other) { memcpy(this, &other, sizeof(PipelineStateDesc)); }
+PipelineStateDesc::PipelineStateDesc(const PipelineStateDesc &other) {
+  memcpy(this, &other, sizeof(PipelineStateDesc));
+}
 PipelineStateDesc &PipelineStateDesc::operator=(const PipelineStateDesc &other) {
   memcpy(this, &other, sizeof(PipelineStateDesc));
   return *this;
@@ -178,7 +158,6 @@ static Pipeline _createPipeline(const _PipelineDesc &pipelineDesc) {
   pipelineCreateInfo.subpass = pipelineDesc.state.graphics.subpass;
 
   const auto shader = mg::getShader(pipelineDesc.shaderName);
-  VkPipelineShaderStageCreateInfo shaders[] = {shader.vertex.shaderStage, shader.fragment.shaderStage};
 
   VkPipelineVertexInputStateCreateInfo vertexInputStateCreateInfo = {};
   vertexInputStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -202,7 +181,7 @@ static Pipeline _createPipeline(const _PipelineDesc &pipelineDesc) {
   vkVertexInputBindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
   vertexInputStateCreateInfo.pVertexBindingDescriptions = &vkVertexInputBindingDescription;
-  vertexInputStateCreateInfo.vertexBindingDescriptionCount = 1;
+  vertexInputStateCreateInfo.vertexBindingDescriptionCount = pipelineDesc.vertexInputStateCount ? 1 : 0;
   vertexInputStateCreateInfo.pVertexAttributeDescriptions = vkVertexInputAttributeDescription;
   vertexInputStateCreateInfo.vertexAttributeDescriptionCount = pipelineDesc.vertexInputStateCount;
 
@@ -215,22 +194,18 @@ static Pipeline _createPipeline(const _PipelineDesc &pipelineDesc) {
   pipelineCreateInfo.pDynamicState = &dynamicState;
 
   pipelineCreateInfo.pVertexInputState = &vertexInputStateCreateInfo;
-  pipelineCreateInfo.stageCount = mg::countof(shaders);
-  pipelineCreateInfo.pStages = shaders;
+  pipelineCreateInfo.stageCount = shader.count;
+  pipelineCreateInfo.pStages = shader.stageCreateInfo;
 
   Pipeline pipeline = {};
   pipeline.layout = pipelineDesc.state.vkPipelineLayout;
 
-  checkResult(vkCreateGraphicsPipelines(mg::vkContext.device, mg::vkContext.pipelineCache, 1, &pipelineCreateInfo, nullptr,
-                                        &pipeline.pipeline));
+  checkResult(vkCreateGraphicsPipelines(mg::vkContext.device, mg::vkContext.pipelineCache, 1, &pipelineCreateInfo,
+                                        nullptr, &pipeline.pipeline));
   return pipeline;
 }
 
-void PipelineContainer::createPipelineContainer() { 
-  const auto shaders = shaderNames();
-  mg::createShaders(shaders.graphics); 
-  mg::createComputeShaders(shaders.computes);
-}
+void PipelineContainer::createPipelineContainer() { mg::createShaders(); }
 
 PipelineContainer::~PipelineContainer() { mgAssert(_idToPipeline.empty()); }
 
@@ -249,7 +224,8 @@ void PipelineContainer::resetPipelineContainer() {
   createPipelineContainer();
 }
 
-Pipeline PipelineContainer::createPipeline(const PipelineStateDesc &pipelineDesc, const CreatePipelineInfo &createPipelineInfo) {
+Pipeline PipelineContainer::createPipeline(const PipelineStateDesc &pipelineDesc,
+                                           const CreatePipelineInfo &createPipelineInfo) {
   _PipelineDesc _pipelineDesc = {};
   _pipelineDesc.state = pipelineDesc;
   mgAssert(createPipelineInfo.shaderName.size() + 1 < mg::countof(_pipelineDesc.shaderName));
@@ -291,14 +267,15 @@ Pipeline PipelineContainer::createComputePipeline(const ComputePipelineStateDesc
   if (it != std::end(_idToPipeline)) {
     return it->second;
   }
-  
+
   // create new pipeline
   const auto shader = mg::getShader(computePipelineStateDesc.shaderName);
 
   VkPipelineShaderStageCreateInfo shaderStageCreateInfo = {};
   shaderStageCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
   shaderStageCreateInfo.stage = VK_SHADER_STAGE_COMPUTE_BIT;
-  shaderStageCreateInfo.module = shader.compute.shaderStage.module;
+  mgAssert(shader.count == 1);
+  shaderStageCreateInfo.module = shader.stageCreateInfo[0].module;
   shaderStageCreateInfo.pName = "main";
 
   VkComputePipelineCreateInfo pipelineCreateInfo = {};
@@ -308,12 +285,61 @@ Pipeline PipelineContainer::createComputePipeline(const ComputePipelineStateDesc
 
   Pipeline pipeline = {};
   pipeline.layout = computePipelineStateDesc.pipelineLayout;
-  checkResult(vkCreateComputePipelines(vkContext.device, VK_NULL_HANDLE, 1, &pipelineCreateInfo, nullptr, &pipeline.pipeline));
+  checkResult(
+      vkCreateComputePipelines(vkContext.device, VK_NULL_HANDLE, 1, &pipelineCreateInfo, nullptr, &pipeline.pipeline));
 
   _idToPipeline.emplace(hashValue, pipeline);
   return pipeline;
 }
 
+Pipeline PipelineContainer::createRayTracingPipeline(const RayTracingPipelineStateDesc &rayTracingPipelineStateDesc) {
+  _PipelineDesc _pipelineDesc = {};
+  mgAssert(rayTracingPipelineStateDesc.shaderName.size() + 1 < mg::countof(_pipelineDesc.shaderName));
+  strncpy(_pipelineDesc.shaderName, rayTracingPipelineStateDesc.shaderName.c_str(), sizeof(_pipelineDesc.shaderName));
 
+  auto startAdress = (const unsigned char *)((&_pipelineDesc));
+  auto hashValue = hashBytes(startAdress, startAdress + sizeof(_pipelineDesc));
+
+  auto it = _idToPipeline.find(hashValue);
+  if (it != std::end(_idToPipeline)) {
+    return it->second;
+  }
+
+  // create new pipeline
+  const auto shader = mg::getShader(rayTracingPipelineStateDesc.shaderName);
+
+  VkRayTracingShaderGroupCreateInfoNV groups[3] = {};
+  for (auto &group : groups) {
+    group.sType = VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_NV;
+    group.generalShader = VK_SHADER_UNUSED_NV;
+    group.closestHitShader = VK_SHADER_UNUSED_NV;
+    group.anyHitShader = VK_SHADER_UNUSED_NV;
+    group.intersectionShader = VK_SHADER_UNUSED_NV;
+  }
+
+  groups[0].type = VK_RAY_TRACING_SHADER_GROUP_TYPE_GENERAL_NV;
+  groups[0].generalShader = 0;
+  groups[1].type = VK_RAY_TRACING_SHADER_GROUP_TYPE_GENERAL_NV;
+  groups[1].generalShader = 1;
+  groups[2].type = VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_NV;
+  groups[2].closestHitShader = 2;
+
+  VkRayTracingPipelineCreateInfoNV rayPipelineInfo{};
+  rayPipelineInfo.sType = VK_STRUCTURE_TYPE_RAY_TRACING_PIPELINE_CREATE_INFO_NV;
+  rayPipelineInfo.stageCount = shader.count;
+  rayPipelineInfo.pStages = shader.stageCreateInfo;
+  rayPipelineInfo.pGroups = groups;
+  rayPipelineInfo.groupCount = mg::countof(groups);
+  rayPipelineInfo.layout = rayTracingPipelineStateDesc.pipelineLayout;
+  rayPipelineInfo.maxRecursionDepth = 1;
+
+  Pipeline pipeline = {};
+  pipeline.layout = rayTracingPipelineStateDesc.pipelineLayout;
+  checkResult(nv::vkCreateRayTracingPipelinesNV(mg::vkContext.device, VK_NULL_HANDLE, 1, &rayPipelineInfo, nullptr,
+                                            &pipeline.pipeline));
+
+  _idToPipeline.emplace(hashValue, pipeline);
+  return pipeline;
+}
 
 } // namespace mg

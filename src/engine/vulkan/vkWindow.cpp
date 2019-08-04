@@ -1,18 +1,17 @@
 #include "vkWindow.h"
 
+#include "mg/logger.h"
+#include "mg/mgSystem.h"
+#include "singleRenderpass.h"
+#include "vkContext.h"
+#include "vkUtils.h"
+#include <GLFW/glfw3.h>
 #include <algorithm>
 #include <cstdlib>
 #include <iostream>
 #include <vector>
 
-#include "singleRenderpass.h"
-#include "vkContext.h"
-#include "vkUtils.h"
-
-#include "mg/logger.h"
-#include "mg/mgSystem.h"
-
-#include <GLFW/glfw3.h>
+using namespace std;
 
 namespace mg {
 #if (defined _DEBUG) || (defined DEBUG)
@@ -21,7 +20,7 @@ namespace mg {
 #define __DEBUG false
 #endif
 
-#define ENABLE_DEBUGGING (__DEBUG && std::getenv("VULKAN_SDK") != nullptr)
+#define ENABLE_DEBUGGING (false && std::getenv("VULKAN_SDK") != nullptr)
 
 static char *DEBUG_LAYER = (char *)"VK_LAYER_LUNARG_standard_validation";
 
@@ -33,8 +32,8 @@ void createCommandBuffers() {
     commandBufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     commandBufferAllocateInfo.commandBufferCount = 1;
 
-    checkResult(
-        vkAllocateCommandBuffers(mg::vkContext.device, &commandBufferAllocateInfo, &mg::vkContext.commandBuffers.buffers[i]));
+    checkResult(vkAllocateCommandBuffers(mg::vkContext.device, &commandBufferAllocateInfo,
+                                         &mg::vkContext.commandBuffers.buffers[i]));
   }
 }
 void createCommandBufferFences() {
@@ -61,18 +60,21 @@ void initSwapChain() {
 }
 
 static VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo,
-                                             const VkAllocationCallbacks *pAllocator, VkDebugUtilsMessengerEXT *pCallback) {
+                                             const VkAllocationCallbacks *pAllocator,
+                                             VkDebugUtilsMessengerEXT *pCallback) {
   auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
   if (func != nullptr) {
     return func(instance, pCreateInfo, pAllocator, pCallback);
   } else {
+    cout << "here we are" << endl;
     return VK_ERROR_EXTENSION_NOT_PRESENT;
   }
 }
 
 static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
                                                     VkDebugUtilsMessageTypeFlagsEXT messageType,
-                                                    const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData, void *pUserData) {
+                                                    const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
+                                                    void *pUserData) {
   std::string prefix;
   if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT) {
     prefix += "Verbose: ";
@@ -95,12 +97,15 @@ static void createDebugCallback() {
     VkDebugUtilsMessengerCreateInfoEXT createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
     createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
-                                 VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-    createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
+                                 VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
+                                 VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+    createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
+                             VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
                              VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
     createInfo.pfnUserCallback = debugCallback;
 
-    if (CreateDebugUtilsMessengerEXT(mg::vkContext.instance, &createInfo, nullptr, &mg::vkContext.callback) != VK_SUCCESS) {
+    if (CreateDebugUtilsMessengerEXT(mg::vkContext.instance, &createInfo, nullptr, &mg::vkContext.callback) !=
+        VK_SUCCESS) {
       mgAssertDesc(false, "failed to set up debug callback!");
     }
   }
@@ -223,11 +228,12 @@ static void findPhysicalDevice() {
   uint32_t supportedVersion[] = {VK_VERSION_MAJOR(mg::vkContext.physicalDeviceProperties.apiVersion),
                                  VK_VERSION_MINOR(mg::vkContext.physicalDeviceProperties.apiVersion),
                                  VK_VERSION_PATCH(mg::vkContext.physicalDeviceProperties.apiVersion)};
-  LOG("Physical device supports version " << supportedVersion[0] << "." << supportedVersion[1] << "." << supportedVersion[2]);
+  LOG("Physical device supports version " << supportedVersion[0] << "." << supportedVersion[1] << "."
+                                          << supportedVersion[2]);
 
   VkSurfaceCapabilitiesKHR surfaceCapabilities;
-  checkResult(
-      vkGetPhysicalDeviceSurfaceCapabilitiesKHR(mg::vkContext.physicalDevice, mg::vkContext.windowSurface, &surfaceCapabilities));
+  checkResult(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(mg::vkContext.physicalDevice, mg::vkContext.windowSurface,
+                                                        &surfaceCapabilities));
   if (mg::vkContext.screen.width != surfaceCapabilities.currentExtent.width ||
       mg::vkContext.screen.height != surfaceCapabilities.currentExtent.height) {
     mg::vkContext.screen.width = surfaceCapabilities.currentExtent.width;
@@ -271,7 +277,8 @@ static void createLogicalDevice() {
   vkEnumerateDeviceExtensionProperties(mg::vkContext.physicalDevice, nullptr, &extensionCount, nullptr);
   mgAssert(extensionCount > 0);
   std::vector<VkExtensionProperties> availableExtensions(extensionCount);
-  vkEnumerateDeviceExtensionProperties(mg::vkContext.physicalDevice, nullptr, &extensionCount, availableExtensions.data());
+  vkEnumerateDeviceExtensionProperties(mg::vkContext.physicalDevice, nullptr, &extensionCount,
+                                       availableExtensions.data());
 
   LOG("Device supported extensions : ");
   std::string extensionNameStr = "";
@@ -287,8 +294,12 @@ static void createLogicalDevice() {
 
   bool hasMaintenance1Extension = false;
   bool hasAmdExtension = false;
-  const char *deviceExtensions[4] = {VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME, VK_KHR_MAINTENANCE3_EXTENSION_NAME,
-                                     VK_KHR_MAINTENANCE1_EXTENSION_NAME, VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+  const char *deviceExtensions[6] = {VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME,
+                                     VK_KHR_MAINTENANCE3_EXTENSION_NAME,
+                                     VK_KHR_MAINTENANCE1_EXTENSION_NAME,
+                                     VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+                                     VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME,
+                                     VK_NV_RAY_TRACING_EXTENSION_NAME};
 
   deviceCreateInfo.enabledExtensionCount = mg::countof(deviceExtensions);
   deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions;
@@ -364,7 +375,8 @@ void destroyVulkanWindow() {
 
   if (ENABLE_DEBUGGING) {
     PFN_vkDestroyDebugUtilsMessengerEXT DestroyDebugReportCallback =
-        (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(mg::vkContext.instance, "vkDestroyDebugUtilsMessengerEXT");
+        (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(mg::vkContext.instance,
+                                                                   "vkDestroyDebugUtilsMessengerEXT");
     DestroyDebugReportCallback(mg::vkContext.instance, mg::vkContext.callback, nullptr);
   }
 }
@@ -375,8 +387,8 @@ void resizeWindow() {
   waitForDeviceIdle();
 
   VkSurfaceCapabilitiesKHR surfaceCapabilities;
-  checkResult(
-      vkGetPhysicalDeviceSurfaceCapabilitiesKHR(mg::vkContext.physicalDevice, mg::vkContext.windowSurface, &surfaceCapabilities));
+  checkResult(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(mg::vkContext.physicalDevice, mg::vkContext.windowSurface,
+                                                        &surfaceCapabilities));
   mgAssert(mg::vkContext.screen.width == surfaceCapabilities.currentExtent.width &&
            mg::vkContext.screen.height == surfaceCapabilities.currentExtent.height);
 

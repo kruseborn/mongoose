@@ -1,24 +1,27 @@
 #pragma once
 #include "vkContext.h"
 #include <string>
+#include <unordered_map>
 #include <vector>
-
 namespace mg {
 
 struct Shaders {
-  std::vector<std::string> graphics;
-  std::vector<std::string> computes;
+  struct File {
+    std::string name;
+    VkShaderStageFlagBits stageFlag;
+  };
+  struct ShaderFiles {
+    std::vector<File> files;
+  };
+  std::unordered_map<std::string, ShaderFiles> nameToShaderFiles;
 };
 
 struct Shader {
   std::string name;
-  bool isCompute;
-  struct {
-    VkPipelineShaderStageCreateInfo shaderStage;
-  } vertex, fragment, compute;
+  uint32_t count;
+  VkPipelineShaderStageCreateInfo stageCreateInfo[5];
 };
-void createShaders(const std::vector<std::string> &shaderNames);
-void createComputeShaders(const std::vector<std::string> &shaderNames);
+void createShaders();
 Shader getShader(const std::string &name);
 
 void deleteShaders();
