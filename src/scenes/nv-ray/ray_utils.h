@@ -14,6 +14,8 @@ struct RayInfo {
   VkPhysicalDeviceRayTracingPropertiesNV rayTracingProperties;
   mg::StorageId storageImageId;
   VkDescriptorSet topLevelASDescriptorSet;
+  mg::MeshId triangleId;
 };
 
-void createScene(RayInfo *rayInfo);
+void createRayInfo(RayInfo *rayInfo);
+void destroyRayInfo(RayInfo *rayInfo);

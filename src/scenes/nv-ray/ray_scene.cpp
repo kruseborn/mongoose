@@ -19,19 +19,20 @@ static mg::SingleRenderPass singleRenderPass;
 void initScene() {
   camera = mg::create3DCamera(glm::vec3{0,0, -2.5f}, glm::vec3{0,0,0},
                               glm::vec3{0, 1, 0});
-  createScene(&rayinfo);
+  createRayInfo(&rayinfo);
   mg::initSingleRenderPass(&singleRenderPass);
   mg::mgSystem.textureContainer.setupDescriptorSets();
 }
 
 void destroyScene() {
+  destroyRayInfo(&rayinfo);
   mg::waitForDeviceIdle();
   destroySingleRenderPass(&singleRenderPass);
 }
 
 void updateScene(const mg::FrameData &frameData) {
   if (frameData.resize) {
-    //    resizerayRenderPass(&rayRenderPass);
+    //resizerayRenderPass(&rayRenderPass);
   }
   if (frameData.keys.r) {
     mg::mgSystem.pipelineContainer.resetPipelineContainer();

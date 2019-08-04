@@ -71,8 +71,8 @@ static void createBottomLevelAccelerationStructure(RayInfo *rayInfo, VkGeometryN
   meshInfo.indices = (unsigned char *)indices;
   meshInfo.indicesSizeInBytes = sizeof(indices);
 
-  auto meshId = mg::mgSystem.meshContainer.createMesh(meshInfo);
-  auto mesh = mg::getMesh(meshId);
+  rayInfo->triangleId = mg::mgSystem.meshContainer.createMesh(meshInfo);
+  auto mesh = mg::getMesh(rayInfo->triangleId);
 
   mg::waitForDeviceIdle();
 
@@ -279,7 +279,7 @@ static void getRayTracingProperties(RayInfo *rayInfo) {
   rayInfo->rayTracingProperties = physicalDeviceRayTracingPropertiesNV;
 }
 
-void createScene(RayInfo *rayInfo) {
+void createRayInfo(RayInfo *rayInfo) {
   Buffer instanceBuffer = {};
   Buffer scratchBuffer{};
   VkGeometryNV geometry = {};
@@ -297,4 +297,18 @@ void createScene(RayInfo *rayInfo) {
   createScrathMemory(rayInfo, &scratchBuffer);
 
   buildAccelerationStructures(rayInfo, &scratchBuffer, &instanceBuffer, &geometry);
+}
+
+void destroyRayInfo(RayInfo *rayInfo) { 
+  mg::mgSystem.storageContainer.removeStorage(rayInfo->storageImageId);
+  mg::mgSystem.meshContainer.removeMesh(rayInfo->triangleId);
+
+   mg::mgSystem.meshDeviceMemoryAllocator.freeDeviceOnlyMemory(rayInfo->bottomLevelAS.deviceHeapAllocation);
+  mg::mgSystem.meshDeviceMemoryAllocator.freeDeviceOnlyMemory(rayInfo->topLevelAS.deviceHeapAllocation);
+
+  mg::nv::vkDestroyAccelerationStructureNV(mg::vkContext.device, rayInfo->bottomLevelAS.accelerationStructure, nullptr);
+  mg::nv::vkDestroyAccelerationStructureNV(mg::vkContext.device, rayInfo->topLevelAS.accelerationStructure, nullptr);
+  vkFreeDescriptorSets(mg::vkContext.device, mg::vkContext.descriptorPool, 1, &rayInfo->topLevelASDescriptorSet);
+
+  *rayInfo = {};
 }
