@@ -306,8 +306,9 @@ Pipeline PipelineContainer::createRayTracingPipeline(const RayTracingPipelineSta
   }
 
   // create new pipeline
-  const auto shader = mg::getShader(rayTracingPipelineStateDesc.shaderName);
+  auto shader = mg::getShader(rayTracingPipelineStateDesc.shaderName);
 
+  std::swap(shader.stageCreateInfo[1], shader.stageCreateInfo[2]);
   VkRayTracingShaderGroupCreateInfoNV groups[3] = {};
   for (auto &group : groups) {
     group.sType = VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_NV;
