@@ -146,7 +146,8 @@ static void *allocateDynamicBuffer(mg::_Buffer *dynamicBuffer, uint32_t currentB
 LinearHeapAllocator::~LinearHeapAllocator() { mgAssert(_hasBeenDelete == true); }
 
 void *LinearHeapAllocator::allocateBuffer(VkDeviceSize sizeInBytes, VkBuffer *buffer, VkDeviceSize *offset) {
-  return allocateDynamicBuffer(&_vertexBuffer, _currentBufferIndex, sizeInBytes, buffer, offset);
+  VkDeviceSize alignedSize = mg::alignUpPowerOfTwo(sizeInBytes, 256); 
+  return allocateDynamicBuffer(&_vertexBuffer, _currentBufferIndex, alignedSize, buffer, offset);
 }
 
 void *LinearHeapAllocator::allocateUniform(VkDeviceSize sizeInBytes, VkBuffer *buffer, uint32_t *offset,

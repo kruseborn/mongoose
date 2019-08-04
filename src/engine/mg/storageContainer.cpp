@@ -231,8 +231,8 @@ void *StorageContainer::mapDeviceMemory(StorageId storageId) {
   const auto &_storage = _idToStorage[storageId.index];
 
   void *mappedMemory = nullptr;
-  vkMapMemory(mg::vkContext.device, _storage.heapAllocation.deviceMemory, _storage.heapAllocation.offset,
-              _storage.storage.size, 0, &mappedMemory);
+  mg::checkResult(vkMapMemory(mg::vkContext.device, _storage.heapAllocation.deviceMemory, _storage.heapAllocation.offset,
+              _storage.storage.size, 0, &mappedMemory));
   return mappedMemory;
 }
 void StorageContainer::unmapDeviceMemory(StorageId storageId) {

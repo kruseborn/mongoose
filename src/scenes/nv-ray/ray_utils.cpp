@@ -6,6 +6,11 @@
 #include <mg/textureContainer.h>
 #include <vulkan/vkContext.h>
 
+struct Buffer {
+  VkBuffer buffer;
+  VkDeviceSize offset;
+};
+
 // https://developer.nvidia.com/rtx/raytracing/vkray
 struct VkGeometryInstance {
   /// Transform matrix, containing only the top 3 rows
@@ -51,8 +56,7 @@ static void createAndBindASDeviceMemory(AccelerationStructure *levelAS) {
                                                              sizeof(uint64_t), &levelAS->handle));
 }
 
-static void createBottomLevelAccelerationStructure(RayInfo *rayInfo) {
-
+static void createBottomLevelAccelerationStructure(RayInfo *rayInfo, VkGeometryNV *geometry) {
   struct Vertex {
     glm::vec3 pos;
   };
@@ -64,11 +68,13 @@ static void createBottomLevelAccelerationStructure(RayInfo *rayInfo) {
   meshInfo.vertices = (unsigned char *)vertices;
   meshInfo.verticesSizeInBytes = sizeof(vertices);
   meshInfo.nrOfIndices = 3;
-  meshInfo.indices = (unsigned char*)indices;
+  meshInfo.indices = (unsigned char *)indices;
   meshInfo.indicesSizeInBytes = sizeof(indices);
 
   auto meshId = mg::mgSystem.meshContainer.createMesh(meshInfo);
   auto mesh = mg::getMesh(meshId);
+
+  mg::waitForDeviceIdle();
 
   VkGeometryDataNV geometryDataNV = {};
 
@@ -87,11 +93,11 @@ static void createBottomLevelAccelerationStructure(RayInfo *rayInfo) {
   VkGeometryAABBNV geometryAABBNV = {};
   geometryAABBNV.sType = VK_STRUCTURE_TYPE_GEOMETRY_AABB_NV;
 
-  rayInfo->geometry.sType = VK_STRUCTURE_TYPE_GEOMETRY_NV;
-  rayInfo->geometry.geometryType = VK_GEOMETRY_TYPE_TRIANGLES_NV;
-  rayInfo->geometry.geometry.triangles = triangles;
-  rayInfo->geometry.geometry.aabbs = geometryAABBNV;
-  rayInfo->geometry.flags = VK_GEOMETRY_OPAQUE_BIT_NV;
+  geometry->sType = VK_STRUCTURE_TYPE_GEOMETRY_NV;
+  geometry->geometryType = VK_GEOMETRY_TYPE_TRIANGLES_NV;
+  geometry->geometry.triangles = triangles;
+  geometry->geometry.aabbs = geometryAABBNV;
+  geometry->flags = VK_GEOMETRY_OPAQUE_BIT_NV;
   // VK_GEOMETRY_OPAQUE_BIT_NV indicates that this geometry does not invoke the
   // any-hit shaders even if present in a hit group.
 
@@ -99,7 +105,7 @@ static void createBottomLevelAccelerationStructure(RayInfo *rayInfo) {
   accelerationStructureInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_INFO_NV;
   accelerationStructureInfo.type = VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_NV;
   accelerationStructureInfo.geometryCount = 1;
-  accelerationStructureInfo.pGeometries = &rayInfo->geometry;
+  accelerationStructureInfo.pGeometries = geometry;
 
   VkAccelerationStructureCreateInfoNV accelerationStructureCreateInfo = {};
   accelerationStructureCreateInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_NV;
@@ -110,7 +116,7 @@ static void createBottomLevelAccelerationStructure(RayInfo *rayInfo) {
   createAndBindASDeviceMemory(&rayInfo->bottomLevelAS);
 }
 
-static void createTopLevelAccelerationStructure(RayInfo *rayInfo) {
+static void createTopLevelAccelerationStructure(RayInfo *rayInfo, Buffer *instanceBuffer) {
   VkAccelerationStructureInfoNV accelerationStructureInfo = {};
   accelerationStructureInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_INFO_NV;
   accelerationStructureInfo.type = VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_NV;
@@ -146,9 +152,7 @@ static void createTopLevelAccelerationStructure(RayInfo *rayInfo) {
   accelerationStructureWrite.descriptorType = VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV;
 
   vkUpdateDescriptorSets(mg::vkContext.device, 1, &accelerationStructureWrite, 0, VK_NULL_HANDLE);
-}
 
-static void createGeometryInstance(RayInfo *rayInfo) {
   VkGeometryInstance geometryInstance = {};
   glm::mat3x4 transform = {
       1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
@@ -160,27 +164,13 @@ static void createGeometryInstance(RayInfo *rayInfo) {
   geometryInstance.flags = VK_GEOMETRY_INSTANCE_TRIANGLE_CULL_DISABLE_BIT_NV;
   geometryInstance.accelerationStructureHandle = rayInfo->bottomLevelAS.handle;
 
-  VkBufferCreateInfo bufferCreateInfo = {};
-  bufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-  bufferCreateInfo.size = sizeof(geometryInstance);
-  bufferCreateInfo.usage = VK_BUFFER_USAGE_RAY_TRACING_BIT_NV;
+  VkGeometryInstance *instanceData = (VkGeometryInstance *)mg::mgSystem.linearHeapAllocator.allocateBuffer(
+      sizeof(geometryInstance), &instanceBuffer->buffer, &instanceBuffer->offset);
 
-  mg::checkResult(vkCreateBuffer(mg::vkContext.device, &bufferCreateInfo, nullptr, &rayInfo->instanceBuffer));
-
-  VkMemoryRequirements vkMemoryRequirements = {};
-  vkGetBufferMemoryRequirements(mg::vkContext.device, rayInfo->instanceBuffer, &vkMemoryRequirements);
-
-  const auto memoryIndex =
-      mg::findMemoryTypeIndex(mg::vkContext.physicalDeviceMemoryProperties, vkMemoryRequirements.memoryTypeBits,
-                              VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-  auto instanceHeapAllocation = mg::mgSystem.meshDeviceMemoryAllocator.allocateDeviceOnlyMemory(
-      memoryIndex, vkMemoryRequirements.size, vkMemoryRequirements.alignment);
-
-  mg::checkResult(vkBindBufferMemory(mg::vkContext.device, rayInfo->instanceBuffer, instanceHeapAllocation.deviceMemory,
-                                     instanceHeapAllocation.offset));
+  memcpy(instanceData, &geometryInstance, sizeof(geometryInstance));
 }
 
-static void createScrathMemory(RayInfo *rayInfo) {
+static void createScrathMemory(RayInfo *rayInfo, Buffer *scratchBuffer) {
   // Acceleration structure build requires some scratch space to store temporary information
   VkAccelerationStructureMemoryRequirementsInfoNV memoryRequirementsInfo{};
   memoryRequirementsInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_INFO_NV;
@@ -201,53 +191,43 @@ static void createScrathMemory(RayInfo *rayInfo) {
   const VkDeviceSize scratchBufferSize =
       std::max(memReqBottomLevelAS.memoryRequirements.size, memReqTopLevelAS.memoryRequirements.size);
 
-  VkBufferCreateInfo bufferCreateInfo = {};
-  bufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-  bufferCreateInfo.size = scratchBufferSize;
-  bufferCreateInfo.usage = VK_BUFFER_USAGE_RAY_TRACING_BIT_NV;
-
-  mg::checkResult(vkCreateBuffer(mg::vkContext.device, &bufferCreateInfo, nullptr, &rayInfo->scratchBuffer));
-
-  VkMemoryRequirements vkMemoryRequirements = {};
-  vkGetBufferMemoryRequirements(mg::vkContext.device, rayInfo->scratchBuffer, &vkMemoryRequirements);
-
-  const auto memoryIndex =
-      mg::findMemoryTypeIndex(mg::vkContext.physicalDeviceMemoryProperties, vkMemoryRequirements.memoryTypeBits,
-                              VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-
-  auto instanceHeapAllocation = mg::mgSystem.meshDeviceMemoryAllocator.allocateDeviceOnlyMemory(
-      memoryIndex, vkMemoryRequirements.size, vkMemoryRequirements.alignment);
-
-  mg::checkResult(vkBindBufferMemory(mg::vkContext.device, rayInfo->scratchBuffer, instanceHeapAllocation.deviceMemory,
-                                     instanceHeapAllocation.offset));
+  mg::mgSystem.linearHeapAllocator.allocateBuffer(scratchBufferSize, &scratchBuffer->buffer, &scratchBuffer->offset);
+}
+inline VkCommandBufferAllocateInfo commandBufferAllocateInfo(VkCommandPool commandPool, VkCommandBufferLevel level,
+                                                             uint32_t bufferCount) {
+  VkCommandBufferAllocateInfo commandBufferAllocateInfo{};
+  commandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+  commandBufferAllocateInfo.commandPool = commandPool;
+  commandBufferAllocateInfo.level = level;
+  commandBufferAllocateInfo.commandBufferCount = bufferCount;
+  return commandBufferAllocateInfo;
 }
 
-static void buildAccelerationStructures(RayInfo *rayInfo) {
-  VkCommandBufferAllocateInfo vkCommandBufferAllocateInfo = {};
-  vkCommandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-  vkCommandBufferAllocateInfo.commandPool = mg::vkContext.commandPool;
-  vkCommandBufferAllocateInfo.commandBufferCount = 1;
-  vkCommandBufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+static void buildAccelerationStructures(RayInfo *rayInfo, Buffer *scratchBuffer, Buffer *instanceBuffer,
+                                        VkGeometryNV *geometry) {
+  VkCommandBufferAllocateInfo commandBufferAllocateInfo = {};
+  commandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+  commandBufferAllocateInfo.commandPool = mg::vkContext.commandPool;
+  commandBufferAllocateInfo.commandBufferCount = 1;
+  commandBufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 
   VkCommandBuffer commandBuffer;
-  mg::checkResult(vkAllocateCommandBuffers(mg::vkContext.device, &vkCommandBufferAllocateInfo, &commandBuffer));
+  mg::checkResult(vkAllocateCommandBuffers(mg::vkContext.device, &commandBufferAllocateInfo, &commandBuffer));
 
-  VkCommandBufferBeginInfo vkCommandBufferBeginInfo = {};
-  vkCommandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-  vkCommandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+  VkCommandBufferBeginInfo commandBufferBeginInfo = {};
+  commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+  commandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+  mg::checkResult(vkBeginCommandBuffer(commandBuffer, &commandBufferBeginInfo));
 
-  vkBeginCommandBuffer(commandBuffer, &vkCommandBufferBeginInfo);
-
-  // bottom level
   VkAccelerationStructureInfoNV accelerationStructureInfo = {};
   accelerationStructureInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_INFO_NV;
   accelerationStructureInfo.type = VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_NV;
   accelerationStructureInfo.geometryCount = 1;
-  accelerationStructureInfo.pGeometries = &rayInfo->geometry;
+  accelerationStructureInfo.pGeometries = geometry;
 
   mg::nv::vkCmdBuildAccelerationStructureNV(commandBuffer, &accelerationStructureInfo, VK_NULL_HANDLE, 0, VK_FALSE,
                                             rayInfo->bottomLevelAS.accelerationStructure, VK_NULL_HANDLE,
-                                            rayInfo->scratchBuffer, 0);
+                                            scratchBuffer->buffer, scratchBuffer->offset);
 
   VkMemoryBarrier memoryBarrier = {};
   memoryBarrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
@@ -255,7 +235,6 @@ static void buildAccelerationStructures(RayInfo *rayInfo) {
       VK_ACCESS_ACCELERATION_STRUCTURE_WRITE_BIT_NV | VK_ACCESS_ACCELERATION_STRUCTURE_READ_BIT_NV;
   memoryBarrier.dstAccessMask =
       VK_ACCESS_ACCELERATION_STRUCTURE_WRITE_BIT_NV | VK_ACCESS_ACCELERATION_STRUCTURE_READ_BIT_NV;
-
   vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_NV,
                        VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_NV, 0, 1, &memoryBarrier, 0, 0, 0, 0);
 
@@ -264,23 +243,28 @@ static void buildAccelerationStructures(RayInfo *rayInfo) {
   accelerationStructureInfo.geometryCount = 0;
   accelerationStructureInfo.instanceCount = 1;
 
-  mg::nv::vkCmdBuildAccelerationStructureNV(commandBuffer, &accelerationStructureInfo, rayInfo->instanceBuffer, 0,
-                                            VK_FALSE, rayInfo->topLevelAS.accelerationStructure, VK_NULL_HANDLE,
-                                            rayInfo->scratchBuffer, 0);
+  mg::nv::vkCmdBuildAccelerationStructureNV(commandBuffer, &accelerationStructureInfo, instanceBuffer->buffer,
+                                            instanceBuffer->offset, VK_FALSE, rayInfo->topLevelAS.accelerationStructure,
+                                            VK_NULL_HANDLE, scratchBuffer->buffer, scratchBuffer->offset);
 
   vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_NV,
                        VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_NV, 0, 1, &memoryBarrier, 0, 0, 0, 0);
 
   mg::checkResult(vkEndCommandBuffer(commandBuffer));
-  VkSubmitInfo vkSubmitInfo = {};
-  vkSubmitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-  vkSubmitInfo.commandBufferCount = 1;
-  vkSubmitInfo.pCommandBuffers = &commandBuffer;
 
+  VkSubmitInfo submitInfo = {};
+  submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+  submitInfo.commandBufferCount = 1;
+  submitInfo.pCommandBuffers = &commandBuffer;
 
-  mg::checkResult(vkQueueSubmit(mg::vkContext.queue, 1, &vkSubmitInfo, VK_NULL_HANDLE));
-  
-  mg::waitForDeviceIdle();
+  VkFenceCreateInfo fenceInfo = {};
+  fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+  VkFence fence;
+  mg::checkResult(vkCreateFence(mg::vkContext.device, &fenceInfo, nullptr, &fence));
+
+  mg::checkResult(vkQueueSubmit(mg::vkContext.queue, 1, &submitInfo, fence));
+  mg::checkResult(vkWaitForFences(mg::vkContext.device, 1, &fence, VK_TRUE, UINT64_MAX));
+  vkDestroyFence(mg::vkContext.device, fence, nullptr);
   vkFreeCommandBuffers(mg::vkContext.device, mg::vkContext.commandPool, 1, &commandBuffer);
 }
 
@@ -296,6 +280,10 @@ static void getRayTracingProperties(RayInfo *rayInfo) {
 }
 
 void createScene(RayInfo *rayInfo) {
+  Buffer instanceBuffer = {};
+  Buffer scratchBuffer{};
+  VkGeometryNV geometry = {};
+
   mg::CreateImageStorageInfo createImageStorageInfo = {};
   createImageStorageInfo.format = mg::vkContext.swapChain->format;
   createImageStorageInfo.id = "storage image";
@@ -303,11 +291,10 @@ void createScene(RayInfo *rayInfo) {
   rayInfo->storageImageId = mg::mgSystem.storageContainer.createImageStorage(createImageStorageInfo);
 
   getRayTracingProperties(rayInfo);
-  createBottomLevelAccelerationStructure(rayInfo);
-  createTopLevelAccelerationStructure(rayInfo);
+  createBottomLevelAccelerationStructure(rayInfo, &geometry);
+  createTopLevelAccelerationStructure(rayInfo, &instanceBuffer);
 
-  createGeometryInstance(rayInfo);
-  createScrathMemory(rayInfo);
+  createScrathMemory(rayInfo, &scratchBuffer);
 
-  buildAccelerationStructures(rayInfo);
+  buildAccelerationStructures(rayInfo, &scratchBuffer, &instanceBuffer, &geometry);
 }

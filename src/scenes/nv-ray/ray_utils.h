@@ -11,9 +11,6 @@ struct AccelerationStructure {
 struct RayInfo {
   AccelerationStructure bottomLevelAS;
   AccelerationStructure topLevelAS;
-  VkGeometryNV geometry;
-  VkBuffer scratchBuffer;
-  VkBuffer instanceBuffer;
   VkPhysicalDeviceRayTracingPropertiesNV rayTracingProperties;
   mg::StorageId storageImageId;
   VkDescriptorSet topLevelASDescriptorSet;
