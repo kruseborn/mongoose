@@ -17,8 +17,7 @@ static RayInfo rayinfo;
 static mg::SingleRenderPass singleRenderPass;
 
 void initScene() {
-  camera = mg::create3DCamera(glm::vec3{0,0, -2.5f}, glm::vec3{0,0,0},
-                              glm::vec3{0, 1, 0});
+  camera = mg::create3DCamera(glm::vec3{0,0, -2.5f}, glm::vec3{0,0,0}, glm::vec3{0, 1, 0});
   createRayInfo(&rayinfo);
   mg::initSingleRenderPass(&singleRenderPass);
   mg::mgSystem.textureContainer.setupDescriptorSets();

@@ -56,35 +56,6 @@ VolumeInfo parseDatFile() {
   return volumeInfo;
 }
 
-//   v6----- v5
-//   /|      /|
-//  v2------v3|
-//  | |     | |
-//  | |v7---|-|v4
-//  |/      |/
-//  v0------v1
-VolumeCube createVolumeCube(const VolumeInfo &volumeInfo) {
-  const auto boxToWorld = boxToWorldMatrix(volumeInfo);
-
-  const auto v0 = glm::vec3{boxToWorld * glm::vec4{0, 0, 0, 1}};
-  const auto v1 = glm::vec3{boxToWorld * glm::vec4{1, 0, 0, 1}};
-  const auto v2 = glm::vec3{boxToWorld * glm::vec4{0, 1, 0, 1}};
-  const auto v3 = glm::vec3{boxToWorld * glm::vec4{1, 1, 0, 1}};
-
-  const auto v4 = glm::vec3{boxToWorld * glm::vec4{1, 0, 1, 1}};
-  const auto v5 = glm::vec3{boxToWorld * glm::vec4{1, 1, 1, 1}};
-  const auto v6 = glm::vec3{boxToWorld * glm::vec4{0, 1, 1, 1}};
-  const auto v7 = glm::vec3{boxToWorld * glm::vec4{0, 0, 1, 1}};
-
-  VolumeCube volumeCube = {{v0, v1, v2, v3, v4, v5, v6, v7}, {0, 1, 3, 3, 2, 0,   // front
-                                                              1, 4, 3, 4, 5, 3,   // right
-                                                              7, 0, 2, 7, 2, 6,   // left
-                                                              2, 3, 5, 2, 5, 6,   // top
-                                                              4, 1, 0, 4, 0, 7,   // bottom
-                                                              4, 7, 5, 7, 6, 5}}; // back
-  return volumeCube;
-}
-
 glm::mat4 worldToBoxMatrix(const VolumeInfo &volumeInfo) { return glm::inverse(boxToWorldMatrix(volumeInfo)); }
 
 glm::mat4 boxToWorldMatrix(const VolumeInfo &volumeInfo) {

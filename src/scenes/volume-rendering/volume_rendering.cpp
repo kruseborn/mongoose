@@ -33,7 +33,7 @@ void drawFrontAndBack(const mg::RenderContext &renderContext, const VolumeInfo &
   using VertexInputData = InputAssembler::VertexInputData;
 
   const auto frontAndBackPipeline = createFrontAndBackPipeline(renderContext);
-  const auto cubeMesh = createVolumeCube(volumeInfo);
+  const auto cubeMesh = mg::createVolumeCube(volumeInfo.corner, volumeInfo.size);
 
   VkBuffer uniformBuffer;
   uint32_t uniformOffset;

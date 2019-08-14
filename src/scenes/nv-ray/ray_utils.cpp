@@ -5,6 +5,7 @@
 #include <mg/mgSystem.h>
 #include <mg/textureContainer.h>
 #include <vulkan/vkContext.h>
+#include "mg/meshUtils.h"
 
 struct Buffer {
   VkBuffer buffer;
@@ -57,19 +58,18 @@ static void createAndBindASDeviceMemory(AccelerationStructure *levelAS) {
 }
 
 static void createBottomLevelAccelerationStructure(RayInfo *rayInfo, VkGeometryNV *geometry) {
-  struct Vertex {
-    glm::vec3 pos;
-  };
-  Vertex vertices[3] = {{{1.0f, 1.0f, 0.0f}}, {{-1.0f, 1.0f, 0.0f}}, {{0.0f, -1.0f, 0.0f}}};
-  uint32_t indices[] = {0, 1, 2};
+  /*Vertex vertices[3] = {{{1.0f, 1.0f, 0.0f}}, {{-1.0f, 1.0f, 0.0f}}, {{0.0f, -1.0f, 0.0f}}};
+  uint32_t indices[] = {0, 1, 2};*/
+
+  const auto cube = mg::createVolumeCube({-0.5f, -0.5f, 0}, {1, 1, 1});
 
   mg::CreateMeshInfo meshInfo = {};
-  meshInfo.id = "triangle";
-  meshInfo.vertices = (unsigned char *)vertices;
-  meshInfo.verticesSizeInBytes = sizeof(vertices);
-  meshInfo.nrOfIndices = 3;
-  meshInfo.indices = (unsigned char *)indices;
-  meshInfo.indicesSizeInBytes = sizeof(indices);
+  meshInfo.id = "cube";
+  meshInfo.vertices = (unsigned char *)cube.vertices;
+  meshInfo.verticesSizeInBytes = sizeof(cube.vertices);
+  meshInfo.nrOfIndices = mg::countof(cube.indices);
+  meshInfo.indices = (unsigned char *)cube.indices;
+  meshInfo.indicesSizeInBytes = sizeof(cube.indices);
 
   rayInfo->triangleId = mg::mgSystem.meshContainer.createMesh(meshInfo);
   auto mesh = mg::getMesh(rayInfo->triangleId);
@@ -81,14 +81,14 @@ static void createBottomLevelAccelerationStructure(RayInfo *rayInfo, VkGeometryN
   VkGeometryTrianglesNV triangles = {};
   triangles.sType = VK_STRUCTURE_TYPE_GEOMETRY_TRIANGLES_NV;
   triangles.vertexData = mesh.buffer;
-  triangles.vertexCount = 3;
-  triangles.vertexStride = sizeof(Vertex);
+  triangles.vertexCount = mg::countof(cube.vertices);
+  triangles.vertexStride = sizeof(glm::vec3);
   triangles.vertexFormat = VK_FORMAT_R32G32B32_SFLOAT;
 
   triangles.indexData = mesh.buffer;
   triangles.indexOffset = mesh.indicesOffset;
   triangles.indexType = VK_INDEX_TYPE_UINT32;
-  triangles.indexCount = 3;
+  triangles.indexCount = mg::countof(cube.indices);
 
   VkGeometryAABBNV geometryAABBNV = {};
   geometryAABBNV.sType = VK_STRUCTURE_TYPE_GEOMETRY_AABB_NV;
@@ -299,11 +299,11 @@ void createRayInfo(RayInfo *rayInfo) {
   buildAccelerationStructures(rayInfo, &scratchBuffer, &instanceBuffer, &geometry);
 }
 
-void destroyRayInfo(RayInfo *rayInfo) { 
+void destroyRayInfo(RayInfo *rayInfo) {
   mg::mgSystem.storageContainer.removeStorage(rayInfo->storageImageId);
   mg::mgSystem.meshContainer.removeMesh(rayInfo->triangleId);
 
-   mg::mgSystem.meshDeviceMemoryAllocator.freeDeviceOnlyMemory(rayInfo->bottomLevelAS.deviceHeapAllocation);
+  mg::mgSystem.meshDeviceMemoryAllocator.freeDeviceOnlyMemory(rayInfo->bottomLevelAS.deviceHeapAllocation);
   mg::mgSystem.meshDeviceMemoryAllocator.freeDeviceOnlyMemory(rayInfo->topLevelAS.deviceHeapAllocation);
 
   mg::nv::vkDestroyAccelerationStructureNV(mg::vkContext.device, rayInfo->bottomLevelAS.accelerationStructure, nullptr);

@@ -264,6 +264,21 @@ union DescriptorSets {
 };
 } //particle
 
+namespace procedural {
+struct Ubo {
+  glm::mat4 viewInverse;
+  glm::mat4 projInverse;
+};
+union DescriptorSets {
+  struct {
+    VkDescriptorSet ubo;
+    VkDescriptorSet image;
+    VkDescriptorSet topLevelAS;
+  };
+  VkDescriptorSet values[3];
+};
+} //procedural
+
 namespace simulate_positions {
 struct Ubo {
   float dt;

@@ -12,25 +12,20 @@ enum tpye { GEN, MISS, CLOSEST_HIT };
 }
 
 static mg::Pipeline createRayPipeline() {
-  using namespace mg::shaders::tracing;
+  using namespace mg::shaders::procedural;
 
   mg::RayTracingPipelineStateDesc rayTracingPipelineStateDesc = {};
   rayTracingPipelineStateDesc.pipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayoutRayTracing;
   rayTracingPipelineStateDesc.depth = 1;
-  rayTracingPipelineStateDesc.shaderName = "tracing";
+  rayTracingPipelineStateDesc.shaderName = "procedural";
 
   const auto pipeline = mg::mgSystem.pipelineContainer.createRayTracingPipeline(rayTracingPipelineStateDesc);
 
   return pipeline;
 }
 
-static void copyShaderIdentifier(const RayInfo &rayInfo, uint8_t *data, const uint8_t *shaderHandleStorage,
-                                         uint32_t groupIndex) {
-  
-}
-
 void traceTriangle(const mg::RenderContext &renderContext, const RayInfo &rayInfo) {
-  using namespace mg::shaders::tracing;
+  using namespace mg::shaders::procedural;
 
   auto pipeline = createRayPipeline();
   constexpr uint32_t groupCount = 3;

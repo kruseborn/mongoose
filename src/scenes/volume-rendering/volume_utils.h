@@ -1,11 +1,7 @@
 #pragma once
 #include <glm/glm.hpp>
 #include <mg/textureContainer.h>
-
-struct VolumeCube {
-  glm::vec3 vertices[8];
-  uint32_t indices[36];
-};
+#include <mg/meshUtils.h>
 
 struct VolumeInfo {
   glm::vec3 corner;
@@ -20,4 +16,3 @@ VolumeInfo parseDatFile();
 
 glm::mat4 worldToBoxMatrix(const VolumeInfo &volumeInfo);
 glm::mat4 boxToWorldMatrix(const VolumeInfo &volumeInfo);
-VolumeCube createVolumeCube(const VolumeInfo &volumeInfo);
