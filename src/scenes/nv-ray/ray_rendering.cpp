@@ -7,10 +7,6 @@
 #include "ray_utils.h"
 #include "rendering/rendering.h"
 
-namespace RAY {
-enum tpye { GEN, MISS, CLOSEST_HIT };
-}
-
 static mg::Pipeline createRayPipeline() {
   using namespace mg::shaders::procedural;
 
@@ -28,27 +24,33 @@ void traceTriangle(const mg::RenderContext &renderContext, const RayInfo &rayInf
   using namespace mg::shaders::procedural;
 
   auto pipeline = createRayPipeline();
-  constexpr uint32_t groupCount = 3;
-  const uint32_t groupSize = rayInfo.rayTracingProperties.shaderGroupHandleSize;
-  const uint32_t bindingTableSize = groupSize * groupCount;
+  constexpr uint32_t groupCount = 3; // groupCount is the number of shader handles to retrieve
+  const uint32_t shaderGroupHandleSize = rayInfo.rayTracingProperties.shaderGroupHandleSize;
+  const uint32_t bindingTableSize =
+      shaderGroupHandleSize * groupCount; // dataSize must be at least
+                                          // VkPhysicalDeviceRayTracingPropertiesNV::shaderGroupHandleSize × groupCount
 
   VkBuffer bindingTableBuffer;
   VkDeviceSize bindingTableOffset;
   uint8_t *data = (uint8_t *)mg::mgSystem.linearHeapAllocator.allocateBuffer(bindingTableSize, &bindingTableBuffer,
                                                                              &bindingTableOffset);
 
-  uint8_t *shaderHandleStorage = (uint8_t *)malloc(bindingTableSize);
   mg::checkResult(mg::nv::vkGetRayTracingShaderGroupHandlesNV(mg::vkContext.device, pipeline.pipeline, 0, groupCount,
-                                                              bindingTableSize,
-                                                              shaderHandleStorage));
-
-  memcpy(data, (char *)shaderHandleStorage, bindingTableSize);
+                                                              bindingTableSize, data));
 
   VkBuffer uniformBuffer;
   uint32_t uniformOffset;
   VkDescriptorSet uboSet;
   Ubo *ubo =
       (Ubo *)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
+
+  VkBuffer storageBuffer;
+  uint32_t storageOffset;
+  VkDescriptorSet storageSet;
+  Storage::StorageData *storage = (Storage::StorageData *)mg::mgSystem.linearHeapAllocator.allocateStorage(
+      sizeof(storage), &storageBuffer, &storageOffset, &storageSet);
+  storage->sphere = glm::vec4{0, 0, 0, 0.5};
+
   ubo->projInverse = glm::inverse(renderContext.projection);
   ubo->viewInverse = glm::inverse(renderContext.view);
 
@@ -59,7 +61,7 @@ void traceTriangle(const mg::RenderContext &renderContext, const RayInfo &rayInf
   descriptorSets.image = storageImage.descriptorSet;
   descriptorSets.topLevelAS = rayInfo.topLevelASDescriptorSet;
 
-  uint32_t offsets[] = {uniformOffset, 0};
+  uint32_t offsets[] = {uniformOffset, storageOffset};
   vkCmdBindDescriptorSets(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_RAY_TRACING_NV, pipeline.layout, 0,
                           mg::countof(descriptorSets.values), descriptorSets.values, mg::countof(offsets), offsets);
 
@@ -67,12 +69,12 @@ void traceTriangle(const mg::RenderContext &renderContext, const RayInfo &rayInf
 
   // clang-format off
   mg::nv::vkCmdTraceRaysNV(mg::vkContext.commandBuffer, 
-    bindingTableBuffer, bindingTableOffset, 
-    bindingTableBuffer, bindingTableOffset + groupSize, groupSize, 
-    bindingTableBuffer, bindingTableOffset + groupSize * 2, groupSize, VK_NULL_HANDLE, 0, 0, mg::vkContext.screen.width, mg::vkContext.screen.height, 1);
+    bindingTableBuffer, bindingTableOffset, // raygenShader
+    bindingTableBuffer, bindingTableOffset + shaderGroupHandleSize, shaderGroupHandleSize, //missShader
+    bindingTableBuffer, bindingTableOffset + shaderGroupHandleSize * 2, shaderGroupHandleSize, // hitShader
+    VK_NULL_HANDLE, 0, 0, mg::vkContext.screen.width, mg::vkContext.screen.height, 1);
   // clang-format on
 }
-
 
 static mg::Pipeline createImageStoragePipeline(const mg::RenderContext &renderContext) {
   using namespace mg::shaders::imageStorage;

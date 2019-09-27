@@ -307,40 +307,64 @@ Pipeline PipelineContainer::createRayTracingPipeline(const RayTracingPipelineSta
 
   // create new pipeline
   auto shader = mg::getShader(rayTracingPipelineStateDesc.shaderName);
+  std::vector<VkRayTracingShaderGroupCreateInfoNV> shaderGroups(4);
 
-  std::swap(shader.stageCreateInfo[1], shader.stageCreateInfo[2]);
-  VkRayTracingShaderGroupCreateInfoNV groups[3] = {};
-  for (auto &group : groups) {
-    group.sType = VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_NV;
-    group.generalShader = VK_SHADER_UNUSED_NV;
-    group.closestHitShader = VK_SHADER_UNUSED_NV;
-    group.anyHitShader = VK_SHADER_UNUSED_NV;
-    group.intersectionShader = VK_SHADER_UNUSED_NV;
+  for (uint64_t i = 0; i < shaderGroups.size(); i++) {
+    shaderGroups[i].sType = VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_NV;
+    shaderGroups[i].generalShader = VK_SHADER_UNUSED_NV;
+    shaderGroups[i].closestHitShader = VK_SHADER_UNUSED_NV;
+    shaderGroups[i].anyHitShader = VK_SHADER_UNUSED_NV;
+    shaderGroups[i].intersectionShader = VK_SHADER_UNUSED_NV;
   }
 
-  groups[0].type = VK_RAY_TRACING_SHADER_GROUP_TYPE_GENERAL_NV;
-  groups[0].generalShader = 0;
-  groups[1].type = VK_RAY_TRACING_SHADER_GROUP_TYPE_GENERAL_NV;
-  groups[1].generalShader = 1;
-  groups[2].type = VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_NV;
-  groups[2].closestHitShader = 2;
+  enum GROUP_TYPES { GEN, MISS, HIT, PROCEDURAL };
+  for (uint64_t i = 0; i < shader.count; i++) {
+    switch (shader.stageCreateInfo[i].stage) {
+    case VK_SHADER_STAGE_RAYGEN_BIT_NV:
+      shaderGroups[GEN].generalShader = i;
+      shaderGroups[GEN].type = VK_RAY_TRACING_SHADER_GROUP_TYPE_GENERAL_NV;
+      break;
+    case VK_SHADER_STAGE_MISS_BIT_NV:
+      shaderGroups[MISS].generalShader = i;
+      shaderGroups[MISS].type = VK_RAY_TRACING_SHADER_GROUP_TYPE_GENERAL_NV;
+      break;
+    case VK_SHADER_STAGE_CLOSEST_HIT_BIT_NV:
+      if (!shader.isProcedural[i]) {
+        shaderGroups[HIT].closestHitShader = i;
+        shaderGroups[HIT].type = VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_NV;
+      } else {
+        shaderGroups[PROCEDURAL].closestHitShader = i;
+      }
+      break;
+    case VK_SHADER_STAGE_INTERSECTION_BIT_NV:
+      shaderGroups[PROCEDURAL].intersectionShader = i;
+      shaderGroups[PROCEDURAL].type = VK_RAY_TRACING_SHADER_GROUP_TYPE_PROCEDURAL_HIT_GROUP_NV;
+    default:
+      break;
+    }
+  }
+
+  shaderGroups = mg::filter(shaderGroups, [](const auto &group) {
+    return group.generalShader != VK_SHADER_UNUSED_NV || group.closestHitShader != VK_SHADER_UNUSED_NV ||
+           group.anyHitShader != VK_SHADER_UNUSED_NV || group.intersectionShader != VK_SHADER_UNUSED_NV;
+  });
 
   VkRayTracingPipelineCreateInfoNV rayPipelineInfo{};
   rayPipelineInfo.sType = VK_STRUCTURE_TYPE_RAY_TRACING_PIPELINE_CREATE_INFO_NV;
   rayPipelineInfo.stageCount = shader.count;
   rayPipelineInfo.pStages = shader.stageCreateInfo;
-  rayPipelineInfo.pGroups = groups;
-  rayPipelineInfo.groupCount = mg::countof(groups);
+  rayPipelineInfo.pGroups = shaderGroups.data();
+  rayPipelineInfo.groupCount = shaderGroups.size();
   rayPipelineInfo.layout = rayTracingPipelineStateDesc.pipelineLayout;
   rayPipelineInfo.maxRecursionDepth = 1;
 
   Pipeline pipeline = {};
   pipeline.layout = rayTracingPipelineStateDesc.pipelineLayout;
   checkResult(nv::vkCreateRayTracingPipelinesNV(mg::vkContext.device, VK_NULL_HANDLE, 1, &rayPipelineInfo, nullptr,
-                                            &pipeline.pipeline));
+                                                &pipeline.pipeline));
 
   _idToPipeline.emplace(hashValue, pipeline);
   return pipeline;
-}
+} // namespace mg
 
 } // namespace mg

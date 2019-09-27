@@ -269,6 +269,12 @@ struct Ubo {
   glm::mat4 viewInverse;
   glm::mat4 projInverse;
 };
+struct Storage {
+  struct StorageData {
+    glm::vec4 sphere;
+  };
+  StorageData* storageData = nullptr;
+};
 union DescriptorSets {
   struct {
     VkDescriptorSet ubo;
@@ -421,21 +427,6 @@ union DescriptorSets {
   VkDescriptorSet values[2];
 };
 } //toneMapping
-
-namespace tracing {
-struct Ubo {
-  glm::mat4 viewInverse;
-  glm::mat4 projInverse;
-};
-union DescriptorSets {
-  struct {
-    VkDescriptorSet ubo;
-    VkDescriptorSet image;
-    VkDescriptorSet topLevelAS;
-  };
-  VkDescriptorSet values[3];
-};
-} //tracing
 
 namespace volume {
 struct Ubo {

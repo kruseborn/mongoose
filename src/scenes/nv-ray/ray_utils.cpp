@@ -1,11 +1,11 @@
 #include "ray_utils.h"
+#include "mg/meshUtils.h"
 #include "vulkan/vkContext.h"
 #include <glm/glm.hpp>
 #include <iostream>
 #include <mg/mgSystem.h>
 #include <mg/textureContainer.h>
 #include <vulkan/vkContext.h>
-#include "mg/meshUtils.h"
 
 struct Buffer {
   VkBuffer buffer;
@@ -58,9 +58,6 @@ static void createAndBindASDeviceMemory(AccelerationStructure *levelAS) {
 }
 
 static void createBottomLevelAccelerationStructure(RayInfo *rayInfo, VkGeometryNV *geometry) {
-  /*Vertex vertices[3] = {{{1.0f, 1.0f, 0.0f}}, {{-1.0f, 1.0f, 0.0f}}, {{0.0f, -1.0f, 0.0f}}};
-  uint32_t indices[] = {0, 1, 2};*/
-
   const auto cube = mg::createVolumeCube({-0.5f, -0.5f, 0}, {1, 1, 1});
 
   mg::CreateMeshInfo meshInfo = {};
@@ -116,12 +113,47 @@ static void createBottomLevelAccelerationStructure(RayInfo *rayInfo, VkGeometryN
   createAndBindASDeviceMemory(&rayInfo->bottomLevelAS);
 }
 
+static void createBottomLevelAccelerationStructureAabb(RayInfo *rayInfo, VkGeometryNV *geometry) {
+  std::vector<glm::vec3> aabb;
+  aabb.push_back(glm::vec3{0, 0, 0} - 1.0f);
+  aabb.push_back(glm::vec3{0, 0, 0} + 1.0f);
+  auto storageId = mg::mgSystem.storageContainer.createStorage(aabb.data(), mg::sizeofContainerInBytes(aabb));
+  auto storage = mg::mgSystem.storageContainer.getStorage(storageId);
+
+  mg::waitForDeviceIdle();
+  geometry->sType = VK_STRUCTURE_TYPE_GEOMETRY_NV;
+  geometry->geometryType = VK_GEOMETRY_TYPE_AABBS_NV;
+  geometry->geometry.triangles.sType = VK_STRUCTURE_TYPE_GEOMETRY_TRIANGLES_NV;
+
+  geometry->geometry.aabbs.sType = VK_STRUCTURE_TYPE_GEOMETRY_AABB_NV;
+  geometry->geometry.aabbs.aabbData = storage.buffer; 
+  geometry->geometry.aabbs.numAABBs = 1;
+  geometry->geometry.aabbs.stride = mg::sizeofContainerInBytes(aabb);
+
+  geometry->flags = VK_GEOMETRY_OPAQUE_BIT_NV;
+  // VK_GEOMETRY_OPAQUE_BIT_NV indicates that this geometry does not invoke the
+  // any-hit shaders even if present in a hit group.
+
+  VkAccelerationStructureInfoNV accelerationStructureInfo = {};
+  accelerationStructureInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_INFO_NV;
+  accelerationStructureInfo.type = VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_NV;
+  accelerationStructureInfo.geometryCount = 1;
+  accelerationStructureInfo.pGeometries = geometry;
+
+  VkAccelerationStructureCreateInfoNV accelerationStructureCreateInfo = {};
+  accelerationStructureCreateInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_NV;
+  accelerationStructureCreateInfo.info = accelerationStructureInfo;
+  mg::checkResult(mg::nv::vkCreateAccelerationStructureNV(mg::vkContext.device, &accelerationStructureCreateInfo,
+                                                          nullptr, &rayInfo->bottomLevelAS.accelerationStructure));
+
+  createAndBindASDeviceMemory(&rayInfo->bottomLevelAS);
+}
+
 static void createTopLevelAccelerationStructure(RayInfo *rayInfo, Buffer *instanceBuffer) {
   VkAccelerationStructureInfoNV accelerationStructureInfo = {};
   accelerationStructureInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_INFO_NV;
   accelerationStructureInfo.type = VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_NV;
   accelerationStructureInfo.instanceCount = 1;
-  accelerationStructureInfo.geometryCount = 0;
 
   VkAccelerationStructureCreateInfoNV accelerationStructureCreateInfo = {};
   accelerationStructureCreateInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_NV;
@@ -154,9 +186,13 @@ static void createTopLevelAccelerationStructure(RayInfo *rayInfo, Buffer *instan
   vkUpdateDescriptorSets(mg::vkContext.device, 1, &accelerationStructureWrite, 0, VK_NULL_HANDLE);
 
   VkGeometryInstance geometryInstance = {};
+  // clang-format off
   glm::mat3x4 transform = {
-      1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+      1.0f, 0.0f, 0.0f, 0.0f, 
+      0.0f, 1.0f, 0.0f, 0.0f, 
+      0.0f, 0.0f, 1.0f, 0.0f,
   };
+  // clang-format on
   geometryInstance.transform = transform;
   geometryInstance.instanceId = 0;
   geometryInstance.mask = 0xff;
@@ -291,7 +327,9 @@ void createRayInfo(RayInfo *rayInfo) {
   rayInfo->storageImageId = mg::mgSystem.storageContainer.createImageStorage(createImageStorageInfo);
 
   getRayTracingProperties(rayInfo);
-  createBottomLevelAccelerationStructure(rayInfo, &geometry);
+  //createBottomLevelAccelerationStructure(rayInfo, &geometry);
+  createBottomLevelAccelerationStructureAabb(rayInfo, &geometry);
+
   createTopLevelAccelerationStructure(rayInfo, &instanceBuffer);
 
   createScrathMemory(rayInfo, &scratchBuffer);

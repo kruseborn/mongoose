@@ -12,19 +12,26 @@ namespace mg {
 
 static std::unordered_map<std::string, mg::Shader> _shaders;
 
-static VkShaderStageFlagBits getShaderType(const std::string &fileName) {
+struct ShaderType {
+  VkShaderStageFlagBits stage;
+  bool isProcedural;
+};
+
+static ShaderType getShaderType(const std::string &fileName) {
   if (fileName.find(".vert") != std::string::npos)
-    return VK_SHADER_STAGE_VERTEX_BIT;
+    return {VK_SHADER_STAGE_VERTEX_BIT, false};
   else if (fileName.find(".frag") != std::string::npos)
-    return VK_SHADER_STAGE_FRAGMENT_BIT;
+    return {VK_SHADER_STAGE_FRAGMENT_BIT, false};
   else if (fileName.find(".comp") != std::string::npos)
-    return VK_SHADER_STAGE_COMPUTE_BIT;
+    return {VK_SHADER_STAGE_COMPUTE_BIT, false};
   else if (fileName.find(".rgen") != std::string::npos)
-    return VK_SHADER_STAGE_RAYGEN_BIT_NV;
+    return {VK_SHADER_STAGE_RAYGEN_BIT_NV, false};
   else if (fileName.find(".rchit") != std::string::npos)
-    return VK_SHADER_STAGE_CLOSEST_HIT_BIT_NV;
+    return {VK_SHADER_STAGE_CLOSEST_HIT_BIT_NV, fileName.find(".proc") ? true : false};
   else if (fileName.find(".rmiss") != std::string::npos)
-    return VK_SHADER_STAGE_MISS_BIT_NV;
+    return {VK_SHADER_STAGE_MISS_BIT_NV, false};
+  else if (fileName.find(".rint") != std::string::npos)
+    return {VK_SHADER_STAGE_INTERSECTION_BIT_NV, true};
   else {
     mgAssertDesc(false, "Shader typ is not supported");
   }
@@ -41,7 +48,8 @@ static mg::Shaders getShaderFiles() {
     auto nameIt = fileName.find_first_of('.');
     auto name = fileName.substr(0, nameIt);
     auto &fileNames = shaders.nameToShaderFiles[name];
-    fileNames.files.push_back({fileName, getShaderType(fileName)});
+    const auto shaderType = getShaderType(fileName);
+    fileNames.files.push_back({fileName, shaderType.stage, shaderType.isProcedural});
   }
 
   for (auto &files : shaders.nameToShaderFiles) {
@@ -86,6 +94,7 @@ void createShaders() {
     for (uint32_t i = 0; i < files.second.files.size(); i++) {
       VkPipelineShaderStageCreateInfo pipelineShaderStageCreateInfo =
           createShader(mg::getShaderPath() + files.second.files[i].name, files.second.files[i].stageFlag);
+      shader.isProcedural[shader.count] = files.second.files[i].isProcedural;
       shader.stageCreateInfo[shader.count++] = pipelineShaderStageCreateInfo;
     }
     _shaders.insert(make_pair(files.first, shader));
