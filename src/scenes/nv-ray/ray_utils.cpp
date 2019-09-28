@@ -12,6 +12,11 @@ struct Buffer {
   VkDeviceSize offset;
 };
 
+struct ScratchBuffer {
+  Buffer buffer;
+  std::vector<uint32_t> offsets;
+};
+
 // https://developer.nvidia.com/rtx/raytracing/vkray
 struct VkGeometryInstance {
   /// Transform matrix, containing only the top 3 rows
@@ -57,103 +62,57 @@ static void createAndBindASDeviceMemory(AccelerationStructure *levelAS) {
                                                              sizeof(uint64_t), &levelAS->handle));
 }
 
-static void createBottomLevelAccelerationStructure(RayInfo *rayInfo, VkGeometryNV *geometry) {
-  const auto cube = mg::createVolumeCube({-0.5f, -0.5f, 0}, {1, 1, 1});
-
-  mg::CreateMeshInfo meshInfo = {};
-  meshInfo.id = "cube";
-  meshInfo.vertices = (unsigned char *)cube.vertices;
-  meshInfo.verticesSizeInBytes = sizeof(cube.vertices);
-  meshInfo.nrOfIndices = mg::countof(cube.indices);
-  meshInfo.indices = (unsigned char *)cube.indices;
-  meshInfo.indicesSizeInBytes = sizeof(cube.indices);
-
-  rayInfo->triangleId = mg::mgSystem.meshContainer.createMesh(meshInfo);
-  auto mesh = mg::getMesh(rayInfo->triangleId);
-
-  mg::waitForDeviceIdle();
-
-  VkGeometryDataNV geometryDataNV = {};
-
-  VkGeometryTrianglesNV triangles = {};
-  triangles.sType = VK_STRUCTURE_TYPE_GEOMETRY_TRIANGLES_NV;
-  triangles.vertexData = mesh.buffer;
-  triangles.vertexCount = mg::countof(cube.vertices);
-  triangles.vertexStride = sizeof(glm::vec3);
-  triangles.vertexFormat = VK_FORMAT_R32G32B32_SFLOAT;
-
-  triangles.indexData = mesh.buffer;
-  triangles.indexOffset = mesh.indicesOffset;
-  triangles.indexType = VK_INDEX_TYPE_UINT32;
-  triangles.indexCount = mg::countof(cube.indices);
-
-  VkGeometryAABBNV geometryAABBNV = {};
-  geometryAABBNV.sType = VK_STRUCTURE_TYPE_GEOMETRY_AABB_NV;
-
-  geometry->sType = VK_STRUCTURE_TYPE_GEOMETRY_NV;
-  geometry->geometryType = VK_GEOMETRY_TYPE_TRIANGLES_NV;
-  geometry->geometry.triangles = triangles;
-  geometry->geometry.aabbs = geometryAABBNV;
-  geometry->flags = VK_GEOMETRY_OPAQUE_BIT_NV;
-  // VK_GEOMETRY_OPAQUE_BIT_NV indicates that this geometry does not invoke the
-  // any-hit shaders even if present in a hit group.
-
-  VkAccelerationStructureInfoNV accelerationStructureInfo = {};
-  accelerationStructureInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_INFO_NV;
-  accelerationStructureInfo.type = VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_NV;
-  accelerationStructureInfo.geometryCount = 1;
-  accelerationStructureInfo.pGeometries = geometry;
-
-  VkAccelerationStructureCreateInfoNV accelerationStructureCreateInfo = {};
-  accelerationStructureCreateInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_NV;
-  accelerationStructureCreateInfo.info = accelerationStructureInfo;
-  mg::checkResult(mg::nv::vkCreateAccelerationStructureNV(mg::vkContext.device, &accelerationStructureCreateInfo,
-                                                          nullptr, &rayInfo->bottomLevelAS.accelerationStructure));
-
-  createAndBindASDeviceMemory(&rayInfo->bottomLevelAS);
-}
-
-static void createBottomLevelAccelerationStructureAabb(RayInfo *rayInfo, VkGeometryNV *geometry) {
+static void createBottomLevelAccelerationStructureAabb(const World &world, RayInfo *rayInfo) {
   std::vector<glm::vec3> aabb;
-  aabb.push_back(glm::vec3{0, 0, 0} - 1.0f);
-  aabb.push_back(glm::vec3{0, 0, 0} + 1.0f);
-  auto storageId = mg::mgSystem.storageContainer.createStorage(aabb.data(), mg::sizeofContainerInBytes(aabb));
-  auto storage = mg::mgSystem.storageContainer.getStorage(storageId);
+  aabb.reserve(world.spheres.size() * 2);
+
+  for (uint64_t i = 0; i < world.spheres.size(); i++) {
+    aabb.push_back(glm::vec3{world.spheres[i].x, world.spheres[i].y, world.spheres[i].z} - world.spheres[i].w);
+    aabb.push_back(glm::vec3{world.spheres[i].x, world.spheres[i].y, world.spheres[i].z} + world.spheres[i].w);
+  }
+  rayInfo->storageSpheresId =
+      mg::mgSystem.storageContainer.createStorage(aabb.data(), mg::sizeofContainerInBytes(aabb));
+  auto storage = mg::mgSystem.storageContainer.getStorage(rayInfo->storageSpheresId);
 
   mg::waitForDeviceIdle();
-  geometry->sType = VK_STRUCTURE_TYPE_GEOMETRY_NV;
-  geometry->geometryType = VK_GEOMETRY_TYPE_AABBS_NV;
-  geometry->geometry.triangles.sType = VK_STRUCTURE_TYPE_GEOMETRY_TRIANGLES_NV;
 
-  geometry->geometry.aabbs.sType = VK_STRUCTURE_TYPE_GEOMETRY_AABB_NV;
-  geometry->geometry.aabbs.aabbData = storage.buffer; 
-  geometry->geometry.aabbs.numAABBs = 1;
-  geometry->geometry.aabbs.stride = mg::sizeofContainerInBytes(aabb);
+  rayInfo->bottomLevelASs.reserve(world.spheres.size());
+  for (uint64_t i = 0; i < world.spheres.size(); i++) {
+    VkGeometryNV geometry = {};
+    geometry.sType = VK_STRUCTURE_TYPE_GEOMETRY_NV;
+    geometry.geometryType = VK_GEOMETRY_TYPE_AABBS_NV;
+    geometry.geometry.triangles.sType = VK_STRUCTURE_TYPE_GEOMETRY_TRIANGLES_NV;
 
-  geometry->flags = VK_GEOMETRY_OPAQUE_BIT_NV;
-  // VK_GEOMETRY_OPAQUE_BIT_NV indicates that this geometry does not invoke the
-  // any-hit shaders even if present in a hit group.
+    geometry.geometry.aabbs.sType = VK_STRUCTURE_TYPE_GEOMETRY_AABB_NV;
+    geometry.geometry.aabbs.aabbData = storage.buffer;
+    geometry.geometry.aabbs.offset = i * sizeof(glm::vec3) * 2;
+    geometry.geometry.aabbs.numAABBs = 1;
+    geometry.geometry.aabbs.stride = sizeof(glm::vec3) * 2;
+    geometry.flags = VK_GEOMETRY_OPAQUE_BIT_NV;
 
-  VkAccelerationStructureInfoNV accelerationStructureInfo = {};
-  accelerationStructureInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_INFO_NV;
-  accelerationStructureInfo.type = VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_NV;
-  accelerationStructureInfo.geometryCount = 1;
-  accelerationStructureInfo.pGeometries = geometry;
+    VkAccelerationStructureInfoNV accelerationStructureInfo = {};
+    accelerationStructureInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_INFO_NV;
+    accelerationStructureInfo.type = VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_NV;
+    accelerationStructureInfo.geometryCount = 1;
+    accelerationStructureInfo.pGeometries = &geometry;
 
-  VkAccelerationStructureCreateInfoNV accelerationStructureCreateInfo = {};
-  accelerationStructureCreateInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_NV;
-  accelerationStructureCreateInfo.info = accelerationStructureInfo;
-  mg::checkResult(mg::nv::vkCreateAccelerationStructureNV(mg::vkContext.device, &accelerationStructureCreateInfo,
-                                                          nullptr, &rayInfo->bottomLevelAS.accelerationStructure));
+    VkAccelerationStructureCreateInfoNV accelerationStructureCreateInfo = {};
+    accelerationStructureCreateInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_NV;
+    accelerationStructureCreateInfo.info = accelerationStructureInfo;
+    VkAccelerationStructureNV vkAccelerationStructureNV;
+    mg::checkResult(mg::nv::vkCreateAccelerationStructureNV(mg::vkContext.device, &accelerationStructureCreateInfo,
+                                                            nullptr, &vkAccelerationStructureNV));
 
-  createAndBindASDeviceMemory(&rayInfo->bottomLevelAS);
+    rayInfo->bottomLevelASs.push_back({.accelerationStructure = vkAccelerationStructureNV, .vkGeometryNV = geometry});
+    createAndBindASDeviceMemory(&rayInfo->bottomLevelASs.back());
+  }
 }
 
-static void createTopLevelAccelerationStructure(RayInfo *rayInfo, Buffer *instanceBuffer) {
+static void createTopLevelAccelerationStructure(RayInfo *rayInfo) {
   VkAccelerationStructureInfoNV accelerationStructureInfo = {};
   accelerationStructureInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_INFO_NV;
   accelerationStructureInfo.type = VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_NV;
-  accelerationStructureInfo.instanceCount = 1;
+  accelerationStructureInfo.instanceCount = rayInfo->bottomLevelASs.size();
 
   VkAccelerationStructureCreateInfoNV accelerationStructureCreateInfo = {};
   accelerationStructureCreateInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_NV;
@@ -184,39 +143,55 @@ static void createTopLevelAccelerationStructure(RayInfo *rayInfo, Buffer *instan
   accelerationStructureWrite.descriptorType = VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV;
 
   vkUpdateDescriptorSets(mg::vkContext.device, 1, &accelerationStructureWrite, 0, VK_NULL_HANDLE);
-
-  VkGeometryInstance geometryInstance = {};
-  // clang-format off
-  glm::mat3x4 transform = {
-      1.0f, 0.0f, 0.0f, 0.0f, 
-      0.0f, 1.0f, 0.0f, 0.0f, 
-      0.0f, 0.0f, 1.0f, 0.0f,
-  };
-  // clang-format on
-  geometryInstance.transform = transform;
-  geometryInstance.instanceId = 0;
-  geometryInstance.mask = 0xff;
-  geometryInstance.instanceOffset = 0;
-  geometryInstance.flags = VK_GEOMETRY_INSTANCE_TRIANGLE_CULL_DISABLE_BIT_NV;
-  geometryInstance.accelerationStructureHandle = rayInfo->bottomLevelAS.handle;
-
-  VkGeometryInstance *instanceData = (VkGeometryInstance *)mg::mgSystem.linearHeapAllocator.allocateBuffer(
-      sizeof(geometryInstance), &instanceBuffer->buffer, &instanceBuffer->offset);
-
-  memcpy(instanceData, &geometryInstance, sizeof(geometryInstance));
 }
 
-static void createScrathMemory(RayInfo *rayInfo, Buffer *scratchBuffer) {
-  // Acceleration structure build requires some scratch space to store temporary information
+static Buffer createInstances(const RayInfo &info) {
+  Buffer instanceBuffer = {};
+  VkGeometryInstance *instanceData = (VkGeometryInstance *)mg::mgSystem.linearHeapAllocator.allocateBuffer(
+      sizeof(VkGeometryInstance) * info.bottomLevelASs.size(), &instanceBuffer.buffer, &instanceBuffer.offset);
+
+  for (uint64_t i = 0; i < info.bottomLevelASs.size(); i++) {
+    VkGeometryInstance geometryInstance = {};
+    // clang-format off
+    glm::mat3x4 transform = {
+        1.0f, 0.0f, 0.0f, 0.0f, 
+        0.0f, 1.0f, 0.0f, 0.0f, 
+        0.0f, 0.0f, 1.0f, 0.0f,
+    };
+    // clang-format on
+    geometryInstance.transform = transform;
+    geometryInstance.instanceId = i;
+    geometryInstance.mask = 0xff;
+    geometryInstance.instanceOffset = 0;
+    geometryInstance.flags = VK_GEOMETRY_INSTANCE_TRIANGLE_CULL_DISABLE_BIT_NV;
+    geometryInstance.accelerationStructureHandle = info.bottomLevelASs[i].handle;
+
+    memcpy((char *)(instanceData) + i * sizeof(VkGeometryInstance), &geometryInstance, sizeof(VkGeometryInstance));
+  }
+  return instanceBuffer;
+}
+
+static ScratchBuffer createScrathMemory(RayInfo *rayInfo) {
+  ScratchBuffer scratchBuffer = {};
+  scratchBuffer.offsets.reserve(rayInfo->bottomLevelASs.size());
+
+  uint64_t scratchBufferBottomLevels = 0;
+  for (uint64_t i = 0; i < rayInfo->bottomLevelASs.size(); i++) {
+    VkAccelerationStructureMemoryRequirementsInfoNV memoryRequirementsInfo{};
+    memoryRequirementsInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_INFO_NV;
+    memoryRequirementsInfo.type = VK_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_TYPE_OBJECT_NV;
+
+    VkMemoryRequirements2 memReqBottomLevelAS = {};
+    memReqBottomLevelAS.sType = VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS_2;
+    memoryRequirementsInfo.accelerationStructure = rayInfo->bottomLevelASs[i].accelerationStructure;
+    mg::nv::vkGetAccelerationStructureMemoryRequirementsNV(mg::vkContext.device, &memoryRequirementsInfo,
+                                                           &memReqBottomLevelAS);
+    scratchBuffer.offsets.push_back(scratchBufferBottomLevels);
+    scratchBufferBottomLevels += memReqBottomLevelAS.memoryRequirements.size;
+  }
   VkAccelerationStructureMemoryRequirementsInfoNV memoryRequirementsInfo{};
   memoryRequirementsInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_INFO_NV;
   memoryRequirementsInfo.type = VK_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_TYPE_OBJECT_NV;
-
-  VkMemoryRequirements2 memReqBottomLevelAS = {};
-  memReqBottomLevelAS.sType = VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS_2;
-  memoryRequirementsInfo.accelerationStructure = rayInfo->bottomLevelAS.accelerationStructure;
-  mg::nv::vkGetAccelerationStructureMemoryRequirementsNV(mg::vkContext.device, &memoryRequirementsInfo,
-                                                         &memReqBottomLevelAS);
 
   VkMemoryRequirements2 memReqTopLevelAS = {};
   memReqTopLevelAS.sType = VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS_2;
@@ -224,11 +199,13 @@ static void createScrathMemory(RayInfo *rayInfo, Buffer *scratchBuffer) {
   mg::nv::vkGetAccelerationStructureMemoryRequirementsNV(mg::vkContext.device, &memoryRequirementsInfo,
                                                          &memReqTopLevelAS);
 
-  const VkDeviceSize scratchBufferSize =
-      std::max(memReqBottomLevelAS.memoryRequirements.size, memReqTopLevelAS.memoryRequirements.size);
+  const auto scratchBufferSize = std::max(scratchBufferBottomLevels, memReqTopLevelAS.memoryRequirements.size);
+  mg::mgSystem.linearHeapAllocator.allocateBuffer(scratchBufferSize, &scratchBuffer.buffer.buffer,
+                                                  &scratchBuffer.buffer.offset);
 
-  mg::mgSystem.linearHeapAllocator.allocateBuffer(scratchBufferSize, &scratchBuffer->buffer, &scratchBuffer->offset);
+  return scratchBuffer;
 }
+
 inline VkCommandBufferAllocateInfo commandBufferAllocateInfo(VkCommandPool commandPool, VkCommandBufferLevel level,
                                                              uint32_t bufferCount) {
   VkCommandBufferAllocateInfo commandBufferAllocateInfo{};
@@ -239,8 +216,8 @@ inline VkCommandBufferAllocateInfo commandBufferAllocateInfo(VkCommandPool comma
   return commandBufferAllocateInfo;
 }
 
-static void buildAccelerationStructures(RayInfo *rayInfo, Buffer *scratchBuffer, Buffer *instanceBuffer,
-                                        VkGeometryNV *geometry) {
+static void buildAccelerationStructures(const RayInfo &rayInfo, const Buffer &instanceBuffer,
+                                        const ScratchBuffer &scratchBuffer) {
   VkCommandBufferAllocateInfo commandBufferAllocateInfo = {};
   commandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
   commandBufferAllocateInfo.commandPool = mg::vkContext.commandPool;
@@ -255,15 +232,17 @@ static void buildAccelerationStructures(RayInfo *rayInfo, Buffer *scratchBuffer,
   commandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
   mg::checkResult(vkBeginCommandBuffer(commandBuffer, &commandBufferBeginInfo));
 
-  VkAccelerationStructureInfoNV accelerationStructureInfo = {};
-  accelerationStructureInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_INFO_NV;
-  accelerationStructureInfo.type = VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_NV;
-  accelerationStructureInfo.geometryCount = 1;
-  accelerationStructureInfo.pGeometries = geometry;
+  for (uint64_t i = 0; i < rayInfo.bottomLevelASs.size(); i++) {
+    VkAccelerationStructureInfoNV accelerationStructureInfo = {};
+    accelerationStructureInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_INFO_NV;
+    accelerationStructureInfo.type = VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_NV;
+    accelerationStructureInfo.geometryCount = 1;
+    accelerationStructureInfo.pGeometries = &rayInfo.bottomLevelASs[i].vkGeometryNV;
 
-  mg::nv::vkCmdBuildAccelerationStructureNV(commandBuffer, &accelerationStructureInfo, VK_NULL_HANDLE, 0, VK_FALSE,
-                                            rayInfo->bottomLevelAS.accelerationStructure, VK_NULL_HANDLE,
-                                            scratchBuffer->buffer, scratchBuffer->offset);
+    mg::nv::vkCmdBuildAccelerationStructureNV(commandBuffer, &accelerationStructureInfo, VK_NULL_HANDLE, 0, VK_FALSE,
+                                              rayInfo.bottomLevelASs[i].accelerationStructure, VK_NULL_HANDLE,
+                                              scratchBuffer.buffer.buffer, scratchBuffer.buffer.offset + scratchBuffer.offsets[i]);
+  }
 
   VkMemoryBarrier memoryBarrier = {};
   memoryBarrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
@@ -274,14 +253,14 @@ static void buildAccelerationStructures(RayInfo *rayInfo, Buffer *scratchBuffer,
   vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_NV,
                        VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_NV, 0, 1, &memoryBarrier, 0, 0, 0, 0);
 
+  VkAccelerationStructureInfoNV accelerationStructureInfo = {};
   accelerationStructureInfo.type = VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_NV;
-  accelerationStructureInfo.pGeometries = 0;
-  accelerationStructureInfo.geometryCount = 0;
-  accelerationStructureInfo.instanceCount = 1;
+  accelerationStructureInfo.instanceCount = rayInfo.bottomLevelASs.size();
 
-  mg::nv::vkCmdBuildAccelerationStructureNV(commandBuffer, &accelerationStructureInfo, instanceBuffer->buffer,
-                                            instanceBuffer->offset, VK_FALSE, rayInfo->topLevelAS.accelerationStructure,
-                                            VK_NULL_HANDLE, scratchBuffer->buffer, scratchBuffer->offset);
+  mg::nv::vkCmdBuildAccelerationStructureNV(commandBuffer, &accelerationStructureInfo, instanceBuffer.buffer,
+                                            instanceBuffer.offset, VK_FALSE, rayInfo.topLevelAS.accelerationStructure,
+                                            VK_NULL_HANDLE, scratchBuffer.buffer.buffer,
+                                            scratchBuffer.buffer.offset);
 
   vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_NV,
                        VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_NV, 0, 1, &memoryBarrier, 0, 0, 0, 0);
@@ -304,7 +283,7 @@ static void buildAccelerationStructures(RayInfo *rayInfo, Buffer *scratchBuffer,
   vkFreeCommandBuffers(mg::vkContext.device, mg::vkContext.commandPool, 1, &commandBuffer);
 }
 
-static void getRayTracingProperties(RayInfo *rayInfo) {
+static VkPhysicalDeviceRayTracingPropertiesNV getRayTracingProperties(RayInfo *rayInfo) {
   VkPhysicalDeviceRayTracingPropertiesNV physicalDeviceRayTracingPropertiesNV = {};
   physicalDeviceRayTracingPropertiesNV.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PROPERTIES_NV;
   VkPhysicalDeviceProperties2 physicalDeviceProperties2 = {};
@@ -312,39 +291,36 @@ static void getRayTracingProperties(RayInfo *rayInfo) {
   physicalDeviceProperties2.pNext = &physicalDeviceRayTracingPropertiesNV;
   vkGetPhysicalDeviceProperties2(mg::vkContext.physicalDevice, &physicalDeviceProperties2);
 
-  rayInfo->rayTracingProperties = physicalDeviceRayTracingPropertiesNV;
+  return physicalDeviceRayTracingPropertiesNV;
 }
 
-void createRayInfo(RayInfo *rayInfo) {
-  Buffer instanceBuffer = {};
-  Buffer scratchBuffer{};
-  VkGeometryNV geometry = {};
-
+void createRayInfo(const World &world, RayInfo *rayInfo) {
   mg::CreateImageStorageInfo createImageStorageInfo = {};
   createImageStorageInfo.format = mg::vkContext.swapChain->format;
   createImageStorageInfo.id = "storage image";
   createImageStorageInfo.size = {mg::vkContext.screen.width, mg::vkContext.screen.height, 1};
   rayInfo->storageImageId = mg::mgSystem.storageContainer.createImageStorage(createImageStorageInfo);
 
-  getRayTracingProperties(rayInfo);
-  //createBottomLevelAccelerationStructure(rayInfo, &geometry);
-  createBottomLevelAccelerationStructureAabb(rayInfo, &geometry);
+  rayInfo->rayTracingProperties = getRayTracingProperties(rayInfo);
+  createBottomLevelAccelerationStructureAabb(world, rayInfo);
+  createTopLevelAccelerationStructure(rayInfo);
 
-  createTopLevelAccelerationStructure(rayInfo, &instanceBuffer);
+  auto instanceBuffer = createInstances(*rayInfo);
+  auto scratchBuffer = createScrathMemory(rayInfo);
 
-  createScrathMemory(rayInfo, &scratchBuffer);
-
-  buildAccelerationStructures(rayInfo, &scratchBuffer, &instanceBuffer, &geometry);
+  buildAccelerationStructures(*rayInfo, instanceBuffer, scratchBuffer);
 }
 
 void destroyRayInfo(RayInfo *rayInfo) {
   mg::mgSystem.storageContainer.removeStorage(rayInfo->storageImageId);
-  mg::mgSystem.meshContainer.removeMesh(rayInfo->triangleId);
+  mg::mgSystem.storageContainer.removeStorage(rayInfo->storageSpheresId);
 
-  mg::mgSystem.meshDeviceMemoryAllocator.freeDeviceOnlyMemory(rayInfo->bottomLevelAS.deviceHeapAllocation);
+  for (uint64_t i = 0; i < rayInfo->bottomLevelASs.size(); i++) {
+    mg::mgSystem.meshDeviceMemoryAllocator.freeDeviceOnlyMemory(rayInfo->bottomLevelASs[i].deviceHeapAllocation);
+    mg::nv::vkDestroyAccelerationStructureNV(mg::vkContext.device, rayInfo->bottomLevelASs[i].accelerationStructure,
+                                             nullptr);
+  }
   mg::mgSystem.meshDeviceMemoryAllocator.freeDeviceOnlyMemory(rayInfo->topLevelAS.deviceHeapAllocation);
-
-  mg::nv::vkDestroyAccelerationStructureNV(mg::vkContext.device, rayInfo->bottomLevelAS.accelerationStructure, nullptr);
   mg::nv::vkDestroyAccelerationStructureNV(mg::vkContext.device, rayInfo->topLevelAS.accelerationStructure, nullptr);
   vkFreeDescriptorSets(mg::vkContext.device, mg::vkContext.descriptorPool, 1, &rayInfo->topLevelASDescriptorSet);
 

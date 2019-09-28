@@ -5,17 +5,23 @@
 struct AccelerationStructure {
   mg::DeviceHeapAllocation deviceHeapAllocation;
   VkAccelerationStructureNV accelerationStructure;
+  VkGeometryNV vkGeometryNV;
   uint64_t handle;
 };
 
 struct RayInfo {
-  AccelerationStructure bottomLevelAS;
+  std::vector<AccelerationStructure> bottomLevelASs;
   AccelerationStructure topLevelAS;
   VkPhysicalDeviceRayTracingPropertiesNV rayTracingProperties;
   mg::StorageId storageImageId;
+  mg::StorageId storageSpheresId;
   VkDescriptorSet topLevelASDescriptorSet;
   mg::MeshId triangleId;
 };
 
-void createRayInfo(RayInfo *rayInfo);
+struct World {
+  std::vector<glm::vec4> spheres;
+};
+
+void createRayInfo(const World &world, RayInfo *rayInfo);
 void destroyRayInfo(RayInfo *rayInfo);

@@ -136,7 +136,7 @@ void MeshContainer::removeMesh(MeshId meshId) {
 
   mg::mgSystem.meshDeviceMemoryAllocator.freeDeviceOnlyMemory(_idToMesh[meshId.index].heapAllocation);
   vkDestroyBuffer(mg::vkContext.device, _idToMesh[meshId.index].mesh.buffer, nullptr);
-  _idToMesh = {};
+  _idToMesh[meshId.index] = {};
   _generations[meshId.index]++;
   _freeIndices.push_back(meshId.index);
 }

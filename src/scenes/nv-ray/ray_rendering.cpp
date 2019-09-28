@@ -14,13 +14,11 @@ static mg::Pipeline createRayPipeline() {
   rayTracingPipelineStateDesc.pipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayoutRayTracing;
   rayTracingPipelineStateDesc.depth = 1;
   rayTracingPipelineStateDesc.shaderName = "procedural";
-
   const auto pipeline = mg::mgSystem.pipelineContainer.createRayTracingPipeline(rayTracingPipelineStateDesc);
-
   return pipeline;
 }
 
-void traceTriangle(const mg::RenderContext &renderContext, const RayInfo &rayInfo) {
+void traceTriangle(const World &world, const mg::RenderContext &renderContext, const RayInfo &rayInfo) {
   using namespace mg::shaders::procedural;
 
   auto pipeline = createRayPipeline();
@@ -47,9 +45,10 @@ void traceTriangle(const mg::RenderContext &renderContext, const RayInfo &rayInf
   VkBuffer storageBuffer;
   uint32_t storageOffset;
   VkDescriptorSet storageSet;
+
   Storage::StorageData *storage = (Storage::StorageData *)mg::mgSystem.linearHeapAllocator.allocateStorage(
-      sizeof(storage), &storageBuffer, &storageOffset, &storageSet);
-  storage->sphere = glm::vec4{0, 0, 0, 0.5};
+      sizeof(storage) * world.spheres.size(), &storageBuffer, &storageOffset, &storageSet);
+  memcpy(storage, world.spheres.data(), mg::sizeofContainerInBytes(world.spheres));
 
   ubo->projInverse = glm::inverse(renderContext.projection);
   ubo->viewInverse = glm::inverse(renderContext.view);

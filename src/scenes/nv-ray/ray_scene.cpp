@@ -15,10 +15,15 @@
 static mg::Camera camera;
 static RayInfo rayinfo;
 static mg::SingleRenderPass singleRenderPass;
+static World world;
 
 void initScene() {
-  camera = mg::create3DCamera(glm::vec3{0,0, -2.5f}, glm::vec3{0,0,0}, glm::vec3{0, 1, 0});
-  createRayInfo(&rayinfo);
+  world.spheres.push_back({-0.5, 0, -1.f, 0.1f});
+  world.spheres.push_back({0.5, 0, -1.f, 0.1f});
+  //  world.spheres.push_back({0, -100.5f, -1.f, 100});
+
+  camera = mg::create3DCamera(glm::vec3{0, 0, -2.5f}, glm::vec3{0, 0, 0}, glm::vec3{0, 1, 0});
+  createRayInfo(world, &rayinfo);
   mg::initSingleRenderPass(&singleRenderPass);
   mg::mgSystem.textureContainer.setupDescriptorSets();
 }
@@ -31,7 +36,7 @@ void destroyScene() {
 
 void updateScene(const mg::FrameData &frameData) {
   if (frameData.resize) {
-    //resizerayRenderPass(&rayRenderPass);
+    // resizerayRenderPass(&rayRenderPass);
   }
   if (frameData.keys.r) {
     mg::mgSystem.pipelineContainer.resetPipelineContainer();
@@ -49,7 +54,7 @@ void renderScene(const mg::FrameData &frameData) {
       glm::radians(camera.fov), mg::vkContext.screen.width / float(mg::vkContext.screen.height), 0.1f, 1000.f);
   renderContext.view = glm::lookAt(camera.position, camera.aim, camera.up);
 
-  traceTriangle(renderContext, rayinfo);
+  traceTriangle(world, renderContext, rayinfo);
 
   mg::beginSingleRenderPass(singleRenderPass);
   renderContext.renderPass = singleRenderPass.vkRenderPass;
@@ -57,7 +62,6 @@ void renderScene(const mg::FrameData &frameData) {
   drawImageStorage(renderContext, rayinfo);
 
   mg::endSingleRenderPass();
-
 
   mg::endRendering();
 }

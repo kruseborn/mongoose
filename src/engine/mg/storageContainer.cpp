@@ -32,10 +32,7 @@ static void stageData(mg::_StorageData *storageData, void *data, uint32_t sizeIn
 StorageContainer::~StorageContainer() { mgAssert(_idToStorage.size() == 0); }
 
 void StorageContainer::destroyStorageContainer() {
-  for (auto &storageData : _idToStorage) {
-    vkDestroyBuffer(mg::vkContext.device, storageData.storage.buffer, nullptr);
-    mg::mgSystem.textureDeviceMemoryAllocator.freeDeviceOnlyMemory(storageData.heapAllocation);
-  }
+  mgAssert(_idToStorage.size() == _freeIndices.size());
   _idToStorage.clear();
   _freeIndices.clear();
   _generations.clear();
@@ -256,7 +253,7 @@ void StorageContainer::removeStorage(StorageId storageId) {
 
   mg::mgSystem.textureDeviceMemoryAllocator.freeDeviceOnlyMemory(_idToStorage[storageId.index].heapAllocation);
   vkDestroyBuffer(mg::vkContext.device, _idToStorage[storageId.index].storage.buffer, nullptr);
-  _idToStorage = {};
+  _idToStorage[storageId.index] = {};
   _generations[storageId.index]++;
   _freeIndices.push_back(storageId.index);
 }
