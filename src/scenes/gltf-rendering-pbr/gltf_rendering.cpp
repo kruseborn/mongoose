@@ -14,11 +14,11 @@ void drawGltfMesh(const mg::RenderContext &renderContext, mg::MeshId meshId, con
   using namespace mg::shaders::gltf;
 
   mg::PipelineStateDesc pipelineStateDesc = {};
-  pipelineStateDesc.vkRenderPass = renderContext.renderPass;
-  pipelineStateDesc.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
+  pipelineStateDesc.rasterization.vkRenderPass = renderContext.renderPass;
+  pipelineStateDesc.rasterization.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
 
   mg::CreatePipelineInfo createPipelineInfo = {};
-  createPipelineInfo.shaderName = "gltf";
+  createPipelineInfo.shaderName = shader;
   createPipelineInfo.vertexInputState = InputAssembler::vertexInputState;
   createPipelineInfo.vertexInputStateCount = mg::countof(InputAssembler::vertexInputState);
 

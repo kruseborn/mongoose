@@ -11,14 +11,14 @@ static mg::Pipeline createSolidRendering(const mg::RenderContext &renderContext)
   using namespace mg::shaders::solid;
 
   mg::PipelineStateDesc pipelineStateDesc = {};
-  pipelineStateDesc.vkRenderPass = renderContext.renderPass;
-  pipelineStateDesc.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
-  pipelineStateDesc.graphics.subpass = renderContext.subpass;
-  pipelineStateDesc.depth.TestEnable = VK_FALSE;
-  pipelineStateDesc.rasterization.cullMode = VK_CULL_MODE_NONE;
+  pipelineStateDesc.rasterization.vkRenderPass = renderContext.renderPass;
+  pipelineStateDesc.rasterization.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
+  pipelineStateDesc.rasterization.graphics.subpass = renderContext.subpass;
+  pipelineStateDesc.rasterization.depth.TestEnable = VK_FALSE;
+  pipelineStateDesc.rasterization.rasterization.cullMode = VK_CULL_MODE_NONE;
 
   mg::CreatePipelineInfo createPipelineInfo = {};
-  createPipelineInfo.shaderName = "solid";
+  createPipelineInfo.shaderName = shader;
   createPipelineInfo.vertexInputState = InputAssembler::vertexInputState;
   createPipelineInfo.vertexInputStateCount = mg::countof(InputAssembler::vertexInputState);
 
@@ -90,13 +90,13 @@ static mg::Pipeline createTextureRenderingPipeline(const mg::RenderContext &rend
 
   const auto pipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
   mg::PipelineStateDesc pipelineStateDesc = {};
-  pipelineStateDesc.vkRenderPass = renderContext.renderPass;
-  pipelineStateDesc.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
-  pipelineStateDesc.graphics.subpass = renderContext.subpass;
-  pipelineStateDesc.depth.TestEnable = VK_FALSE;
+  pipelineStateDesc.rasterization.vkRenderPass = renderContext.renderPass;
+  pipelineStateDesc.rasterization.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
+  pipelineStateDesc.rasterization.graphics.subpass = renderContext.subpass;
+  pipelineStateDesc.rasterization.depth.TestEnable = VK_FALSE;
 
   mg::CreatePipelineInfo createPipelineInfo = {};
-  createPipelineInfo.shaderName = "textureRendering";
+  createPipelineInfo.shaderName = shader;
   createPipelineInfo.vertexInputState = InputAssembler::vertexInputState;
   createPipelineInfo.vertexInputStateCount = mg::countof(InputAssembler::vertexInputState);
 
@@ -159,13 +159,13 @@ static mg::Pipeline createDepthTextureRenderingPipeline(const mg::RenderContext 
 
   const auto pipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
   mg::PipelineStateDesc pipelineStateDesc = {};
-  pipelineStateDesc.vkRenderPass = renderContext.renderPass;
-  pipelineStateDesc.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
-  pipelineStateDesc.graphics.subpass = renderContext.subpass;
-  pipelineStateDesc.depth.TestEnable = VK_FALSE;
+  pipelineStateDesc.rasterization.vkRenderPass = renderContext.renderPass;
+  pipelineStateDesc.rasterization.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
+  pipelineStateDesc.rasterization.graphics.subpass = renderContext.subpass;
+  pipelineStateDesc.rasterization.depth.TestEnable = VK_FALSE;
 
   mg::CreatePipelineInfo createPipelineInfo = {};
-  createPipelineInfo.shaderName = "depth";
+  createPipelineInfo.shaderName = shader;
   createPipelineInfo.vertexInputState = InputAssembler::vertexInputState;
   createPipelineInfo.vertexInputStateCount = mg::countof(InputAssembler::vertexInputState);
 

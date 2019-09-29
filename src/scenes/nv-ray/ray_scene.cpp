@@ -18,11 +18,10 @@ static mg::SingleRenderPass singleRenderPass;
 static World world;
 
 void initScene() {
-  world.spheres.push_back({-0.5, 0, -1.f, 0.1f});
-  world.spheres.push_back({0.5, 0, -1.f, 0.1f});
-  //  world.spheres.push_back({0, -100.5f, -1.f, 100});
+  world.spheres.push_back({0, 0, 1.f, 0.5f});
+  world.spheres.push_back({0, -100.5f, 1.f, 100});
 
-  camera = mg::create3DCamera(glm::vec3{0, 0, -2.5f}, glm::vec3{0, 0, 0}, glm::vec3{0, 1, 0});
+  camera = mg::create3DCamera(glm::vec3{0, 0, 0}, glm::vec3{0, 0, 1}, glm::vec3{0, 1, 0});
   createRayInfo(world, &rayinfo);
   mg::initSingleRenderPass(&singleRenderPass);
   mg::mgSystem.textureContainer.setupDescriptorSets();

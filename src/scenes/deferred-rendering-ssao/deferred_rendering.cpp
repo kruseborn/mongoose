@@ -17,15 +17,15 @@ static mg::Pipeline createMRTPipeline(const mg::RenderContext &renderContext) {
 
   const auto pipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
   mg::PipelineStateDesc pipelineStateDesc = {};
-  pipelineStateDesc.vkRenderPass = renderContext.renderPass;
-  pipelineStateDesc.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
-  pipelineStateDesc.rasterization.cullMode = VK_CULL_MODE_FRONT_BIT;
-  pipelineStateDesc.graphics.subpass = renderContext.subpass;
-  pipelineStateDesc.graphics.nrOfColorAttachments = 3;
-  pipelineStateDesc.blend.blendEnable = VK_FALSE;
+  pipelineStateDesc.rasterization.vkRenderPass = renderContext.renderPass;
+  pipelineStateDesc.rasterization.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
+  pipelineStateDesc.rasterization.rasterization.cullMode = VK_CULL_MODE_FRONT_BIT;
+  pipelineStateDesc.rasterization.graphics.subpass = renderContext.subpass;
+  pipelineStateDesc.rasterization.graphics.nrOfColorAttachments = 3;
+  pipelineStateDesc.rasterization.blend.blendEnable = VK_FALSE;
 
   mg::CreatePipelineInfo createPipelineInfo = {};
-  createPipelineInfo.shaderName = "mrt";
+  createPipelineInfo.shaderName = shader;
   createPipelineInfo.vertexInputState = InputAssembler::vertexInputState;
   createPipelineInfo.vertexInputStateCount = mg::countof(InputAssembler::vertexInputState);
 
@@ -76,13 +76,13 @@ static mg::Pipeline createSSAOPipeline(const mg::RenderContext &renderContext) {
 
   const auto pipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
   mg::PipelineStateDesc pipelineStateDesc = {};
-  pipelineStateDesc.vkRenderPass = renderContext.renderPass;
-  pipelineStateDesc.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
-  pipelineStateDesc.graphics.subpass = renderContext.subpass;
-  pipelineStateDesc.rasterization.cullMode = VK_CULL_MODE_BACK_BIT;
+  pipelineStateDesc.rasterization.vkRenderPass = renderContext.renderPass;
+  pipelineStateDesc.rasterization.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
+  pipelineStateDesc.rasterization.graphics.subpass = renderContext.subpass;
+  pipelineStateDesc.rasterization.rasterization.cullMode = VK_CULL_MODE_BACK_BIT;
 
   mg::CreatePipelineInfo createPipelineInfo = {};
-  createPipelineInfo.shaderName = "ssao";
+  createPipelineInfo.shaderName = shader;
 
   const auto ssaoPipeline = mg::mgSystem.pipelineContainer.createPipeline(pipelineStateDesc, createPipelineInfo);
   return ssaoPipeline;
@@ -126,13 +126,13 @@ static mg::Pipeline createSSAOBlurPipeline(const mg::RenderContext &renderContex
 
   const auto pipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
   mg::PipelineStateDesc pipelineStateDesc = {};
-  pipelineStateDesc.vkRenderPass = renderContext.renderPass;
-  pipelineStateDesc.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
-  pipelineStateDesc.graphics.subpass = renderContext.subpass;
-  pipelineStateDesc.rasterization.cullMode = VK_CULL_MODE_NONE;
+  pipelineStateDesc.rasterization.vkRenderPass = renderContext.renderPass;
+  pipelineStateDesc.rasterization.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
+  pipelineStateDesc.rasterization.graphics.subpass = renderContext.subpass;
+  pipelineStateDesc.rasterization.rasterization.cullMode = VK_CULL_MODE_NONE;
 
   mg::CreatePipelineInfo createPipelineInfo = {};
-  createPipelineInfo.shaderName = "ssaoBlur";
+  createPipelineInfo.shaderName = shader;
 
   const auto pipeline = mg::mgSystem.pipelineContainer.createPipeline(pipelineStateDesc, createPipelineInfo);
   return pipeline;
@@ -172,13 +172,13 @@ static mg::Pipeline createFinalDeferred(const mg::RenderContext &renderContext) 
   using namespace mg::shaders::final;
 
   mg::PipelineStateDesc pipelineStateDesc = {};
-  pipelineStateDesc.vkRenderPass = renderContext.renderPass;
-  pipelineStateDesc.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
-  pipelineStateDesc.graphics.subpass = renderContext.subpass;
-  pipelineStateDesc.rasterization.cullMode = VK_CULL_MODE_NONE;
+  pipelineStateDesc.rasterization.vkRenderPass = renderContext.renderPass;
+  pipelineStateDesc.rasterization.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
+  pipelineStateDesc.rasterization.graphics.subpass = renderContext.subpass;
+  pipelineStateDesc.rasterization.rasterization.cullMode = VK_CULL_MODE_NONE;
 
   mg::CreatePipelineInfo createPipelineInfo = {};
-  createPipelineInfo.shaderName = "final";
+  createPipelineInfo.shaderName = shader;
 
   const auto pipeline = mg::mgSystem.pipelineContainer.createPipeline(pipelineStateDesc, createPipelineInfo);
   return pipeline;

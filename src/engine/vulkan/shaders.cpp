@@ -95,6 +95,7 @@ void createShaders() {
       VkPipelineShaderStageCreateInfo pipelineShaderStageCreateInfo =
           createShader(mg::getShaderPath() + files.second.files[i].name, files.second.files[i].stageFlag);
       shader.isProcedural[shader.count] = files.second.files[i].isProcedural;
+      shader.fileNameToIndex[files.second.files[i].name] = shader.count;
       shader.stageCreateInfo[shader.count++] = pipelineShaderStageCreateInfo;
     }
     _shaders.insert(make_pair(files.first, shader));

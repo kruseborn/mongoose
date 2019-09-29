@@ -47,22 +47,20 @@ ImguiBuffer allocateImguiBuffer() {
 }
 
 static mg::Pipeline createImguiPipeline(const RenderContext &renderContext) {
-  using namespace mg::shaders;
-  using namespace mg;
-
+  using namespace mg::shaders::imgui;
 
   mg::PipelineStateDesc pipelineStateDesc = {};
-  pipelineStateDesc.vkRenderPass = renderContext.renderPass;
-  pipelineStateDesc.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
-  pipelineStateDesc.rasterization.frontFace = VK_FRONT_FACE_CLOCKWISE;
-  pipelineStateDesc.graphics.subpass = renderContext.subpass;
+  pipelineStateDesc.rasterization.vkRenderPass = renderContext.renderPass;
+  pipelineStateDesc.rasterization.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
+  pipelineStateDesc.rasterization.rasterization.frontFace = VK_FRONT_FACE_CLOCKWISE;
+  pipelineStateDesc.rasterization.graphics.subpass = renderContext.subpass;
 
   mg::CreatePipelineInfo createPipelineInfo = {};
-  createPipelineInfo.shaderName = "imgui";
-  createPipelineInfo.vertexInputState = imgui::InputAssembler::vertexInputState;
+  createPipelineInfo.shaderName = shader;
+  createPipelineInfo.vertexInputState = InputAssembler::vertexInputState;
   createPipelineInfo.vertexInputState[2].format = VK_FORMAT_R8G8B8A8_UNORM;
   createPipelineInfo.vertexInputState[2].size = 4;
-  createPipelineInfo.vertexInputStateCount = mg::countof(imgui::InputAssembler::vertexInputState);
+  createPipelineInfo.vertexInputStateCount = mg::countof(InputAssembler::vertexInputState);
 
   auto pipeline = mg::mgSystem.pipelineContainer.createPipeline(pipelineStateDesc, createPipelineInfo);
   return pipeline;

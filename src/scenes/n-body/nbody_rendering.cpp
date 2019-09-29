@@ -10,11 +10,10 @@
 static void transformVelocities(const ComputeData &computeData, const mg::FrameData &frameData) {
   using namespace mg::shaders::simulate_velocities;
 
-  mg::ComputePipelineStateDesc computePipelineStateDesc = {};
-  computePipelineStateDesc.pipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayoutStorage;
-  computePipelineStateDesc.shaderName = "simulate_velocities.comp";
+  mg::PipelineStateDesc pipelineStateDesc = {};
+  pipelineStateDesc.compute.pipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayoutStorage;
 
-  const auto pipeline = mg::mgSystem.pipelineContainer.createComputePipeline(computePipelineStateDesc);
+  const auto pipeline = mg::mgSystem.pipelineContainer.createComputePipeline(pipelineStateDesc, {.shaderName = shader});
 
   auto storage = mg::mgSystem.storageContainer.getStorage(computeData.storageId);
 
@@ -51,11 +50,11 @@ static void transformVelocities(const ComputeData &computeData, const mg::FrameD
 void transformPositions(const ComputeData &computeData, const mg::FrameData &frameData) {
   using namespace mg::shaders::simulate_positions;
 
-  mg::ComputePipelineStateDesc computePipelineStateDesc = {};
-  computePipelineStateDesc.pipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayoutStorage;
-  computePipelineStateDesc.shaderName = "simulate_positions.comp";
+  mg::PipelineStateDesc pipelineStateDesc = {};
+  pipelineStateDesc.compute.pipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayoutStorage;
 
-  const auto pipeline = mg::mgSystem.pipelineContainer.createComputePipeline(computePipelineStateDesc);
+  const auto pipeline =
+      mg::mgSystem.pipelineContainer.createComputePipeline(pipelineStateDesc, {.shaderName = shader});
 
   auto storage = mg::mgSystem.storageContainer.getStorage(computeData.storageId);
 
@@ -97,18 +96,18 @@ void renderParticels(mg::RenderContext &renderContext, const ComputeData &comput
   using namespace mg::shaders::particle;
 
   mg::PipelineStateDesc pipelineStateDesc = {};
-  pipelineStateDesc.vkRenderPass = renderContext.renderPass;
-  pipelineStateDesc.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
-  pipelineStateDesc.inputAssemblyState.topology = VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
-  pipelineStateDesc.blend.colorBlendOp = VK_BLEND_OP_ADD;
-  pipelineStateDesc.blend.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
-  pipelineStateDesc.blend.dstColorBlendFactor = VK_BLEND_FACTOR_ONE;
+  pipelineStateDesc.rasterization.vkRenderPass = renderContext.renderPass;
+  pipelineStateDesc.rasterization.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
+  pipelineStateDesc.rasterization.inputAssemblyState.topology = VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
+  pipelineStateDesc.rasterization.blend.colorBlendOp = VK_BLEND_OP_ADD;
+  pipelineStateDesc.rasterization.blend.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
+  pipelineStateDesc.rasterization.blend.dstColorBlendFactor = VK_BLEND_FACTOR_ONE;
 
-  pipelineStateDesc.depth.TestEnable = VK_FALSE;
-  pipelineStateDesc.depth.writeEnable = VK_FALSE;
+  pipelineStateDesc.rasterization.depth.TestEnable = VK_FALSE;
+  pipelineStateDesc.rasterization.depth.writeEnable = VK_FALSE;
 
   mg::CreatePipelineInfo createPipelineInfo = {};
-  createPipelineInfo.shaderName = "particle";
+  createPipelineInfo.shaderName = shader;
   createPipelineInfo.vertexInputState = InputAssembler::vertexInputState;
   createPipelineInfo.vertexInputStateCount = mg::countof(InputAssembler::vertexInputState);
 
@@ -158,16 +157,15 @@ static mg::Pipeline createImageStoragePipeline(const mg::RenderContext &renderCo
   using namespace mg::shaders::toneMapping;
 
   mg::PipelineStateDesc pipelineStateDesc = {};
-  pipelineStateDesc.vkRenderPass = renderContext.renderPass;
-  pipelineStateDesc.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
-  pipelineStateDesc.rasterization.cullMode = VK_CULL_MODE_NONE;
-  pipelineStateDesc.graphics.subpass = renderContext.subpass;
-  pipelineStateDesc.depth.TestEnable = VK_FALSE;
-  pipelineStateDesc.depth.writeEnable = VK_FALSE;
+  pipelineStateDesc.rasterization.vkRenderPass = renderContext.renderPass;
+  pipelineStateDesc.rasterization.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
+  pipelineStateDesc.rasterization.rasterization.cullMode = VK_CULL_MODE_NONE;
+  pipelineStateDesc.rasterization.graphics.subpass = renderContext.subpass;
+  pipelineStateDesc.rasterization.depth.TestEnable = VK_FALSE;
+  pipelineStateDesc.rasterization.depth.writeEnable = VK_FALSE;
 
   mg::CreatePipelineInfo createPipelineInfo = {};
-  createPipelineInfo.shaderName = "toneMapping";
-
+  createPipelineInfo.shaderName = shader;
   return mg::mgSystem.pipelineContainer.createPipeline(pipelineStateDesc, createPipelineInfo);
 }
 

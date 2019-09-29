@@ -22,6 +22,7 @@ struct Shader {
   uint32_t count;
   bool isProcedural[5];
   VkPipelineShaderStageCreateInfo stageCreateInfo[5];
+  std::unordered_map<std::string, uint32_t> fileNameToIndex;
 
 };
 void createShaders();

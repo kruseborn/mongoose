@@ -13,14 +13,14 @@ static mg::Pipeline createFontPipeline(const mg::RenderContext &renderContext) {
 
   const auto pipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
   mg::PipelineStateDesc pipelineStateDesc = {};
-  pipelineStateDesc.vkRenderPass = renderContext.renderPass;
-  pipelineStateDesc.vkPipelineLayout = vkContext.pipelineLayouts.pipelineLayout;
-  pipelineStateDesc.graphics.subpass = renderContext.subpass;
-  pipelineStateDesc.rasterization.cullMode = VK_CULL_MODE_NONE;
-  pipelineStateDesc.depth.TestEnable = VK_FALSE;
+  pipelineStateDesc.rasterization.vkRenderPass = renderContext.renderPass;
+  pipelineStateDesc.rasterization.vkPipelineLayout = vkContext.pipelineLayouts.pipelineLayout;
+  pipelineStateDesc.rasterization.graphics.subpass = renderContext.subpass;
+  pipelineStateDesc.rasterization.rasterization.cullMode = VK_CULL_MODE_NONE;
+  pipelineStateDesc.rasterization.depth.TestEnable = VK_FALSE;
 
   mg::CreatePipelineInfo createPipelineInfo = {};
-  createPipelineInfo.shaderName = "fontRendering";
+  createPipelineInfo.shaderName = shader;
   createPipelineInfo.vertexInputState = InputAssembler::vertexInputState;
   createPipelineInfo.vertexInputStateCount = mg::countof(InputAssembler::vertexInputState);
 

@@ -6,15 +6,83 @@
 #include "ray_renderpass.h"
 #include "ray_utils.h"
 #include "rendering/rendering.h"
+#include "vulkan/shaders.h"
+
+//  // create new pipeline
+// auto shader = mg::getShader(createRayTracingPipelineInfo.shaderName);
+// std::vector<VkRayTracingShaderGroupCreateInfoNV> shaderGroups(4);
+//
+// for (uint64_t i = 0; i < shaderGroups.size(); i++) {
+//  shaderGroups[i].sType = VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_NV;
+//  shaderGroups[i].generalShader = VK_SHADER_UNUSED_NV;
+//  shaderGroups[i].closestHitShader = VK_SHADER_UNUSED_NV;
+//  shaderGroups[i].anyHitShader = VK_SHADER_UNUSED_NV;
+//  shaderGroups[i].intersectionShader = VK_SHADER_UNUSED_NV;
+//}
+//
+// enum GROUP_TYPES { GEN, MISS, HIT, PROCEDURAL };
+// for (uint64_t i = 0; i < shader.count; i++) {
+//  switch (shader.stageCreateInfo[i].stage) {
+//  case VK_SHADER_STAGE_RAYGEN_BIT_NV:
+//    shaderGroups[GEN].generalShader = i;
+//    shaderGroups[GEN].type = VK_RAY_TRACING_SHADER_GROUP_TYPE_GENERAL_NV;
+//    break;
+//  case VK_SHADER_STAGE_MISS_BIT_NV:
+//    shaderGroups[MISS].generalShader = i;
+//    shaderGroups[MISS].type = VK_RAY_TRACING_SHADER_GROUP_TYPE_GENERAL_NV;
+//    break;
+//  case VK_SHADER_STAGE_CLOSEST_HIT_BIT_NV:
+//    if (!shader.isProcedural[i]) {
+//      shaderGroups[HIT].closestHitShader = i;
+//      shaderGroups[HIT].type = VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_NV;
+//    } else {
+//      shaderGroups[PROCEDURAL].closestHitShader = i;
+//    }
+//    break;
+//  case VK_SHADER_STAGE_INTERSECTION_BIT_NV:
+//    shaderGroups[PROCEDURAL].intersectionShader = i;
+//    shaderGroups[PROCEDURAL].type = VK_RAY_TRACING_SHADER_GROUP_TYPE_PROCEDURAL_HIT_GROUP_NV;
+//  default:
+//    break;
+//  }
+//}
+//
+// shaderGroups = mg::filter(shaderGroups, [](const auto &group) {
+//  return group.generalShader != VK_SHADER_UNUSED_NV || group.closestHitShader != VK_SHADER_UNUSED_NV ||
+//         group.anyHitShader != VK_SHADER_UNUSED_NV || group.intersectionShader != VK_SHADER_UNUSED_NV;
+//});
 
 static mg::Pipeline createRayPipeline() {
   using namespace mg::shaders::procedural;
 
-  mg::RayTracingPipelineStateDesc rayTracingPipelineStateDesc = {};
-  rayTracingPipelineStateDesc.pipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayoutRayTracing;
-  rayTracingPipelineStateDesc.depth = 1;
-  rayTracingPipelineStateDesc.shaderName = "procedural";
-  const auto pipeline = mg::mgSystem.pipelineContainer.createRayTracingPipeline(rayTracingPipelineStateDesc);
+  mg::PipelineStateDesc rayTracingPipelineStateDesc = {};
+  rayTracingPipelineStateDesc.rayTracing.pipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayoutRayTracing;
+  rayTracingPipelineStateDesc.rayTracing.depth = 1;
+
+  auto &shaders = rayTracingPipelineStateDesc.rayTracing.shaders;
+  auto &groups = rayTracingPipelineStateDesc.rayTracing.groups;
+
+  strcpy(shaders[0], files.procedural_rgen);
+  strcpy(shaders[1], files.procedural_rmiss);
+  strcpy(shaders[2], files.procedural_proc_rint);
+  strcpy(shaders[3], files.procedural_lambert_proc_rchit);
+  strcpy(shaders[4], files.procedural_metal_proc_rchit);
+  rayTracingPipelineStateDesc.rayTracing.shaderCount = 5;
+
+  groups[0].type = VK_RAY_TRACING_SHADER_GROUP_TYPE_GENERAL_NV;
+  groups[0].generalShader = 0;
+  groups[1].type = VK_RAY_TRACING_SHADER_GROUP_TYPE_GENERAL_NV;
+  groups[1].generalShader = 1;
+  groups[2].type = VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_NV;
+  groups[2].intersectionShader = 2;
+  groups[2].closestHitShader = 3;
+  groups[3].type = VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_NV;
+  groups[3].intersectionShader = 2;
+  groups[3].closestHitShader = 4;
+  rayTracingPipelineStateDesc.rayTracing.groupCount = 4;
+
+  const auto pipeline = mg::mgSystem.pipelineContainer.createRayTracingPipeline(rayTracingPipelineStateDesc,
+                                                                                {.shaderName = shader});
   return pipeline;
 }
 
@@ -79,15 +147,15 @@ static mg::Pipeline createImageStoragePipeline(const mg::RenderContext &renderCo
   using namespace mg::shaders::imageStorage;
 
   mg::PipelineStateDesc pipelineStateDesc = {};
-  pipelineStateDesc.vkRenderPass = renderContext.renderPass;
-  pipelineStateDesc.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayoutRayTracing;
-  pipelineStateDesc.rasterization.cullMode = VK_CULL_MODE_NONE;
-  pipelineStateDesc.graphics.subpass = renderContext.subpass;
-  pipelineStateDesc.depth.TestEnable = VK_FALSE;
-  pipelineStateDesc.depth.writeEnable = VK_FALSE;
+  pipelineStateDesc.rasterization.vkRenderPass = renderContext.renderPass;
+  pipelineStateDesc.rasterization.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayoutRayTracing;
+  pipelineStateDesc.rasterization.rasterization.cullMode = VK_CULL_MODE_NONE;
+  pipelineStateDesc.rasterization.graphics.subpass = renderContext.subpass;
+  pipelineStateDesc.rasterization.depth.TestEnable = VK_FALSE;
+  pipelineStateDesc.rasterization.depth.writeEnable = VK_FALSE;
 
   mg::CreatePipelineInfo createPipelineInfo = {};
-  createPipelineInfo.shaderName = "imageStorage";
+  createPipelineInfo.shaderName = shader;
 
   const auto pipeline = mg::mgSystem.pipelineContainer.createPipeline(pipelineStateDesc, createPipelineInfo);
   return pipeline;

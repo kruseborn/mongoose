@@ -11,16 +11,16 @@ static mg::Pipeline createFrontAndBackPipeline(const mg::RenderContext &renderCo
   using namespace mg::shaders::frontAndBack;
 
   mg::PipelineStateDesc pipelineStateDesc = {};
-  pipelineStateDesc.vkRenderPass = renderContext.renderPass;
-  pipelineStateDesc.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
-  pipelineStateDesc.rasterization.cullMode = VK_CULL_MODE_NONE;
-  pipelineStateDesc.rasterization.frontFace = VK_FRONT_FACE_CLOCKWISE;
-  pipelineStateDesc.graphics.subpass = renderContext.subpass;
-  pipelineStateDesc.graphics.nrOfColorAttachments = 2;
-  pipelineStateDesc.depth.TestEnable = VK_FALSE;
+  pipelineStateDesc.rasterization.vkRenderPass = renderContext.renderPass;
+  pipelineStateDesc.rasterization.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
+  pipelineStateDesc.rasterization.rasterization.cullMode = VK_CULL_MODE_NONE;
+  pipelineStateDesc.rasterization.rasterization.frontFace = VK_FRONT_FACE_CLOCKWISE;
+  pipelineStateDesc.rasterization.graphics.subpass = renderContext.subpass;
+  pipelineStateDesc.rasterization.graphics.nrOfColorAttachments = 2;
+  pipelineStateDesc.rasterization.depth.TestEnable = VK_FALSE;
 
   mg::CreatePipelineInfo createPipelineInfo = {};
-  createPipelineInfo.shaderName = "frontAndBack";
+  createPipelineInfo.shaderName = shader;
   createPipelineInfo.vertexInputState = InputAssembler::vertexInputState;
   createPipelineInfo.vertexInputStateCount = mg::countof(InputAssembler::vertexInputState);
 
@@ -71,14 +71,14 @@ static mg::Pipeline createVolumePipeline(const mg::RenderContext &renderContext)
   using namespace mg::shaders::volume;
 
   mg::PipelineStateDesc pipelineStateDesc = {};
-  pipelineStateDesc.vkRenderPass = renderContext.renderPass;
-  pipelineStateDesc.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
-  pipelineStateDesc.rasterization.cullMode = VK_CULL_MODE_NONE;
-  pipelineStateDesc.graphics.subpass = renderContext.subpass;
-  pipelineStateDesc.depth.TestEnable = VK_FALSE;
+  pipelineStateDesc.rasterization.vkRenderPass = renderContext.renderPass;
+  pipelineStateDesc.rasterization.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
+  pipelineStateDesc.rasterization.rasterization.cullMode = VK_CULL_MODE_NONE;
+  pipelineStateDesc.rasterization.graphics.subpass = renderContext.subpass;
+  pipelineStateDesc.rasterization.depth.TestEnable = VK_FALSE;
 
   mg::CreatePipelineInfo createPipelineInfo = {};
-  createPipelineInfo.shaderName = "volume";
+  createPipelineInfo.shaderName = shader;
 
   const auto pipeline = mg::mgSystem.pipelineContainer.createPipeline(pipelineStateDesc, createPipelineInfo);
   return pipeline;
@@ -134,15 +134,15 @@ static mg::Pipeline createImageStoragePipeline(const mg::RenderContext &renderCo
   using namespace mg::shaders::denoise;
 
   mg::PipelineStateDesc pipelineStateDesc = {};
-  pipelineStateDesc.vkRenderPass = renderContext.renderPass;
-  pipelineStateDesc.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
-  pipelineStateDesc.rasterization.cullMode = VK_CULL_MODE_NONE;
-  pipelineStateDesc.graphics.subpass = renderContext.subpass;
-  pipelineStateDesc.depth.TestEnable = VK_FALSE;
-  pipelineStateDesc.depth.writeEnable = VK_FALSE;
+  pipelineStateDesc.rasterization.vkRenderPass = renderContext.renderPass;
+  pipelineStateDesc.rasterization.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
+  pipelineStateDesc.rasterization.rasterization.cullMode = VK_CULL_MODE_NONE;
+  pipelineStateDesc.rasterization.graphics.subpass = renderContext.subpass;
+  pipelineStateDesc.rasterization.depth.TestEnable = VK_FALSE;
+  pipelineStateDesc.rasterization.depth.writeEnable = VK_FALSE;
 
   mg::CreatePipelineInfo createPipelineInfo = {};
-  createPipelineInfo.shaderName = "denoise";
+  createPipelineInfo.shaderName = shader;
 
   const auto mrtPipeline = mg::mgSystem.pipelineContainer.createPipeline(pipelineStateDesc, createPipelineInfo);
   return mrtPipeline;

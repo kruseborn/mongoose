@@ -1,6 +1,7 @@
 #version 460
 #extension GL_NV_ray_tracing : require
 #extension GL_EXT_nonuniform_qualifier : enable
+#extension GL_EXT_control_flow_attributes : require
 
 layout (set = 0, binding = 0) uniform Ubo {
 	// mat4 model;
@@ -11,42 +12,99 @@ layout (set = 0, binding = 0) uniform Ubo {
 	mat4 projInverse;
 } ubo;
 
+uint InitRandomSeed(uint val0, uint val1) {
+	uint v0 = val0, v1 = val1, s0 = 0;
+
+	[[unroll]] 
+	for (uint n = 0; n < 16; n++)
+	{
+		s0 += 0x9e3779b9;
+		v0 += ((v1 << 4) + 0xa341316c) ^ (v1 + s0) ^ ((v1 >> 5) + 0xc8013ea4);
+		v1 += ((v0 << 4) + 0xad90777d) ^ (v0 + s0) ^ ((v0 >> 5) + 0x7e95761e);
+	}
+	return v0;
+}
+
+uint RandomInt(inout uint seed) {
+	// LCG values from Numerical Recipes
+    return (seed = 1664525 * seed + 1013904223);
+}
+
+float RandomFloat(inout uint seed) {
+	// Float version using bitmask from Numerical Recipes
+	const uint one = 0x3f800000;
+	const uint msk = 0x007fffff;
+	return uintBitsToFloat(one | (msk & (RandomInt(seed) >> 9))) - 1;
+}
+
+vec3 RandomInUnitSphere(inout uint seed) {
+	for (;;) {
+		const vec3 p = 2 * vec3(RandomFloat(seed), RandomFloat(seed), RandomFloat(seed)) - 1;
+		if (dot(p, p) < 1) {
+			return p;
+		}
+	}
+}
+
+struct PayLoad {
+	vec4 color;
+	vec4 scatterDirection;
+	uint seed;
+};
+
 @gen
 layout(set = 1, binding = 0, rgba8) uniform image2D image;
 layout(set = 2, binding = 0) uniform accelerationStructureNV topLevelAS;
 
-layout(location = 0) rayPayloadNV vec3 hitValue;
+layout(location = 0) rayPayloadNV PayLoad payload;
 
 void main() {
 	vec2 pixelCenter  = vec2(gl_LaunchIDNV.xy) + vec2(0.5);
 	vec2 inUV = pixelCenter / vec2(gl_LaunchSizeNV.xy);
 	inUV.y = 1 - inUV.y;
 	vec2 ndc = inUV * 2.0 - 1.0;
-	
 
-	vec4 origin = ubo.viewInverse * vec4(0.0,0.0,0,1);
-	vec4 target = ubo.projInverse * vec4(ndc.x, ndc.y, 1, 1);
-	vec4 direction = ubo.viewInverse * vec4(normalize(target.xyz), 0);
+	uint seed = InitRandomSeed(gl_LaunchIDNV.x, gl_LaunchIDNV.y);
+	payload.seed = seed;
+	vec3 color = vec3(0);
+	int samples = 10;
+	for(uint i = 0; i < samples; i++) {
+		vec2 offset = vec2(RandomFloat(seed), RandomFloat(seed));
+		vec4 origin = ubo.viewInverse * vec4(0,0,0,1);
+	//	vec4 target = ubo.projInverse * vec4(ndc.x, ndc.y, 1, 1);
+		vec4 target = ubo.projInverse * vec4(ndc.x + offset.x/gl_LaunchSizeNV.x, ndc.y+ offset.y/gl_LaunchSizeNV.y, 1, 1);
+		vec4 direction = ubo.viewInverse * vec4(normalize(target.xyz), 0);
 
-	uint rayFlags = gl_RayFlagsOpaqueNV;
-	uint cullMask = 0xff;
-	float tmin = 0.001;
-	float tmax = 1000.0;
+		uint rayFlags = gl_RayFlagsOpaqueNV;
+		uint cullMask = 0xff;
+		float tmin = 0.001;
+		float tmax = 1000.0;
+		vec3 bounsColor = vec3(1);
+		for(int i = 0; i < 10; i++) {
+			traceNV(topLevelAS, rayFlags, cullMask, 0, 0, 0, origin.xyz, tmin, direction.xyz, tmax, 0);
+			bounsColor *= payload.color.xyz;
 
-	traceNV(topLevelAS, rayFlags, cullMask, 0, 0, 0, origin.xyz, tmin, direction.xyz, tmax, 0);
-	imageStore(image, ivec2(gl_LaunchIDNV.xy), vec4(hitValue, 1.0));
+			if(payload.color.w < 0) break;
+			origin = origin + direction * payload.scatterDirection.w;
+			direction.xyz = payload.scatterDirection.xyz;
+		}
+		color += bounsColor;
+	}
+	color = color/samples;
+	color = sqrt(color);
+	imageStore(image, ivec2(gl_LaunchIDNV.xy), vec4(color, 1.0));
 }
 
 @miss
-layout(location = 0) rayPayloadInNV vec3 hitValue;
+layout(location = 0) rayPayloadInNV PayLoad payload;
 
 void main()  {
 		float t = 0.5*(normalize(gl_WorldRayDirectionNV).y + 1);
-		hitValue = mix(vec3(1.0), vec3(0.5, 0.7, 1.0), t);
+		payload.color.xyz = mix(vec3(1.0), vec3(0.5, 0.7, 1.0), t);
+		payload.color.w = -1;
 }
 
 @proc-int
-
 hitAttributeNV vec4 hitAttribute;
 
 struct StorageData {
@@ -87,9 +145,10 @@ void main()
 	}
 }
 
-@proc-chit
+@proc-chit lambert
 hitAttributeNV vec4 hitAttribute;
-layout(location = 0) rayPayloadInNV vec3 hitValue;
+layout(location = 0) rayPayloadInNV PayLoad payload;
+layout(set = 2, binding = 0) uniform accelerationStructureNV topLevelAS;
 
 void main() {
 	vec3 center = hitAttribute.xyz;
@@ -97,7 +156,27 @@ void main() {
 	vec3 hitPoint = gl_WorldRayOriginNV + gl_WorldRayDirectionNV * gl_HitTNV;
 
 	vec3 normal = (hitPoint - center) / radius;
-	hitValue = vec3(normal.xxx);
+
+	payload.color = vec4(vec3(0.5), 1);
+	payload.scatterDirection = vec4(normal + RandomInUnitSphere(payload.seed), gl_HitTNV);
 }
 
+@proc-chit metal
+hitAttributeNV vec4 hitAttribute;
+layout(location = 0) rayPayloadInNV PayLoad payload;
+layout(set = 2, binding = 0) uniform accelerationStructureNV topLevelAS;
 
+void main() {
+	vec3 center = hitAttribute.xyz;
+	float radius = hitAttribute.w;
+	vec3 hitPoint = gl_WorldRayOriginNV + gl_WorldRayDirectionNV * gl_HitTNV;
+	vec3 normal = (hitPoint - center) / radius;
+
+	vec3 reflected = reflect(gl_WorldRayDirectionNV, normal);
+	payload.scatterDirection = vec4(reflected, gl_HitTNV);
+	payload.color.w = dot(reflected, normal) > 0? 1: -1;
+	if(payload.color.w > 0) 
+		payload.color.xyz = vec3(0.5,0,0);
+	else
+		payload.color.xyz = vec3(1);
+}
