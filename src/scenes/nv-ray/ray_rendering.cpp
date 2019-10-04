@@ -67,7 +67,8 @@ static mg::Pipeline createRayPipeline() {
   strcpy(shaders[2], files.procedural_proc_rint);
   strcpy(shaders[3], files.procedural_lambert_proc_rchit);
   strcpy(shaders[4], files.procedural_metal_proc_rchit);
-  rayTracingPipelineStateDesc.rayTracing.shaderCount = 5;
+  strcpy(shaders[5], files.procedural_dielectrics_proc_rchit);
+  rayTracingPipelineStateDesc.rayTracing.shaderCount = 6;
 
   groups[0].type = VK_RAY_TRACING_SHADER_GROUP_TYPE_GENERAL_NV;
   groups[0].generalShader = 0;
@@ -79,7 +80,10 @@ static mg::Pipeline createRayPipeline() {
   groups[3].type = VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_NV;
   groups[3].intersectionShader = 2;
   groups[3].closestHitShader = 4;
-  rayTracingPipelineStateDesc.rayTracing.groupCount = 4;
+  groups[4].type = VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_NV;
+  groups[4].intersectionShader = 2;
+  groups[4].closestHitShader = 5;
+  rayTracingPipelineStateDesc.rayTracing.groupCount = 5;
 
   const auto pipeline = mg::mgSystem.pipelineContainer.createRayTracingPipeline(rayTracingPipelineStateDesc,
                                                                                 {.shaderName = shader});
@@ -90,7 +94,7 @@ void traceTriangle(const World &world, const mg::RenderContext &renderContext, c
   using namespace mg::shaders::procedural;
 
   auto pipeline = createRayPipeline();
-  constexpr uint32_t groupCount = 3; // groupCount is the number of shader handles to retrieve
+  constexpr uint32_t groupCount = 5; // groupCount is the number of shader handles to retrieve
   const uint32_t shaderGroupHandleSize = rayInfo.rayTracingProperties.shaderGroupHandleSize;
   const uint32_t bindingTableSize =
       shaderGroupHandleSize * groupCount; // dataSize must be at least
@@ -115,8 +119,10 @@ void traceTriangle(const World &world, const mg::RenderContext &renderContext, c
   VkDescriptorSet storageSet;
 
   Storage::StorageData *storage = (Storage::StorageData *)mg::mgSystem.linearHeapAllocator.allocateStorage(
-      sizeof(storage) * world.spheres.size(), &storageBuffer, &storageOffset, &storageSet);
-  memcpy(storage, world.spheres.data(), mg::sizeofContainerInBytes(world.spheres));
+      sizeof(storage) * world.positions.size(), &storageBuffer, &storageOffset, &storageSet);
+  mgAssert(mg::sizeofContainerInBytes(world.positions) == sizeof(storage->positions));
+  memcpy(storage->positions, world.positions.data(), mg::sizeofContainerInBytes(world.positions));
+  memcpy(storage->albedos, world.albedos.data(), mg::sizeofContainerInBytes(world.positions));
 
   ubo->projInverse = glm::inverse(renderContext.projection);
   ubo->viewInverse = glm::inverse(renderContext.view);

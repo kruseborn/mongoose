@@ -20,8 +20,8 @@ struct Shaders {
 struct Shader {
   std::string name;
   uint32_t count;
-  bool isProcedural[5];
-  VkPipelineShaderStageCreateInfo stageCreateInfo[5];
+  bool isProcedural[10];
+  VkPipelineShaderStageCreateInfo stageCreateInfo[10];
   std::unordered_map<std::string, uint32_t> fileNameToIndex;
 
 };

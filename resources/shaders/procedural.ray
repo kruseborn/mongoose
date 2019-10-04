@@ -3,6 +3,11 @@
 #extension GL_EXT_nonuniform_qualifier : enable
 #extension GL_EXT_control_flow_attributes : require
 
+struct StorageData {
+	vec4 positions[5];
+	vec4 albedos[5];
+};
+
 layout (set = 0, binding = 0) uniform Ubo {
 	// mat4 model;
 	// mat4 view;
@@ -47,7 +52,7 @@ vec3 RandomInUnitSphere(inout uint seed) {
 }
 
 struct PayLoad {
-	vec4 color;
+	vec4 attenuation;
 	vec4 scatterDirection;
 	uint seed;
 };
@@ -79,16 +84,17 @@ void main() {
 		uint cullMask = 0xff;
 		float tmin = 0.001;
 		float tmax = 1000.0;
-		vec3 bounsColor = vec3(1);
-		for(int i = 0; i < 10; i++) {
-			traceNV(topLevelAS, rayFlags, cullMask, 0, 0, 0, origin.xyz, tmin, direction.xyz, tmax, 0);
-			bounsColor *= payload.color.xyz;
 
-			if(payload.color.w < 0) break;
-			origin = origin + direction * payload.scatterDirection.w;
-			direction.xyz = payload.scatterDirection.xyz;
-		}
-		color += bounsColor;
+		vec3 bounceColor = vec3(1);
+		 for(int i = 0; i < 5; i++) {
+		 	traceNV(topLevelAS, rayFlags, cullMask, 0, 0, 0, origin.xyz, tmin, direction.xyz, tmax, 0);
+		 	bounceColor *= payload.attenuation.xyz;
+
+		 	if(payload.attenuation.w < 0) break;
+		 	origin = origin + direction * payload.scatterDirection.w;
+		 	direction.xyz = payload.scatterDirection.xyz;
+		 }
+		color += bounceColor;
 	}
 	color = color/samples;
 	color = sqrt(color);
@@ -100,27 +106,23 @@ layout(location = 0) rayPayloadInNV PayLoad payload;
 
 void main()  {
 		float t = 0.5*(normalize(gl_WorldRayDirectionNV).y + 1);
-		payload.color.xyz = mix(vec3(1.0), vec3(0.5, 0.7, 1.0), t);
-		payload.color.w = -1;
+		payload.attenuation.xyz = mix(vec3(1.0), vec3(0.5, 0.7, 1.0), t);
+		payload.attenuation.w = -1;
 }
 
 @proc-int
 hitAttributeNV vec4 hitAttribute;
 
-struct StorageData {
-	vec4 sphere;
-};
-
 layout(set = 0, binding = 1) readonly buffer Storage {
-	 StorageData storageData[]; 
+	 StorageData storageData; 
 } storage;
 
 
 void main()
 {
-	vec4 sphere = storage.storageData[gl_InstanceCustomIndexNV].sphere;
-	vec3 center = sphere.xyz;
-	float radius = sphere.w;
+	vec4 position = storage.storageData.positions[gl_InstanceCustomIndexNV];
+	vec3 center = position.xyz;
+	float radius = position.w;
 	
 	vec3 origin = gl_WorldRayOriginNV;
 	vec3 direction = gl_WorldRayDirectionNV;
@@ -139,7 +141,7 @@ void main()
 
 		if ((tMin <= t1 && t1 < tMax) || (tMin <= t2 && t2 < tMax))
 		{
-			hitAttribute = sphere;
+			hitAttribute = position;
 			reportIntersectionNV((tMin <= t1 && t1 < tMax) ? t1 : t2, 0);
 		}
 	}
@@ -150,33 +152,108 @@ hitAttributeNV vec4 hitAttribute;
 layout(location = 0) rayPayloadInNV PayLoad payload;
 layout(set = 2, binding = 0) uniform accelerationStructureNV topLevelAS;
 
+layout(set = 0, binding = 1) readonly buffer Storage {
+	 StorageData storageData; 
+} storage;
+
 void main() {
+	vec4 albedo = storage.storageData.albedos[gl_InstanceCustomIndexNV];
 	vec3 center = hitAttribute.xyz;
 	float radius = hitAttribute.w;
 	vec3 hitPoint = gl_WorldRayOriginNV + gl_WorldRayDirectionNV * gl_HitTNV;
 
 	vec3 normal = (hitPoint - center) / radius;
 
-	payload.color = vec4(vec3(0.5), 1);
+	payload.attenuation = albedo;
 	payload.scatterDirection = vec4(normal + RandomInUnitSphere(payload.seed), gl_HitTNV);
 }
 
 @proc-chit metal
+
+layout(set = 0, binding = 1) readonly buffer Storage {
+	 StorageData storageData; 
+} storage;
+
 hitAttributeNV vec4 hitAttribute;
 layout(location = 0) rayPayloadInNV PayLoad payload;
 layout(set = 2, binding = 0) uniform accelerationStructureNV topLevelAS;
 
 void main() {
+	vec4 albedo = storage.storageData.albedos[gl_InstanceCustomIndexNV];
+
 	vec3 center = hitAttribute.xyz;
 	float radius = hitAttribute.w;
 	vec3 hitPoint = gl_WorldRayOriginNV + gl_WorldRayDirectionNV * gl_HitTNV;
 	vec3 normal = (hitPoint - center) / radius;
 
 	vec3 reflected = reflect(gl_WorldRayDirectionNV, normal);
-	payload.scatterDirection = vec4(reflected, gl_HitTNV);
-	payload.color.w = dot(reflected, normal) > 0? 1: -1;
-	if(payload.color.w > 0) 
-		payload.color.xyz = vec3(0.5,0,0);
+	payload.scatterDirection = vec4(reflected + RandomInUnitSphere(payload.seed)*albedo.w, gl_HitTNV);
+	payload.attenuation = albedo;
+	payload.attenuation.w = dot(reflected, normal) > 0? 1: -1;
+}
+
+@proc-chit dielectrics
+
+bool refract(vec3 v, vec3 n, float ni_over_nt, out vec3 refracted) {
+	vec3 uv = normalize(v);
+	float dt = dot(uv, n);
+	float discriminant = 1.0 - ni_over_nt * ni_over_nt * (1 - dt*dt);
+	if(discriminant > 0) {
+		refracted = ni_over_nt*(uv - n*dt)- n*sqrt(discriminant);
+		return true;
+	}
 	else
-		payload.color.xyz = vec3(1);
+		return false;
+}
+
+float schlick(float cosine, float ref_idx) {
+	float r0 = (1-ref_idx) / (1+ref_idx);
+	r0 = r0*r0;
+	return r0 + (1-r0) * pow((1- cosine), 5);
+}
+
+layout(set = 0, binding = 1) readonly buffer Storage {
+	 StorageData storageData; 
+} storage;
+
+hitAttributeNV vec4 hitAttribute;
+layout(location = 0) rayPayloadInNV PayLoad payload;
+layout(set = 2, binding = 0) uniform accelerationStructureNV topLevelAS;
+
+void main() {
+	vec4 albedo = storage.storageData.albedos[gl_InstanceCustomIndexNV];
+
+	vec3 center = hitAttribute.xyz;
+	float radius = hitAttribute.w;
+	vec3 hitPoint = gl_WorldRayOriginNV + gl_WorldRayDirectionNV * gl_HitTNV;
+	vec3 normal = (hitPoint - center) / radius;
+
+	float ref_idx = albedo.w;
+	vec3 outwardNormal;
+	vec3 reflected = reflect(gl_WorldRayDirectionNV, normal);
+	float ni_over_nt;
+	payload.attenuation = vec4(1,1,1,1);
+	vec3 refracted;
+	float reflect_prob;
+	float cosine;
+	if(dot(gl_WorldRayDirectionNV, normal) > 0) {
+		outwardNormal = -normal;
+		ni_over_nt = ref_idx;
+		cosine = ref_idx * dot(gl_WorldRayDirectionNV, normal) / length(gl_WorldRayDirectionNV);
+	} else {
+		outwardNormal = normal;
+		ni_over_nt = 1 / ref_idx;
+		cosine = -dot(gl_WorldRayDirectionNV, normal) / length(gl_WorldRayDirectionNV);
+	}
+	if(refract(gl_WorldRayDirectionNV, outwardNormal, ni_over_nt, refracted)) {
+		reflect_prob = schlick(cosine, ref_idx);
+	} else {
+		payload.scatterDirection = vec4(reflected, gl_HitTNV);
+		reflect_prob = 1;
+	}
+	if(RandomFloat(payload.seed) < reflect_prob) {
+		payload.scatterDirection = vec4(reflected, gl_HitTNV);
+	} else {
+		payload.scatterDirection = vec4(refracted, gl_HitTNV);
+	}
 }

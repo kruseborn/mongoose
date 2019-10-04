@@ -12,14 +12,19 @@
 #include "vulkan/vkContext.h"
 #include <glm/gtc/matrix_transform.hpp>
 
-static mg::Camera camera;
-static RayInfo rayinfo;
-static mg::SingleRenderPass singleRenderPass;
-static World world;
+static mg::Camera camera = {};
+static RayInfo rayinfo = {};
+static mg::SingleRenderPass singleRenderPass = {};
+static World world = {};
 
 void initScene() {
-  world.spheres.push_back({0, 0, 1.f, 0.5f});
-  world.spheres.push_back({0, -100.5f, 1.f, 100});
+  float R = cos(glm::pi<float>() / 4.0f);
+  addSphere({.world = &world, .position = {0, 0, 1.f, 0.5f}, .albedo = {0.8f, 0.3f, 0.3, 1}, .material = World::LAMBERTH});
+  addSphere({.world = &world, .position = {0, -100.5f, 1.f, 100}, .albedo = {0.8, 0.8, 0, 1}, .material = World::LAMBERTH});
+  //addSphere({.world = &world, .position = {1, 0, 1.f, 0.5f}, .albedo = {0.8, 0.6, 0.2, 0.3}, .material = World::METAL});
+  //addSphere({.world = &world, .position = {-1, 0, 1.f, 0.5f}, .albedo = {0.8, 0.8, 0.8, 1.5}, .material = World::DIELECTRIC});
+  //addSphere({.world = &world, .position = {-1, 0, 1.f, -0.45f}, .albedo = {0.8, 0.8, 0.8, 1.5}, .material = World::DIELECTRIC});
+
 
   camera = mg::create3DCamera(glm::vec3{0, 0, 0}, glm::vec3{0, 0, 1}, glm::vec3{0, 1, 0});
   createRayInfo(world, &rayinfo);

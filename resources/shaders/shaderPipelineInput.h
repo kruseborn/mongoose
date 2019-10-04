@@ -321,9 +321,10 @@ struct Ubo {
 };
 struct Storage {
   struct StorageData {
-    glm::vec4 sphere;
+    glm::vec4 positions[5];
+    glm::vec4 albedos[5];
   };
-  StorageData* storageData = nullptr;
+  StorageData storageData;
 };
 union DescriptorSets {
   struct {
@@ -334,6 +335,7 @@ union DescriptorSets {
   VkDescriptorSet values[3];
 };
 constexpr struct {
+  const char *procedural_dielectrics_proc_rchit = "procedural.dielectrics.proc.rchit.spv";
   const char *procedural_lambert_proc_rchit = "procedural.lambert.proc.rchit.spv";
   const char *procedural_metal_proc_rchit = "procedural.metal.proc.rchit.spv";
   const char *procedural_proc_rint = "procedural.proc.rint.spv";

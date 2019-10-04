@@ -64,11 +64,11 @@ static void createAndBindASDeviceMemory(AccelerationStructure *levelAS) {
 
 static void createBottomLevelAccelerationStructureAabb(const World &world, RayInfo *rayInfo) {
   std::vector<glm::vec3> aabb;
-  aabb.reserve(world.spheres.size() * 2);
+  aabb.reserve(world.positions.size() * 2);
 
-  for (uint64_t i = 0; i < world.spheres.size(); i++) {
-    aabb.push_back(glm::vec3{world.spheres[i].x, world.spheres[i].y, world.spheres[i].z} - world.spheres[i].w);
-    aabb.push_back(glm::vec3{world.spheres[i].x, world.spheres[i].y, world.spheres[i].z} + world.spheres[i].w);
+  for (uint64_t i = 0; i < world.positions.size(); i++) {
+    aabb.push_back(glm::vec3{world.positions[i].x, world.positions[i].y, world.positions[i].z} - world.positions[i].w);
+    aabb.push_back(glm::vec3{world.positions[i].x, world.positions[i].y, world.positions[i].z} + world.positions[i].w);
   }
   rayInfo->storageSpheresId =
       mg::mgSystem.storageContainer.createStorage(aabb.data(), mg::sizeofContainerInBytes(aabb));
@@ -76,8 +76,8 @@ static void createBottomLevelAccelerationStructureAabb(const World &world, RayIn
 
   mg::waitForDeviceIdle();
 
-  rayInfo->bottomLevelASs.reserve(world.spheres.size());
-  for (uint64_t i = 0; i < world.spheres.size(); i++) {
+  rayInfo->bottomLevelASs.reserve(world.positions.size());
+  for (uint64_t i = 0; i < world.positions.size(); i++) {
     VkGeometryNV geometry = {};
     geometry.sType = VK_STRUCTURE_TYPE_GEOMETRY_NV;
     geometry.geometryType = VK_GEOMETRY_TYPE_AABBS_NV;
@@ -145,10 +145,13 @@ static void createTopLevelAccelerationStructure(RayInfo *rayInfo) {
   vkUpdateDescriptorSets(mg::vkContext.device, 1, &accelerationStructureWrite, 0, VK_NULL_HANDLE);
 }
 
-static Buffer createInstances(const RayInfo &info) {
+static Buffer createInstances(const World &world, const RayInfo &info) {
   Buffer instanceBuffer = {};
   VkGeometryInstance *instanceData = (VkGeometryInstance *)mg::mgSystem.linearHeapAllocator.allocateBuffer(
       sizeof(VkGeometryInstance) * info.bottomLevelASs.size(), &instanceBuffer.buffer, &instanceBuffer.offset);
+
+  mgAssert(world.materials.size() == info.bottomLevelASs.size());
+  mgAssert(world.positions.size() == info.bottomLevelASs.size());
 
   for (uint64_t i = 0; i < info.bottomLevelASs.size(); i++) {
     VkGeometryInstance geometryInstance = {};
@@ -162,7 +165,7 @@ static Buffer createInstances(const RayInfo &info) {
     geometryInstance.transform = transform;
     geometryInstance.instanceId = i;
     geometryInstance.mask = 0xff;
-    geometryInstance.instanceOffset = 0;
+    geometryInstance.instanceOffset = world.materials[i];
     geometryInstance.flags = VK_GEOMETRY_INSTANCE_TRIANGLE_CULL_DISABLE_BIT_NV;
     geometryInstance.accelerationStructureHandle = info.bottomLevelASs[i].handle;
 
@@ -305,7 +308,7 @@ void createRayInfo(const World &world, RayInfo *rayInfo) {
   createBottomLevelAccelerationStructureAabb(world, rayInfo);
   createTopLevelAccelerationStructure(rayInfo);
 
-  auto instanceBuffer = createInstances(*rayInfo);
+  auto instanceBuffer = createInstances(world , *rayInfo);
   auto scratchBuffer = createScrathMemory(rayInfo);
 
   buildAccelerationStructures(*rayInfo, instanceBuffer, scratchBuffer);
