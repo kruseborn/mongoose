@@ -14,9 +14,11 @@ struct RayInfo {
   AccelerationStructure topLevelAS;
   VkPhysicalDeviceRayTracingPropertiesNV rayTracingProperties;
   mg::StorageId storageImageId;
+  mg::StorageId storageAccumulationImageID;
   mg::StorageId storageSpheresId;
   VkDescriptorSet topLevelASDescriptorSet;
   mg::MeshId triangleId;
+  bool resetAccumulationImage;
 };
 
 struct World {
@@ -24,6 +26,7 @@ struct World {
   std::vector<glm::vec4> positions;
   std::vector<glm::vec4> albedos;
   std::vector<MATERIAL> materials;
+  mg::TextureId blueNoise;
 };
 
 struct Sphere {

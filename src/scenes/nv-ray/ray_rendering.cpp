@@ -8,50 +8,6 @@
 #include "rendering/rendering.h"
 #include "vulkan/shaders.h"
 
-//  // create new pipeline
-// auto shader = mg::getShader(createRayTracingPipelineInfo.shaderName);
-// std::vector<VkRayTracingShaderGroupCreateInfoNV> shaderGroups(4);
-//
-// for (uint64_t i = 0; i < shaderGroups.size(); i++) {
-//  shaderGroups[i].sType = VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_NV;
-//  shaderGroups[i].generalShader = VK_SHADER_UNUSED_NV;
-//  shaderGroups[i].closestHitShader = VK_SHADER_UNUSED_NV;
-//  shaderGroups[i].anyHitShader = VK_SHADER_UNUSED_NV;
-//  shaderGroups[i].intersectionShader = VK_SHADER_UNUSED_NV;
-//}
-//
-// enum GROUP_TYPES { GEN, MISS, HIT, PROCEDURAL };
-// for (uint64_t i = 0; i < shader.count; i++) {
-//  switch (shader.stageCreateInfo[i].stage) {
-//  case VK_SHADER_STAGE_RAYGEN_BIT_NV:
-//    shaderGroups[GEN].generalShader = i;
-//    shaderGroups[GEN].type = VK_RAY_TRACING_SHADER_GROUP_TYPE_GENERAL_NV;
-//    break;
-//  case VK_SHADER_STAGE_MISS_BIT_NV:
-//    shaderGroups[MISS].generalShader = i;
-//    shaderGroups[MISS].type = VK_RAY_TRACING_SHADER_GROUP_TYPE_GENERAL_NV;
-//    break;
-//  case VK_SHADER_STAGE_CLOSEST_HIT_BIT_NV:
-//    if (!shader.isProcedural[i]) {
-//      shaderGroups[HIT].closestHitShader = i;
-//      shaderGroups[HIT].type = VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_NV;
-//    } else {
-//      shaderGroups[PROCEDURAL].closestHitShader = i;
-//    }
-//    break;
-//  case VK_SHADER_STAGE_INTERSECTION_BIT_NV:
-//    shaderGroups[PROCEDURAL].intersectionShader = i;
-//    shaderGroups[PROCEDURAL].type = VK_RAY_TRACING_SHADER_GROUP_TYPE_PROCEDURAL_HIT_GROUP_NV;
-//  default:
-//    break;
-//  }
-//}
-//
-// shaderGroups = mg::filter(shaderGroups, [](const auto &group) {
-//  return group.generalShader != VK_SHADER_UNUSED_NV || group.closestHitShader != VK_SHADER_UNUSED_NV ||
-//         group.anyHitShader != VK_SHADER_UNUSED_NV || group.intersectionShader != VK_SHADER_UNUSED_NV;
-//});
-
 static mg::Pipeline createRayPipeline() {
   using namespace mg::shaders::procedural;
 
@@ -85,12 +41,13 @@ static mg::Pipeline createRayPipeline() {
   groups[4].closestHitShader = 5;
   rayTracingPipelineStateDesc.rayTracing.groupCount = 5;
 
-  const auto pipeline = mg::mgSystem.pipelineContainer.createRayTracingPipeline(rayTracingPipelineStateDesc,
-                                                                                {.shaderName = shader});
+  const auto pipeline =
+      mg::mgSystem.pipelineContainer.createRayTracingPipeline(rayTracingPipelineStateDesc, {.shaderName = shader});
   return pipeline;
 }
 
-void traceTriangle(const World &world, const mg::RenderContext &renderContext, const RayInfo &rayInfo) {
+void traceTriangle(const World &world, const mg::Camera &camera, const mg::RenderContext &renderContext,
+                   const RayInfo &rayInfo) {
   using namespace mg::shaders::procedural;
 
   auto pipeline = createRayPipeline();
@@ -120,19 +77,34 @@ void traceTriangle(const World &world, const mg::RenderContext &renderContext, c
 
   Storage::StorageData *storage = (Storage::StorageData *)mg::mgSystem.linearHeapAllocator.allocateStorage(
       sizeof(storage) * world.positions.size(), &storageBuffer, &storageOffset, &storageSet);
-  mgAssert(mg::sizeofContainerInBytes(world.positions) == sizeof(storage->positions));
+  mgAssert(mg::sizeofContainerInBytes(world.positions) <= sizeof(storage->positions));
   memcpy(storage->positions, world.positions.data(), mg::sizeofContainerInBytes(world.positions));
   memcpy(storage->albedos, world.albedos.data(), mg::sizeofContainerInBytes(world.positions));
 
   ubo->projInverse = glm::inverse(renderContext.projection);
   ubo->viewInverse = glm::inverse(renderContext.view);
+  static uint32_t frame = 0;
+  static uint32_t totalNrOfSamples = 0;
+  static const uint32_t nrOfSamplesPerFrame = 10;
+  totalNrOfSamples += nrOfSamplesPerFrame;
+  if (rayInfo.resetAccumulationImage)
+    totalNrOfSamples = nrOfSamplesPerFrame;
+
+  ubo->attrib = {++frame, world.blueNoise.index, nrOfSamplesPerFrame, totalNrOfSamples};
+  ubo->cameraPosition = {camera.position.x, camera.position.y, camera.position.z,
+                         rayInfo.resetAccumulationImage ? 1.0f : 0.0f};
+  ubo->cameraLookat = {camera.aim.x, camera.aim.y, camera.aim.z,
+                         rayInfo.resetAccumulationImage ? 1.0f : 0.0f};
 
   auto storageImage = mg::mgSystem.storageContainer.getStorage(rayInfo.storageImageId);
+  auto storageAccumulationImage = mg::mgSystem.storageContainer.getStorage(rayInfo.storageAccumulationImageID);
 
   DescriptorSets descriptorSets = {};
   descriptorSets.ubo = uboSet;
   descriptorSets.image = storageImage.descriptorSet;
   descriptorSets.topLevelAS = rayInfo.topLevelASDescriptorSet;
+  descriptorSets.textures = mg::getTextureDescriptorSet();
+  descriptorSets.accumulationImage = storageAccumulationImage.descriptorSet;
 
   uint32_t offsets[] = {uniformOffset, storageOffset};
   vkCmdBindDescriptorSets(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_RAY_TRACING_NV, pipeline.layout, 0,

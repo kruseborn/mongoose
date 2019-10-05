@@ -153,7 +153,7 @@ DeviceHeapAllocation DeviceMemoryAllocator::allocateDeviceOnlyMemory(uint32_t me
       }
     }
   }
-  mgAssertDesc(false, "could allocate device memory from heap");
+  mgAssertDesc(false, "could not allocate device memory from heap");
   return {};
 }
 

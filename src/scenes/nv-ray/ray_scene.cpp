@@ -11,22 +11,62 @@
 #include "rendering/rendering.h"
 #include "vulkan/vkContext.h"
 #include <glm/gtc/matrix_transform.hpp>
+#include <random>
 
 static mg::Camera camera = {};
 static RayInfo rayinfo = {};
 static mg::SingleRenderPass singleRenderPass = {};
 static World world = {};
 
+static std::default_random_engine generator;
+
+float rng() {
+  return std::generate_canonical<float, std::numeric_limits<double>::digits>(generator);
+}
+
+glm::vec4 toVec4(const glm::vec3 &v, float s) { return glm::vec4{v.x, v.y, v.z, s}; }
+
 void initScene() {
-  float R = cos(glm::pi<float>() / 4.0f);
-  addSphere({.world = &world, .position = {0, 0, 1.f, 0.5f}, .albedo = {0.8f, 0.3f, 0.3, 1}, .material = World::LAMBERTH});
-  addSphere({.world = &world, .position = {0, -100.5f, 1.f, 100}, .albedo = {0.8, 0.8, 0, 1}, .material = World::LAMBERTH});
-  //addSphere({.world = &world, .position = {1, 0, 1.f, 0.5f}, .albedo = {0.8, 0.6, 0.2, 0.3}, .material = World::METAL});
-  //addSphere({.world = &world, .position = {-1, 0, 1.f, 0.5f}, .albedo = {0.8, 0.8, 0.8, 1.5}, .material = World::DIELECTRIC});
-  //addSphere({.world = &world, .position = {-1, 0, 1.f, -0.45f}, .albedo = {0.8, 0.8, 0.8, 1.5}, .material = World::DIELECTRIC});
+  world.blueNoise = mg::uploadPngImage("HDR_RGBA_0.png");
 
+  generator.seed(2);
 
-  camera = mg::create3DCamera(glm::vec3{0, 0, 0}, glm::vec3{0, 0, 1}, glm::vec3{0, 1, 0});
+  const int n = 500;
+  addSphere({.world = &world,
+             .position = {0, -1000.0f, 0, 1000.0f},
+             .albedo = {0.5f, 0.5f, 0.5f, 1},
+             .material = World::LAMBERTH});
+
+  for (int32_t a = -11; a < 11; a++) {
+    for (int32_t b = -11; b < 11; b++) {
+      float chooseMat = rng();
+      glm::vec3 center = {a + 0.9 * rng(), 0.2, (b + 0.9 * rng()) * -1.0f};
+
+      if (glm::distance(center, {4, 0.2, 0}) > 0.9f) {
+        if (chooseMat < 0.8) { // diffuse
+          addSphere({.world = &world,
+                     .position = toVec4(center, 0.2f),
+                     .albedo = {rng() * rng(), rng() * rng(), rng() * rng(), 1},
+                     .material = World::LAMBERTH});
+        } else if (chooseMat < 0.95f) { // metal
+          addSphere({.world = &world,
+                     .position = toVec4(center, 0.2f),
+                     .albedo = {0.5f * (1 + rng()), 0.5f * (1 + rng()), 0.5f * (1 + rng()), 0.5f * rng()},
+                     .material = World::METAL});
+        } else { // glass
+          addSphere({.world = &world,
+                     .position = toVec4(center, 0.2f),
+                     .albedo = {1,1,1, 1.5f},
+                     .material = World::DIELECTRIC});
+        }
+      }
+    }
+  }
+  addSphere({.world = &world, .position = {0, 1, 0, 1}, .albedo = {0.8, 0.8, 0.8, 1.5}, .material = World::DIELECTRIC});
+  addSphere({.world = &world, .position = {-4, 1, 0, 1}, .albedo = {0.4, 0.2, 0.1, 1}, .material = World::LAMBERTH});
+  addSphere({.world = &world, .position = {4, 1, 0, 1}, .albedo = {0.7, 0.6, 0.5, 0.0}, .material = World::METAL});
+
+  camera = mg::create3DCamera(glm::vec3{18, 6, -6}, glm::vec3{0, 0, 0}, glm::vec3{0, 1, 0});
   createRayInfo(world, &rayinfo);
   mg::initSingleRenderPass(&singleRenderPass);
   mg::mgSystem.textureContainer.setupDescriptorSets();
@@ -46,6 +86,7 @@ void updateScene(const mg::FrameData &frameData) {
     mg::mgSystem.pipelineContainer.resetPipelineContainer();
   }
   if (frameData.mouse.left) {
+    rayinfo.resetAccumulationImage = true;
     mg::handleTools(frameData, &camera);
   }
   mg::setCameraTransformation(&camera);
@@ -58,7 +99,7 @@ void renderScene(const mg::FrameData &frameData) {
       glm::radians(camera.fov), mg::vkContext.screen.width / float(mg::vkContext.screen.height), 0.1f, 1000.f);
   renderContext.view = glm::lookAt(camera.position, camera.aim, camera.up);
 
-  traceTriangle(world, renderContext, rayinfo);
+  traceTriangle(world, camera, renderContext, rayinfo);
 
   mg::beginSingleRenderPass(singleRenderPass);
   renderContext.renderPass = singleRenderPass.vkRenderPass;
@@ -68,4 +109,5 @@ void renderScene(const mg::FrameData &frameData) {
   mg::endSingleRenderPass();
 
   mg::endRendering();
+  rayinfo.resetAccumulationImage = false;
 }

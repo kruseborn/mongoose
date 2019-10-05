@@ -224,11 +224,12 @@ static void createPipelineLayout() {
   }
   // raytracing
   {
-    VkDescriptorSetLayout descriptorSetLayoutsStorages[4] = {
+    VkDescriptorSetLayout descriptorSetLayoutsStorages[5] = {
         mg::vkContext.descriptorSetLayout.dynamic,
         mg::vkContext.descriptorSetLayout.storageImage,
         mg::vkContext.descriptorSetLayout.accelerationStructure,
-        mg::vkContext.descriptorSetLayout.storage
+        mg::vkContext.descriptorSetLayout.textures,
+        mg::vkContext.descriptorSetLayout.storageImage,
     };
 
     VkPipelineLayoutCreateInfo layoutCreateInfo = {};
