@@ -17,7 +17,7 @@ static std::vector<unsigned char> resizeRGBToRGBA(unsigned char *rgb, uint32_t s
     rgba[i * 4 + 0] = rgb[i * 3 + 0];
     rgba[i * 4 + 1] = rgb[i * 3 + 0];
     rgba[i * 4 + 2] = rgb[i * 3 + 0];
-    rgba[i * 4 + 3] = 1.0f;
+    rgba[i * 4 + 3] = char(1.0f);
   }
   return rgba;
 }
@@ -320,7 +320,7 @@ ObjMeshes loadObjFromFile(const std::string &filename) {
 
         if ((current_material_id < 0) || (current_material_id >= static_cast<int>(materials.size()))) {
           // Invaid material ID. Use default material.
-          current_material_id = materials.size() - 1; // Default material is added to the last item in `materials`.
+          current_material_id = int32_t(materials.size()) - 1; // Default material is added to the last item in `materials`.
         }
         float diffuse[3];
         for (size_t i = 0; i < 3; i++) {
@@ -450,7 +450,7 @@ ObjMeshes loadObjFromFile(const std::string &filename) {
         o.materialId = shapes[s].mesh.material_ids[0]; // use the material ID
                                                         // of the first face.
       } else {
-        o.materialId = materials.size() - 1; // = ID for default material.
+        o.materialId = int32_t(materials.size()) - 1; // = ID for default material.
       }
       printf("shape[%d] material_id %d\n", int(s), int(o.materialId));
 
@@ -460,7 +460,7 @@ ObjMeshes loadObjFromFile(const std::string &filename) {
         mg::CreateMeshInfo createMeshInfo = {};
         createMeshInfo.vertices = (uint8_t *)buffer.data();
         createMeshInfo.verticesSizeInBytes = mg::sizeofContainerInBytes(buffer);
-        createMeshInfo.nrOfIndices = nrOfIndices;
+        createMeshInfo.nrOfIndices = uint32_t(nrOfIndices);
 
         o.id = mg::mgSystem.meshContainer.createMesh(createMeshInfo);
         printf("shape[%d] # of triangles = %d\n", static_cast<int>(s), static_cast<int>(nrOfIndices));

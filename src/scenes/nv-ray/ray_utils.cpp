@@ -112,7 +112,7 @@ static void createTopLevelAccelerationStructure(RayInfo *rayInfo) {
   VkAccelerationStructureInfoNV accelerationStructureInfo = {};
   accelerationStructureInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_INFO_NV;
   accelerationStructureInfo.type = VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_NV;
-  accelerationStructureInfo.instanceCount = rayInfo->bottomLevelASs.size();
+  accelerationStructureInfo.instanceCount = uint32_t(rayInfo->bottomLevelASs.size());
 
   VkAccelerationStructureCreateInfoNV accelerationStructureCreateInfo = {};
   accelerationStructureCreateInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_NV;
@@ -189,7 +189,7 @@ static ScratchBuffer createScrathMemory(RayInfo *rayInfo) {
     memoryRequirementsInfo.accelerationStructure = rayInfo->bottomLevelASs[i].accelerationStructure;
     mg::nv::vkGetAccelerationStructureMemoryRequirementsNV(mg::vkContext.device, &memoryRequirementsInfo,
                                                            &memReqBottomLevelAS);
-    scratchBuffer.offsets.push_back(scratchBufferBottomLevels);
+    scratchBuffer.offsets.push_back(uint32_t(scratchBufferBottomLevels));
     scratchBufferBottomLevels += memReqBottomLevelAS.memoryRequirements.size;
   }
   VkAccelerationStructureMemoryRequirementsInfoNV memoryRequirementsInfo{};
@@ -259,7 +259,7 @@ static void buildAccelerationStructures(const RayInfo &rayInfo, const Buffer &in
 
   VkAccelerationStructureInfoNV accelerationStructureInfo = {};
   accelerationStructureInfo.type = VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_NV;
-  accelerationStructureInfo.instanceCount = rayInfo.bottomLevelASs.size();
+  accelerationStructureInfo.instanceCount = uint32_t(rayInfo.bottomLevelASs.size());
 
   mg::nv::vkCmdBuildAccelerationStructureNV(commandBuffer, &accelerationStructureInfo, instanceBuffer.buffer,
                                             instanceBuffer.offset, VK_FALSE, rayInfo.topLevelAS.accelerationStructure,

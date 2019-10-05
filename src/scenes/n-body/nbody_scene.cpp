@@ -2,15 +2,15 @@
 #include "mg/camera.h"
 #include "mg/mgAssert.h"
 #include "mg/mgSystem.h"
+#include "mg/texts.h"
 #include "mg/tools.h"
 #include "mg/window.h"
 #include "nbody_rendering.h"
+#include "nbody_renderpass.h"
 #include "nbody_utils.h"
 #include "rendering/rendering.h"
-#include "nbody_renderpass.h"
 #include "vulkan/vkContext.h"
 #include "vulkan/vkUtils.h"
-#include "mg/texts.h"
 #include <lodepng.h>
 
 static mg::Camera camera;
@@ -65,7 +65,7 @@ void renderScene(const mg::FrameData &frameData) {
 
   vkCmdNextSubpass(mg::vkContext.commandBuffer, VK_SUBPASS_CONTENTS_INLINE);
   renderContext.subpass = 1;
-  
+
   renderToneMapping(renderContext, nbodyRenderPass);
 
   mg::validateTexts(texts);

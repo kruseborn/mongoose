@@ -102,7 +102,7 @@ MeshId MeshContainer::createMesh(const CreateMeshInfo &createMeshInfo) {
     currentIndex = _freeIndices.back();
     _freeIndices.pop_back();
   } else {
-    currentIndex = _idToMesh.size();
+    currentIndex = uint32_t(_idToMesh.size());
     _idToMesh.push_back({});
     _generations.push_back(0);
   }

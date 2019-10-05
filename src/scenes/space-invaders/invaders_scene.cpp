@@ -57,7 +57,7 @@ void invadersSimulate(Invaders *invaders, const mg::FrameData &frameData, float 
   auto &alienBullets = invaders->alienBullets;
 
   // transform
-  transformPlayer(&player, mg::getScreenWidth(), settings.playerSize, frameData, dt);
+  transformPlayer(&player, uint32_t(mg::getScreenWidth()), settings.playerSize, frameData, dt);
   const auto minMaxAliens = transformAliens(settings, &aliens, dt);
   transformPositions(playerBullets.x, playerBullets.y, playerBullets.nrBullets, playerBullets.direction, playerBullets.speed, dt);
   transformPositions(alienBullets.x, alienBullets.y, alienBullets.nrBullets, alienBullets.direction, alienBullets.speed, dt);

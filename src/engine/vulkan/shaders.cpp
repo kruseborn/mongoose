@@ -34,6 +34,7 @@ static ShaderType getShaderType(const std::string &fileName) {
     return {VK_SHADER_STAGE_INTERSECTION_BIT_NV, true};
   else {
     mgAssertDesc(false, "Shader typ is not supported");
+    return {};
   }
 }
 

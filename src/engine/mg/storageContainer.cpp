@@ -45,7 +45,7 @@ StorageId StorageContainer::_createStorage(void *data, uint32_t sizeInBytes, VkB
     currentIndex = _freeIndices.back();
     _freeIndices.pop_back();
   } else {
-    currentIndex = _idToStorage.size();
+    currentIndex = uint32_t(_idToStorage.size());
     _idToStorage.push_back({});
     _generations.push_back(0);
   }
@@ -130,7 +130,7 @@ StorageId StorageContainer::createImageStorage(const CreateImageStorageInfo &inf
     currentIndex = _freeIndices.back();
     _freeIndices.pop_back();
   } else {
-    currentIndex = _idToStorage.size();
+    currentIndex = uint32_t(_idToStorage.size());
     _idToStorage.push_back({});
     _generations.push_back(0);
   }

@@ -10,7 +10,7 @@ Camera create3DCamera(const glm::vec3 &position, const glm::vec3 &aim, const glm
   camera.startPosition = camera.position = position;
   camera.startAim = camera.aim = aim;
   camera.startUp = camera.up = up;
-  camera.startFov = camera.fov = 20.0f;
+  camera.startFov = camera.fov = 45.0f;
 
   return camera;
 }

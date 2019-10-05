@@ -238,7 +238,7 @@ TextureId TextureContainer::createTexture(const CreateTextureInfo &textureInfo) 
     currentIndex = _freeIndices.back();
     _freeIndices.pop_back();
   } else {
-    currentIndex = _idToTexture.size();
+    currentIndex = uint32_t(_idToTexture.size());
     _idToTexture.push_back({});
     _generations.push_back(0);
     _isAlive.push_back(true);

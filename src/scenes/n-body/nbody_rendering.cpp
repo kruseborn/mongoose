@@ -150,7 +150,7 @@ void renderParticels(mg::RenderContext &renderContext, const ComputeData &comput
   const auto count = storageData.size / (sizeof(glm::vec4) * 2);
   VkDeviceSize offset = 0;
   vkCmdBindVertexBuffers(mg::vkContext.commandBuffer, 0, 1, &storageData.buffer, &offset);
-  vkCmdDraw(mg::vkContext.commandBuffer, count, 1, 0, 0);
+  vkCmdDraw(mg::vkContext.commandBuffer, uint32_t(count), 1, 0, 0);
 }
 
 static mg::Pipeline createImageStoragePipeline(const mg::RenderContext &renderContext) {

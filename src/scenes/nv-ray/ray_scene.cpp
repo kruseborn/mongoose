@@ -2,6 +2,7 @@
 #include "mg/camera.h"
 #include "mg/mgAssert.h"
 #include "mg/mgSystem.h"
+#include "mg/texts.h"
 #include "mg/textureContainer.h"
 #include "mg/tools.h"
 #include "mg/window.h"
@@ -20,9 +21,7 @@ static World world = {};
 
 static std::default_random_engine generator;
 
-float rng() {
-  return std::generate_canonical<float, std::numeric_limits<double>::digits>(generator);
-}
+float rng() { return std::generate_canonical<float, std::numeric_limits<double>::digits>(generator); }
 
 glm::vec4 toVec4(const glm::vec3 &v, float s) { return glm::vec4{v.x, v.y, v.z, s}; }
 
@@ -56,7 +55,7 @@ void initScene() {
         } else { // glass
           addSphere({.world = &world,
                      .position = toVec4(center, 0.2f),
-                     .albedo = {1,1,1, 1.5f},
+                     .albedo = {1, 1, 1, 1.5f},
                      .material = World::DIELECTRIC});
         }
       }
@@ -66,7 +65,7 @@ void initScene() {
   addSphere({.world = &world, .position = {-4, 1, 0, 1}, .albedo = {0.4, 0.2, 0.1, 1}, .material = World::LAMBERTH});
   addSphere({.world = &world, .position = {4, 1, 0, 1}, .albedo = {0.7, 0.6, 0.5, 0.0}, .material = World::METAL});
 
-  camera = mg::create3DCamera(glm::vec3{18, 6, -6}, glm::vec3{0, 0, 0}, glm::vec3{0, 1, 0});
+  camera = mg::create3DCamera(glm::vec3{12, 4, -4}, glm::vec3{0, 0, 0}, glm::vec3{0, 1, 0});
   createRayInfo(world, &rayinfo);
   mg::initSingleRenderPass(&singleRenderPass);
   mg::mgSystem.textureContainer.setupDescriptorSets();
@@ -93,6 +92,13 @@ void updateScene(const mg::FrameData &frameData) {
 }
 
 void renderScene(const mg::FrameData &frameData) {
+  mg::Texts texts = {};
+  char fps[50];
+  snprintf(fps, sizeof(fps), "Fps: %u", uint32_t(frameData.fps));
+  mg::Text text = {fps};
+
+  mg::pushText(&texts, text);
+
   mg::beginRendering();
   mg::RenderContext renderContext = {};
   renderContext.projection = glm::perspective(
@@ -105,6 +111,9 @@ void renderScene(const mg::FrameData &frameData) {
   renderContext.renderPass = singleRenderPass.vkRenderPass;
 
   drawImageStorage(renderContext, rayinfo);
+
+  mg::validateTexts(texts);
+  mg::renderText(renderContext, texts);
 
   mg::endSingleRenderPass();
 

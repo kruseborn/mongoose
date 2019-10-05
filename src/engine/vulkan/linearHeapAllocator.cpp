@@ -5,6 +5,7 @@
 #include "vkContext.h"
 #include "vkUtils.h"
 
+
 // 'If descriptorType is VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER or VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
 // the range member of each element of pBufferInfo, or the effective range if range is VK_WHOLE_SIZE, must be less than
 // or equal to VkPhysicalDeviceLimits::maxUniformBufferRange'

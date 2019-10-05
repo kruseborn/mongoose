@@ -12,7 +12,7 @@ MgSystem mgSystem = {};
 static void createAllocators(MgSystem *system) {
   {
     constexpr uint32_t mgTobytes = 1024 * 1024;
-    constexpr uint32_t heapSize = 50 * mgTobytes;
+    constexpr uint32_t heapSize = 200 * mgTobytes;
     CreateDeviceHeapAllocatorInfo vertexAllocationInfo = {};
     vertexAllocationInfo.heapSizes = { heapSize, heapSize, heapSize, heapSize };
     vertexAllocationInfo.useDifferentHeapsForSmallAllocations = false;
