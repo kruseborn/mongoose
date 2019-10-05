@@ -1,11 +1,19 @@
 {
   "files.associations": {
     "*.hglsl": "glsl",
+    "*.com": "glsl",
+    "*.ray": "glsl",
+    "*.rgen": "glsl",
+    "*.rmiss": "glsl",
+    "*.rchit": "glsl",
+    "*.rint": "glsl",
     "initializer_list": "cpp",
     "random": "cpp",
     "type_traits": "cpp",
     "vector": "cpp",
     "xstring": "cpp",
-    "xutility": "cpp"
+    "xutility": "cpp",
+    "system_error": "cpp",
+    "xtr1common": "cpp"
   }
 }

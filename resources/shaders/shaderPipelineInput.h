@@ -318,11 +318,14 @@ namespace procedural {
 struct Ubo {
   glm::mat4 viewInverse;
   glm::mat4 projInverse;
+  glm::vec4 cameraPosition;
+  glm::vec4 cameraLookat;
+  glm::vec4 attrib;
 };
 struct Storage {
   struct StorageData {
-    glm::vec4 positions[5];
-    glm::vec4 albedos[5];
+    glm::vec4 positions[500];
+    glm::vec4 albedos[500];
   };
   StorageData storageData;
 };
@@ -331,8 +334,10 @@ union DescriptorSets {
     VkDescriptorSet ubo;
     VkDescriptorSet image;
     VkDescriptorSet topLevelAS;
+    VkDescriptorSet textures;
+    VkDescriptorSet accumulationImage;
   };
-  VkDescriptorSet values[3];
+  VkDescriptorSet values[5];
 };
 constexpr struct {
   const char *procedural_dielectrics_proc_rchit = "procedural.dielectrics.proc.rchit.spv";

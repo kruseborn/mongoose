@@ -2,83 +2,75 @@
 #extension GL_NV_ray_tracing : require
 #extension GL_EXT_nonuniform_qualifier : enable
 #extension GL_EXT_control_flow_attributes : require
+#extension GL_EXT_samplerless_texture_functions : enable
+#include "rayUtils.hglsl"
 
 struct StorageData {
-	vec4 positions[5];
-	vec4 albedos[5];
+	vec4 positions[500];
+	vec4 albedos[500];
 };
 
 layout (set = 0, binding = 0) uniform Ubo {
-	// mat4 model;
-	// mat4 view;
-	// mat4 projection;
-	// mat4 modelIT;
 	mat4 viewInverse;
 	mat4 projInverse;
+	vec4 cameraPosition;
+	vec4 cameraLookat;
+	vec4 attrib;
 } ubo;
 
-uint InitRandomSeed(uint val0, uint val1) {
-	uint v0 = val0, v1 = val1, s0 = 0;
+layout(set = 0, binding = 1) readonly buffer Storage {
+	 StorageData storageData; 
+} storage;
 
-	[[unroll]] 
-	for (uint n = 0; n < 16; n++)
-	{
-		s0 += 0x9e3779b9;
-		v0 += ((v1 << 4) + 0xa341316c) ^ (v1 + s0) ^ ((v1 >> 5) + 0xc8013ea4);
-		v1 += ((v0 << 4) + 0xad90777d) ^ (v0 + s0) ^ ((v0 >> 5) + 0x7e95761e);
-	}
-	return v0;
-}
-
-uint RandomInt(inout uint seed) {
-	// LCG values from Numerical Recipes
-    return (seed = 1664525 * seed + 1013904223);
-}
-
-float RandomFloat(inout uint seed) {
-	// Float version using bitmask from Numerical Recipes
-	const uint one = 0x3f800000;
-	const uint msk = 0x007fffff;
-	return uintBitsToFloat(one | (msk & (RandomInt(seed) >> 9))) - 1;
-}
-
-vec3 RandomInUnitSphere(inout uint seed) {
-	for (;;) {
-		const vec3 p = 2 * vec3(RandomFloat(seed), RandomFloat(seed), RandomFloat(seed)) - 1;
-		if (dot(p, p) < 1) {
-			return p;
-		}
-	}
-}
+layout(set = 1, binding = 0, rgba8) uniform image2D image;
+layout(set = 2, binding = 0) uniform accelerationStructureNV topLevelAS;
+layout(set = 3, binding = 0) uniform sampler samplers[2];
+layout(set = 3, binding = 1) uniform texture2D textures[128];
+layout(set = 4, binding = 0, rgba32f) uniform image2D accumulationImage;
 
 struct PayLoad {
 	vec4 attenuation;
 	vec4 scatterDirection;
 	uint seed;
+	HaltonState h2;
+	HaltonState h3;
 };
 
 @gen
-layout(set = 1, binding = 0, rgba8) uniform image2D image;
-layout(set = 2, binding = 0) uniform accelerationStructureNV topLevelAS;
 
 layout(location = 0) rayPayloadNV PayLoad payload;
 
 void main() {
-	vec2 pixelCenter  = vec2(gl_LaunchIDNV.xy) + vec2(0.5);
-	vec2 inUV = pixelCenter / vec2(gl_LaunchSizeNV.xy);
+	int frameIndex = int(ubo.attrib.x + 0.5);
+	int blueNoiseTextureId = int(ubo.attrib.y + 0.5);
+	int nrOfSamplesPerFrame = int(ubo.attrib.z + 0.5);
+	int totalNrOfSamples = int(ubo.attrib.w + 0.5);
+	bool resetAccumulationImage = ubo.cameraPosition.w > 0.5;
+
+	vec2 pixelPos  = vec2(gl_LaunchIDNV.xy);
+
+	vec2 blueNoise = texelFetch(textures[blueNoiseTextureId], ivec2(gl_LaunchIDNV.xy), 0).xy;
+
+	payload.h2 = initHalton(int(gl_LaunchIDNV.x*blueNoise.x * frameIndex*0.001), 2);
+	payload.h3 = initHalton(int(gl_LaunchIDNV.y*blueNoise.y * frameIndex*0.001), 3);
+
+	float aperture = 0.15;
+	float focusDistance = distance(ubo.cameraPosition.xyz, ubo.cameraLookat.xyz);
+
+	vec2 inUV = (pixelPos+0.5) / vec2(gl_LaunchSizeNV.xy);
 	inUV.y = 1 - inUV.y;
 	vec2 ndc = inUV * 2.0 - 1.0;
 
-	uint seed = InitRandomSeed(gl_LaunchIDNV.x, gl_LaunchIDNV.y);
+	uint seed = InitRandomSeed(InitRandomSeed(gl_LaunchIDNV.x, gl_LaunchIDNV.y), frameIndex);
 	payload.seed = seed;
 	vec3 color = vec3(0);
-	int samples = 10;
+	int samples = nrOfSamplesPerFrame;
 	for(uint i = 0; i < samples; i++) {
-		vec2 offset = vec2(RandomFloat(seed), RandomFloat(seed));
-		vec4 origin = ubo.viewInverse * vec4(0,0,0,1);
-	//	vec4 target = ubo.projInverse * vec4(ndc.x, ndc.y, 1, 1);
-		vec4 target = ubo.projInverse * vec4(ndc.x + offset.x/gl_LaunchSizeNV.x, ndc.y+ offset.y/gl_LaunchSizeNV.y, 1, 1);
-		vec4 direction = ubo.viewInverse * vec4(normalize(target.xyz), 0);
+		vec2 offset = concentricMapping(aperture / 2.0, rndFloat(payload.seed), rndFloat(payload.seed));
+		//vec2 offset = concentricMapping(aperture / 2.0, next(payload.h2), next(payload.h3));
+		vec4 origin = ubo.viewInverse * vec4(offset,0,1);
+		vec4 target = ubo.projInverse * vec4(ndc.x, ndc.y, 1, 1);
+		vec4 direction = ubo.viewInverse * vec4(normalize(target.xyz * focusDistance - vec3(offset, 0)), 0);
 
 		uint rayFlags = gl_RayFlagsOpaqueNV;
 		uint cullMask = 0xff;
@@ -86,7 +78,7 @@ void main() {
 		float tmax = 1000.0;
 
 		vec3 bounceColor = vec3(1);
-		 for(int i = 0; i < 5; i++) {
+		 for(int i = 0; i < 20; i++) {
 		 	traceNV(topLevelAS, rayFlags, cullMask, 0, 0, 0, origin.xyz, tmin, direction.xyz, tmax, 0);
 		 	bounceColor *= payload.attenuation.xyz;
 
@@ -96,9 +88,19 @@ void main() {
 		 }
 		color += bounceColor;
 	}
-	color = color/samples;
-	color = sqrt(color);
-	imageStore(image, ivec2(gl_LaunchIDNV.xy), vec4(color, 1.0));
+
+	if(resetAccumulationImage) {
+		vec3 pixelColor = color / samples;
+		imageStore(accumulationImage, ivec2(gl_LaunchIDNV.xy), vec4(color, 1.0));
+		imageStore(image, ivec2(gl_LaunchIDNV.xy), vec4(sqrt(pixelColor), 1.0));
+	}
+	else {
+		vec4 accumulationPixel = imageLoad(accumulationImage, ivec2(gl_LaunchIDNV.xy));
+		accumulationPixel.xyz += color;
+		vec3 pixelColor = accumulationPixel.xyz / totalNrOfSamples;
+		imageStore(accumulationImage, ivec2(gl_LaunchIDNV.xy), vec4(accumulationPixel.xyz, 1));
+		imageStore(image, ivec2(gl_LaunchIDNV.xy), vec4(sqrt(pixelColor), 1.0));
+	}
 }
 
 @miss
@@ -112,11 +114,6 @@ void main()  {
 
 @proc-int
 hitAttributeNV vec4 hitAttribute;
-
-layout(set = 0, binding = 1) readonly buffer Storage {
-	 StorageData storageData; 
-} storage;
-
 
 void main()
 {
@@ -150,11 +147,6 @@ void main()
 @proc-chit lambert
 hitAttributeNV vec4 hitAttribute;
 layout(location = 0) rayPayloadInNV PayLoad payload;
-layout(set = 2, binding = 0) uniform accelerationStructureNV topLevelAS;
-
-layout(set = 0, binding = 1) readonly buffer Storage {
-	 StorageData storageData; 
-} storage;
 
 void main() {
 	vec4 albedo = storage.storageData.albedos[gl_InstanceCustomIndexNV];
@@ -165,18 +157,18 @@ void main() {
 	vec3 normal = (hitPoint - center) / radius;
 
 	payload.attenuation = albedo;
-	payload.scatterDirection = vec4(normal + RandomInUnitSphere(payload.seed), gl_HitTNV);
+
+	//payload.scatterDirection = vec4(normal + randomInUnitSphereHalton(payload.h2, payload.h3), gl_HitTNV);
+	 payload.scatterDirection = vec4(normal + randomInUnitSphere(payload.seed), gl_HitTNV);
+	// vec2 rnd = vec2(rndFloat(payload.seed), rndFloat(payload.seed));
+	// vec3 boundsDirection = getBoundsDirection(rnd, normal);
+	// payload.scatterDirection = vec4(boundsDirection, gl_HitTNV);
 }
 
 @proc-chit metal
 
-layout(set = 0, binding = 1) readonly buffer Storage {
-	 StorageData storageData; 
-} storage;
-
 hitAttributeNV vec4 hitAttribute;
 layout(location = 0) rayPayloadInNV PayLoad payload;
-layout(set = 2, binding = 0) uniform accelerationStructureNV topLevelAS;
 
 void main() {
 	vec4 albedo = storage.storageData.albedos[gl_InstanceCustomIndexNV];
@@ -187,7 +179,7 @@ void main() {
 	vec3 normal = (hitPoint - center) / radius;
 
 	vec3 reflected = reflect(gl_WorldRayDirectionNV, normal);
-	payload.scatterDirection = vec4(reflected + RandomInUnitSphere(payload.seed)*albedo.w, gl_HitTNV);
+	payload.scatterDirection = vec4(reflected + randomInUnitSphere(payload.seed)*albedo.w, gl_HitTNV);
 	payload.attenuation = albedo;
 	payload.attenuation.w = dot(reflected, normal) > 0? 1: -1;
 }
@@ -212,13 +204,8 @@ float schlick(float cosine, float ref_idx) {
 	return r0 + (1-r0) * pow((1- cosine), 5);
 }
 
-layout(set = 0, binding = 1) readonly buffer Storage {
-	 StorageData storageData; 
-} storage;
-
 hitAttributeNV vec4 hitAttribute;
 layout(location = 0) rayPayloadInNV PayLoad payload;
-layout(set = 2, binding = 0) uniform accelerationStructureNV topLevelAS;
 
 void main() {
 	vec4 albedo = storage.storageData.albedos[gl_InstanceCustomIndexNV];
@@ -251,7 +238,7 @@ void main() {
 		payload.scatterDirection = vec4(reflected, gl_HitTNV);
 		reflect_prob = 1;
 	}
-	if(RandomFloat(payload.seed) < reflect_prob) {
+	if(rndFloat(payload.seed) < reflect_prob) {
 		payload.scatterDirection = vec4(reflected, gl_HitTNV);
 	} else {
 		payload.scatterDirection = vec4(refracted, gl_HitTNV);
