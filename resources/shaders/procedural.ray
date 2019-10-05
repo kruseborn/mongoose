@@ -61,7 +61,9 @@ void main() {
 	inUV.y = 1 - inUV.y;
 	vec2 ndc = inUV * 2.0 - 1.0;
 
-	uint seed = InitRandomSeed(InitRandomSeed(gl_LaunchIDNV.x, gl_LaunchIDNV.y), frameIndex);
+//	uint seed = InitRandomSeed(InitRandomSeed(gl_LaunchIDNV.x, gl_LaunchIDNV.y), 0);
+	uint seed = seedRnd(seedRnd(gl_LaunchIDNV.x, gl_LaunchIDNV.y), frameIndex);
+
 	payload.seed = seed;
 	vec3 color = vec3(0);
 	int samples = nrOfSamplesPerFrame;
