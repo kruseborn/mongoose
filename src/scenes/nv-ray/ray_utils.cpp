@@ -33,6 +33,27 @@ struct VkGeometryInstance {
   uint64_t accelerationStructureHandle;
 };
 
+static void createStorageImages(RayInfo *rayInfo) {
+  {
+    mg::CreateImageStorageInfo createImageStorageInfo = {};
+    createImageStorageInfo.format = mg::vkContext.swapChain->format;
+    createImageStorageInfo.id = "storage image";
+    createImageStorageInfo.size = {mg::vkContext.screen.width, mg::vkContext.screen.height, 1};
+    rayInfo->storageImageId = mg::mgSystem.storageContainer.createImageStorage(createImageStorageInfo);
+  }
+  {
+    mg::CreateImageStorageInfo createImageStorageInfo = {};
+    createImageStorageInfo.format = VK_FORMAT_R32G32B32A32_SFLOAT;
+    createImageStorageInfo.id = "accumulationImage";
+    createImageStorageInfo.size = {mg::vkContext.screen.width, mg::vkContext.screen.height, 1};
+    rayInfo->storageAccumulationImageID = mg::mgSystem.storageContainer.createImageStorage(createImageStorageInfo);
+  }
+}
+static void destroyStorageImges(RayInfo *rayInfo) {
+  mg::mgSystem.storageContainer.removeStorage(rayInfo->storageImageId);
+  mg::mgSystem.storageContainer.removeStorage(rayInfo->storageAccumulationImageID);
+}
+
 static void createAndBindASDeviceMemory(AccelerationStructure *levelAS) {
 
   VkAccelerationStructureMemoryRequirementsInfoNV memoryRequirementsInfo = {};
@@ -298,20 +319,7 @@ static VkPhysicalDeviceRayTracingPropertiesNV getRayTracingProperties(RayInfo *r
 }
 
 void createRayInfo(const World &world, RayInfo *rayInfo) {
-  {
-    mg::CreateImageStorageInfo createImageStorageInfo = {};
-    createImageStorageInfo.format = mg::vkContext.swapChain->format;
-    createImageStorageInfo.id = "storage image";
-    createImageStorageInfo.size = {mg::vkContext.screen.width, mg::vkContext.screen.height, 1};
-    rayInfo->storageImageId = mg::mgSystem.storageContainer.createImageStorage(createImageStorageInfo);
-  }
-  {
-    mg::CreateImageStorageInfo createImageStorageInfo = {};
-    createImageStorageInfo.format = VK_FORMAT_R32G32B32A32_SFLOAT;
-    createImageStorageInfo.id = "accumulationImage";
-    createImageStorageInfo.size = {mg::vkContext.screen.width, mg::vkContext.screen.height, 1};
-    rayInfo->storageAccumulationImageID = mg::mgSystem.storageContainer.createImageStorage(createImageStorageInfo);
-  }
+  createStorageImages(rayInfo);
   rayInfo->rayTracingProperties = getRayTracingProperties(rayInfo);
   createBottomLevelAccelerationStructureAabb(world, rayInfo);
   createTopLevelAccelerationStructure(rayInfo);
@@ -322,9 +330,13 @@ void createRayInfo(const World &world, RayInfo *rayInfo) {
   buildAccelerationStructures(*rayInfo, instanceBuffer, scratchBuffer);
 }
 
+void resetSizeStorageImages(RayInfo *rayInfo) {
+  destroyStorageImges(rayInfo);
+  createStorageImages(rayInfo);
+}
+
 void destroyRayInfo(RayInfo *rayInfo) {
-  mg::mgSystem.storageContainer.removeStorage(rayInfo->storageImageId);
-  mg::mgSystem.storageContainer.removeStorage(rayInfo->storageAccumulationImageID);
+  destroyStorageImges(rayInfo);
   mg::mgSystem.storageContainer.removeStorage(rayInfo->storageSpheresId);
 
   for (uint64_t i = 0; i < rayInfo->bottomLevelASs.size(); i++) {

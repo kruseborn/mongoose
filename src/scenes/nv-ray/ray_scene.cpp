@@ -7,7 +7,6 @@
 #include "mg/tools.h"
 #include "mg/window.h"
 #include "ray_rendering.h"
-#include "ray_renderpass.h"
 #include "ray_utils.h"
 #include "rendering/rendering.h"
 #include "vulkan/vkContext.h"
@@ -79,9 +78,12 @@ void destroyScene() {
 
 void updateScene(const mg::FrameData &frameData) {
   if (frameData.resize) {
-    // resizerayRenderPass(&rayRenderPass);
+    rayinfo.resetAccumulationImage = true;
+    mg::resizeSingleRenderPass(&singleRenderPass);
+    resetSizeStorageImages(&rayinfo);
   }
   if (frameData.keys.r) {
+    rayinfo.resetAccumulationImage = true;
     mg::mgSystem.pipelineContainer.resetPipelineContainer();
   }
   if (frameData.mouse.left) {

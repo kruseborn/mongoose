@@ -6,8 +6,6 @@ mg_cc_executable(
         ray_scene.cpp
         ray_rendering.h
         ray_rendering.cpp
-		ray_renderpass.h
-		ray_renderpass.cpp
         ray_main.cpp
         ray_utils.h
         ray_utils.cpp

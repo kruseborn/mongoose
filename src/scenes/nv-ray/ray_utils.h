@@ -45,3 +45,4 @@ inline void addSphere(const Sphere &sphere) {
 
 void createRayInfo(const World &world, RayInfo *rayInfo);
 void destroyRayInfo(RayInfo *rayInfo);
+void resetSizeStorageImages(RayInfo *rayInfo);

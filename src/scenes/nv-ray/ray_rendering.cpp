@@ -3,7 +3,6 @@
 #include "mg/geometryUtils.h"
 #include "mg/mgSystem.h"
 #include "mg/window.h"
-#include "ray_renderpass.h"
 #include "ray_utils.h"
 #include "rendering/rendering.h"
 #include "vulkan/shaders.h"
@@ -93,8 +92,7 @@ void traceTriangle(const World &world, const mg::Camera &camera, const mg::Rende
   ubo->attrib = {++frame, world.blueNoise.index, nrOfSamplesPerFrame, totalNrOfSamples};
   ubo->cameraPosition = {camera.position.x, camera.position.y, camera.position.z,
                          rayInfo.resetAccumulationImage ? 1.0f : 0.0f};
-  ubo->cameraLookat = {camera.aim.x, camera.aim.y, camera.aim.z,
-                         rayInfo.resetAccumulationImage ? 1.0f : 0.0f};
+  ubo->cameraLookat = {camera.aim.x, camera.aim.y, camera.aim.z, rayInfo.resetAccumulationImage ? 1.0f : 0.0f};
 
   auto storageImage = mg::mgSystem.storageContainer.getStorage(rayInfo.storageImageId);
   auto storageAccumulationImage = mg::mgSystem.storageContainer.getStorage(rayInfo.storageAccumulationImageID);
