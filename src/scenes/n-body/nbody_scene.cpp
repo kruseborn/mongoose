@@ -29,6 +29,7 @@ void initScene() {
 }
 
 void destroyScene() {
+  mg::mgSystem.storageContainer.removeStorage(computeData.storageId);
   mg::waitForDeviceIdle();
   destroyNBodyRenderPass(&nbodyRenderPass);
 }

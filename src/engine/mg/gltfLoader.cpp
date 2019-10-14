@@ -327,12 +327,4 @@ GltfMeshes parseGltf(const std::string &id, const std::string &path, const std::
   return gltfMeshes;
 }
 
-void parseObjFile(const std::string &id, const std::string &path, const std::string &name) {
-
-
-}
-
-
-
-
 } // namespace mg

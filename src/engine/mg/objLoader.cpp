@@ -286,10 +286,10 @@ ObjMeshes loadObjFromFile(const std::string &filename) {
           if (comp == 3) {
             const auto rgba = resizeRGBToRGBA(image, w * h);
             createTextureInfo.data = (void *)rgba.data();
-            mg::mgSystem.textureContainer.createTexture(createTextureInfo);
+            //mg::mgSystem.textureContainer.createTexture(createTextureInfo);
           } else if (comp == 4) {
             createTextureInfo.data = image;
-            mg::mgSystem.textureContainer.createTexture(createTextureInfo);
+            //mg::mgSystem.textureContainer.createTexture(createTextureInfo);
           } else
             mgAssert(false);
           loadedTextures.insert(mp->diffuse_texname);

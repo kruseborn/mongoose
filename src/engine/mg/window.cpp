@@ -68,14 +68,14 @@ FrameData getFrameData() {
   static uint64_t frames = 0;
   frames++;
 
-  currentTime = getCurrentTimeUs();
+currentTime = getCurrentTimeUs();
   const auto newDt = (currentTime - prevTime) / 100000.0f;
-  frameData.dt = newDt;
+  frameData.dt = frameData.dt * 0.99f + 0.01f * newDt;
   prevTime = getCurrentTimeUs();
   const auto newFps = frames / ((currentTime - startTime) / 1000000.0);
   if (frameData.fps == 0)
     frameData.fps = uint32_t(newFps);
-  frameData.fps = uint32_t(frameData.fps * 0.05f + 0.95f * newFps);
+  frameData.fps = uint32_t(frameData.fps * 0.1 + 0.9 * newFps);
 
   int32_t width, height;
   glfwGetWindowSize(window, &width, &height);
