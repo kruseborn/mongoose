@@ -3,15 +3,14 @@
 #include "mg/fonts.h"
 #include "mg/mgSystem.h"
 #include "mg/texts.h"
-#include <glm/gtc/matrix_transform.hpp>
 #include <cmath>
+#include <glm/gtc/matrix_transform.hpp>
 
 namespace mg {
 
 static mg::Pipeline createFontPipeline(const mg::RenderContext &renderContext) {
   using namespace mg::shaders::fontRendering;
 
-  const auto pipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
   mg::PipelineStateDesc pipelineStateDesc = {};
   pipelineStateDesc.rasterization.vkRenderPass = renderContext.renderPass;
   pipelineStateDesc.rasterization.vkPipelineLayout = vkContext.pipelineLayouts.pipelineLayout;
@@ -64,7 +63,8 @@ static std::vector<glm::vec4> getTextsVertexBufferData(mg::FONT_TYPE fontType, c
       charVectorData.push_back(text.color);
       charVectorData.push_back(glm::vec4{corner_pos.x + size.x, corner_pos.y, glyphPosition + glyphWidth, glyphHeight});
       charVectorData.push_back(text.color);
-      charVectorData.push_back(glm::vec4{corner_pos.x + size.x, corner_pos.y + size.y, glyphPosition + glyphWidth, 0.0f});
+      charVectorData.push_back(
+          glm::vec4{corner_pos.x + size.x, corner_pos.y + size.y, glyphPosition + glyphWidth, 0.0f});
       charVectorData.push_back(text.color);
       // Now advance cursors for next glyph
       position.x += character.advance;
@@ -84,9 +84,11 @@ static void renderCharacters(const mg::RenderContext &renderContext, const mg::F
   uint32_t uniformOffset;
   VkDescriptorSet uboSet;
 
-  Ubo *dynamic = (Ubo*)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
+  Ubo *dynamic =
+      (Ubo *)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
 
-  dynamic->projection = glm::ortho(0.0f, float(mg::vkContext.screen.width), 0.0f, float(mg::vkContext.screen.height), -10.0f, 10.0f);
+  dynamic->projection =
+      glm::ortho(0.0f, float(mg::vkContext.screen.width), 0.0f, float(mg::vkContext.screen.height), -10.0f, 10.0f);
 
   DescriptorSets descriptorSets = {};
   descriptorSets.ubo = uboSet;
@@ -94,7 +96,8 @@ static void renderCharacters(const mg::RenderContext &renderContext, const mg::F
 
   uint32_t dynamicOffsets[] = {uniformOffset, 0};
   vkCmdBindDescriptorSets(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.layout, 0,
-                          mg::countof(descriptorSets.values), descriptorSets.values, mg::countof(dynamicOffsets), dynamicOffsets);
+                          mg::countof(descriptorSets.values), descriptorSets.values, mg::countof(dynamicOffsets),
+                          dynamicOffsets);
 
   TextureIndices textureIndices = {};
   textureIndices.textureIndex = mg::getTexture2DDescriptorIndex(fonts.getFontGlyphMap(fontType));
@@ -107,7 +110,8 @@ static void renderCharacters(const mg::RenderContext &renderContext, const mg::F
   VkDeviceSize buffer_offset;
   const uint32_t vertexCount = uint32_t(charVectorData.size() / 2); // positions and colors
   uint32_t totalSize = sizeof(VertexInputData) * vertexCount;
-  auto *vertices = (VertexInputData *)mg::mgSystem.linearHeapAllocator.allocateBuffer(totalSize, &buffer, &buffer_offset);
+  auto *vertices =
+      (VertexInputData *)mg::mgSystem.linearHeapAllocator.allocateBuffer(totalSize, &buffer, &buffer_offset);
   memcpy(vertices, charVectorData.data(), totalSize);
 
   vkCmdBindVertexBuffers(mg::vkContext.commandBuffer, 0, 1, &buffer, &buffer_offset);
@@ -121,7 +125,8 @@ void renderText(const mg::RenderContext &renderContext, const mg::Texts &texts) 
       continue;
 
     const auto fontType = (mg::FONT_TYPE)i;
-    const auto &vertexBufferData = getTextsVertexBufferData(fontType, fontsToTexts[i], texts.textsPerFont[i], mg::mgSystem.fonts);
+    const auto &vertexBufferData =
+        getTextsVertexBufferData(fontType, fontsToTexts[i], texts.textsPerFont[i], mg::mgSystem.fonts);
     mgAssert(vertexBufferData.size() != 0);
     renderCharacters(renderContext, fontType, vertexBufferData, mg::mgSystem.fonts);
   }
