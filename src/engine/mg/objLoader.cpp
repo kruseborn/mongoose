@@ -171,7 +171,7 @@ static ObjMeshes readObjFromBinary(std::ifstream &offsets, const std::string &na
     createMeshInfo.id = "mesh" + std::to_string(i);
     createMeshInfo.vertices = (unsigned char *)&binary[currentOffset];
     createMeshInfo.verticesSizeInBytes = vertexsize;
-    createMeshInfo.nrOfIndices = vertexsize / (sizeof(float)* (3+3+2));
+    createMeshInfo.nrOfIndices = vertexsize / (sizeof(float) * (3 + 3 + 2));
 
     currentOffset += vertexsize;
 
@@ -234,7 +234,7 @@ ObjMeshes loadObjFromFile(const std::string &filename) {
   }
 
   const auto end = mg::timer::now();
-  printf("Parsing time: %llu [ms]\n", mg::timer::durationInMs(start, end));
+  printf("Parsing time: %llu [ms]\n", (unsigned long long)(mg::timer::durationInMs(start, end)));
 
   printf("# of vertices  = %d\n", (int32_t)(attrib.vertices.size()) / 3);
   printf("# of normals   = %d\n", (int32_t)(attrib.normals.size()) / 3);
@@ -286,10 +286,10 @@ ObjMeshes loadObjFromFile(const std::string &filename) {
           if (comp == 3) {
             const auto rgba = resizeRGBToRGBA(image, w * h);
             createTextureInfo.data = (void *)rgba.data();
-            //mg::mgSystem.textureContainer.createTexture(createTextureInfo);
+            // mg::mgSystem.textureContainer.createTexture(createTextureInfo);
           } else if (comp == 4) {
             createTextureInfo.data = image;
-            //mg::mgSystem.textureContainer.createTexture(createTextureInfo);
+            // mg::mgSystem.textureContainer.createTexture(createTextureInfo);
           } else
             mgAssert(false);
           loadedTextures.insert(mp->diffuse_texname);
@@ -320,7 +320,8 @@ ObjMeshes loadObjFromFile(const std::string &filename) {
 
         if ((current_material_id < 0) || (current_material_id >= static_cast<int>(materials.size()))) {
           // Invaid material ID. Use default material.
-          current_material_id = int32_t(materials.size()) - 1; // Default material is added to the last item in `materials`.
+          current_material_id =
+              int32_t(materials.size()) - 1; // Default material is added to the last item in `materials`.
         }
         float diffuse[3];
         for (size_t i = 0; i < 3; i++) {
@@ -448,7 +449,7 @@ ObjMeshes loadObjFromFile(const std::string &filename) {
       // OpenGL viewer does not support texturing with per-face material.
       if (shapes[s].mesh.material_ids.size() > 0 && shapes[s].mesh.material_ids.size() > s) {
         o.materialId = shapes[s].mesh.material_ids[0]; // use the material ID
-                                                        // of the first face.
+                                                       // of the first face.
       } else {
         o.materialId = int32_t(materials.size()) - 1; // = ID for default material.
       }
@@ -482,7 +483,7 @@ ObjMeshes loadObjFromFile(const std::string &filename) {
 
   outputs.materials.write((char *)tinyObjMeshes.materials.data(), mg::sizeofContainerInBytes(tinyObjMeshes.materials));
   outputs.mesh.write((char *)tinyObjMeshes.meshes.data(), mg::sizeofContainerInBytes(tinyObjMeshes.meshes));
-  
+
   return tinyObjMeshes;
 }
 

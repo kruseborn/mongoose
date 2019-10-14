@@ -292,8 +292,6 @@ static void createLogicalDevice() {
   enabledFeatures.shaderClipDistance = VK_TRUE;
   enabledFeatures.shaderCullDistance = VK_TRUE;
 
-  bool hasMaintenance1Extension = false;
-  bool hasAmdExtension = false;
   const char *deviceExtensions[6] = {VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME,
                                      VK_KHR_MAINTENANCE3_EXTENSION_NAME,
                                      VK_KHR_MAINTENANCE1_EXTENSION_NAME,

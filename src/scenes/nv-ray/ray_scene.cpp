@@ -9,8 +9,8 @@
 #include "ray_rendering.h"
 #include "ray_utils.h"
 #include "rendering/rendering.h"
-#include "vulkan/vkContext.h"
 #include "sobol.h"
+#include "vulkan/vkContext.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <random>
 
@@ -28,7 +28,7 @@ glm::vec4 toVec4(const glm::vec3 &v, float s) { return glm::vec4{v.x, v.y, v.z, 
 // http://gruenschloss.org/
 static void generateSobol() {
   constexpr uint32_t size = 2048 * 4;
-  float sequence[size]; 
+  float sequence[size];
   for (uint32_t i = 0; i < size; i += 4) {
     int index = i + 10;
     sequence[i] = sobol::sample(index, 2);
@@ -52,7 +52,6 @@ void initScene() {
 
   generator.seed(2);
 
-  const int n = 500;
   addSphere({.world = &world,
              .position = {0, -1000.0f, 0, 1000.0f},
              .albedo = {0.5f, 0.5f, 0.5f, 1},

@@ -15,7 +15,6 @@
 static mg::Pipeline createMRTPipeline(const mg::RenderContext &renderContext) {
   using namespace mg::shaders::mrt;
 
-  const auto pipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
   mg::PipelineStateDesc pipelineStateDesc = {};
   pipelineStateDesc.rasterization.vkRenderPass = renderContext.renderPass;
   pipelineStateDesc.rasterization.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
@@ -36,14 +35,13 @@ static mg::Pipeline createMRTPipeline(const mg::RenderContext &renderContext) {
 void renderMRT(const mg::RenderContext &renderContext, const mg::ObjMeshes &objMeshes) {
   using namespace mg::shaders::mrt;
 
-  using VertexInputData = InputAssembler::VertexInputData;
-
   const auto mrtPipeline = createMRTPipeline(renderContext);
 
   VkBuffer uniformBuffer;
   uint32_t uniformOffset;
   VkDescriptorSet uboSet;
-  Ubo *dynamic = (Ubo *)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
+  Ubo *dynamic =
+      (Ubo *)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
 
   dynamic->projection = renderContext.projection;
   dynamic->view = renderContext.view;
@@ -55,7 +53,8 @@ void renderMRT(const mg::RenderContext &renderContext, const mg::ObjMeshes &objM
 
   uint32_t dynamicOffsets[] = {uniformOffset, 0};
   vkCmdBindDescriptorSets(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mrtPipeline.layout, 0,
-                          mg::countof(descriptorSets.values), descriptorSets.values, mg::countof(dynamicOffsets), dynamicOffsets);
+                          mg::countof(descriptorSets.values), descriptorSets.values, mg::countof(dynamicOffsets),
+                          dynamicOffsets);
   vkCmdBindPipeline(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mrtPipeline.pipeline);
 
   for (uint32_t i = 0; i < objMeshes.meshes.size(); i++) {
@@ -65,8 +64,8 @@ void renderMRT(const mg::RenderContext &renderContext, const mg::ObjMeshes &objM
 
     VkDeviceSize offset = 0;
     vkCmdBindVertexBuffers(mg::vkContext.commandBuffer, 0, 1, &mesh.buffer, &offset);
-    vkCmdPushConstants(mg::vkContext.commandBuffer, mrtPipeline.layout, VK_SHADER_STAGE_ALL, 0, sizeof(material.diffuse),
-                       (void *)&material.diffuse);
+    vkCmdPushConstants(mg::vkContext.commandBuffer, mrtPipeline.layout, VK_SHADER_STAGE_ALL, 0,
+                       sizeof(material.diffuse), (void *)&material.diffuse);
     vkCmdDraw(mg::vkContext.commandBuffer, mesh.indexCount, 1, 0, 0);
   }
 }
@@ -74,7 +73,6 @@ void renderMRT(const mg::RenderContext &renderContext, const mg::ObjMeshes &objM
 static mg::Pipeline createSSAOPipeline(const mg::RenderContext &renderContext) {
   using namespace mg::shaders::ssao;
 
-  const auto pipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
   mg::PipelineStateDesc pipelineStateDesc = {};
   pipelineStateDesc.rasterization.vkRenderPass = renderContext.renderPass;
   pipelineStateDesc.rasterization.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
@@ -88,15 +86,17 @@ static mg::Pipeline createSSAOPipeline(const mg::RenderContext &renderContext) {
   return ssaoPipeline;
 }
 
-void renderSSAO(const mg::RenderContext &renderContext, const DeferredRenderPass &deferredRenderPass, const Noise &noise) {
+void renderSSAO(const mg::RenderContext &renderContext, const DeferredRenderPass &deferredRenderPass,
+                const Noise &noise) {
   using namespace mg::shaders::ssao;
-  
+
   const auto ssaoPipeline = createSSAOPipeline(renderContext);
 
   VkBuffer uniformBuffer;
   uint32_t uniformOffset;
   VkDescriptorSet uboSet;
-  Ubo *dynamic = (Ubo *)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
+  Ubo *dynamic =
+      (Ubo *)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
 
   std::memcpy(dynamic->kernel, noise.ssaoKernel.kernel, mg::sizeofArrayInBytes(noise.ssaoKernel.kernel));
   dynamic->projection = renderContext.projection;
@@ -108,7 +108,8 @@ void renderSSAO(const mg::RenderContext &renderContext, const DeferredRenderPass
 
   uint32_t dynamicOffsets[] = {uniformOffset, 0};
   vkCmdBindDescriptorSets(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, ssaoPipeline.layout, 0,
-                          mg::countof(descriptorSets.values), descriptorSets.values, mg::countof(dynamicOffsets), dynamicOffsets);
+                          mg::countof(descriptorSets.values), descriptorSets.values, mg::countof(dynamicOffsets),
+                          dynamicOffsets);
 
   TextureIndices textureIndices = {};
   textureIndices.normalIndex = mg::getTexture2DDescriptorIndex(deferredRenderPass.normal);
@@ -124,7 +125,6 @@ void renderSSAO(const mg::RenderContext &renderContext, const DeferredRenderPass
 static mg::Pipeline createSSAOBlurPipeline(const mg::RenderContext &renderContext) {
   using namespace mg::shaders::ssaoBlur;
 
-  const auto pipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
   mg::PipelineStateDesc pipelineStateDesc = {};
   pipelineStateDesc.rasterization.vkRenderPass = renderContext.renderPass;
   pipelineStateDesc.rasterization.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
@@ -145,7 +145,8 @@ void renderBlurSSAO(const mg::RenderContext &renderContext, const DeferredRender
   VkBuffer uniformBuffer;
   uint32_t uniformOffset;
   VkDescriptorSet uboSet;
-  Ubo *dynamic = (Ubo *)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
+  Ubo *dynamic =
+      (Ubo *)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
   dynamic->size = glm::vec2(mg::vkContext.screen.width, mg::vkContext.screen.height);
 
   const auto ssaoTexture = mg::getTexture(deferredRenderPass.ssao);
@@ -156,13 +157,13 @@ void renderBlurSSAO(const mg::RenderContext &renderContext, const DeferredRender
 
   uint32_t dynamicOffsets[] = {uniformOffset, 0};
   vkCmdBindDescriptorSets(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, ssaoBlurPipeline.layout, 0,
-                          mg::countof(descriptorSets.values), descriptorSets.values, mg::countof(dynamicOffsets), dynamicOffsets);
+                          mg::countof(descriptorSets.values), descriptorSets.values, mg::countof(dynamicOffsets),
+                          dynamicOffsets);
 
   TextureIndices textureIndices = {};
   textureIndices.ssaoIndex = mg::getTexture2DDescriptorIndex(deferredRenderPass.ssao);
   vkCmdPushConstants(mg::vkContext.commandBuffer, ssaoBlurPipeline.layout, VK_SHADER_STAGE_ALL, 0,
-                     sizeof(TextureIndices),
-                     &textureIndices);
+                     sizeof(TextureIndices), &textureIndices);
 
   vkCmdBindPipeline(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, ssaoBlurPipeline.pipeline);
   vkCmdDraw(mg::vkContext.commandBuffer, 3, 1, 0, 0);
@@ -208,7 +209,8 @@ void renderFinalDeferred(const mg::RenderContext &renderContext, const DeferredR
   VkBuffer uniformBuffer;
   uint32_t uniformOffset;
   VkDescriptorSet uboSet;
-  Ubo *dynamic = (Ubo *)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
+  Ubo *dynamic =
+      (Ubo *)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
 
   dynamic->view = renderContext.view;
   dynamic->projection = renderContext.projection;
@@ -225,7 +227,8 @@ void renderFinalDeferred(const mg::RenderContext &renderContext, const DeferredR
 
   uint32_t dynamicOffsets[] = {uniformOffset, 0};
   vkCmdBindDescriptorSets(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, deferredPipeline.layout, 0,
-                          mg::countof(descriptorSets.values), descriptorSets.values, mg::countof(dynamicOffsets), dynamicOffsets);
+                          mg::countof(descriptorSets.values), descriptorSets.values, mg::countof(dynamicOffsets),
+                          dynamicOffsets);
 
   TextureIndices textureIndices = {};
   textureIndices.diffuseIndex = mg::getTexture2DDescriptorIndex(deferredRenderPass.albedo);

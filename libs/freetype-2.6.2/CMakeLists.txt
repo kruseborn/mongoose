@@ -335,8 +335,10 @@ add_library(freetype
   ${BASE_SRCS}
 )
 
+if(WIN32)
+  target_compile_options(freetype PRIVATE "/wd4312")
+endif()
 
-target_compile_options(freetype PRIVATE "/wd4312")
 if (BUILD_SHARED_LIBS)
   set_target_properties(freetype PROPERTIES
     VERSION ${PROJECT_VERSION}

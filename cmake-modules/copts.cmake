@@ -1,7 +1,9 @@
 list(APPEND LLVM_FLAGS
-    "-Wno-missing-braces"
-    "-Wno-format-security"
-    "-Wno-unused-variable"
+    "-Wno-gnu-anonymous-struct"
+    "-Wno-nested-anon-types"
+    "-mavx"
+    "-Wall"
+    "-Werror"
 )
 
 list(APPEND MSVC_FLAGS
@@ -12,7 +14,7 @@ list(APPEND MSVC_FLAGS
     "/D_CRT_SECURE_NO_WARNINGS"
     "/D_SCL_SECURE_NO_WARNINGS"
     "/D_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS"
-	"/std:c++latest"
+	  "/std:c++latest"
 )
 
 macro(fix_default_compiler_settings_)

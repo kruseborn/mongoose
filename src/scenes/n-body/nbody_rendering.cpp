@@ -20,7 +20,8 @@ static void transformVelocities(const ComputeData &computeData, const mg::FrameD
   VkBuffer uniformBuffer;
   uint32_t uniformOffset;
   VkDescriptorSet uboSet;
-  Ubo *ubo = (Ubo *)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
+  Ubo *ubo =
+      (Ubo *)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
   ubo->dt = frameData.dt;
 
   DescriptorSets descriptorSets = {};
@@ -31,7 +32,8 @@ static void transformVelocities(const ComputeData &computeData, const mg::FrameD
 
   uint32_t dynamicOffsets[] = {uniformOffset, 0};
   vkCmdBindDescriptorSets(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline.layout, 0,
-                          mg::countof(descriptorSets.values), descriptorSets.values, mg::countof(dynamicOffsets), dynamicOffsets);
+                          mg::countof(descriptorSets.values), descriptorSets.values, mg::countof(dynamicOffsets),
+                          dynamicOffsets);
 
   // transform velocity
   vkCmdDispatch(mg::vkContext.commandBuffer, computeData.nrOfParticles / computeData.workgroupSize, 1, 1);
@@ -43,8 +45,8 @@ static void transformVelocities(const ComputeData &computeData, const mg::FrameD
   vkBufferMemoryBarrier.buffer = storage.buffer;
   vkBufferMemoryBarrier.size = storage.size;
 
-  vkCmdPipelineBarrier(mg::vkContext.commandBuffer, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, 0,
-                       0, nullptr, 1, &vkBufferMemoryBarrier, 0, nullptr);
+  vkCmdPipelineBarrier(mg::vkContext.commandBuffer, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+                       VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, 0, 0, nullptr, 1, &vkBufferMemoryBarrier, 0, nullptr);
 }
 
 void transformPositions(const ComputeData &computeData, const mg::FrameData &frameData) {
@@ -53,15 +55,15 @@ void transformPositions(const ComputeData &computeData, const mg::FrameData &fra
   mg::PipelineStateDesc pipelineStateDesc = {};
   pipelineStateDesc.compute.pipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayoutStorage;
 
-  const auto pipeline =
-      mg::mgSystem.pipelineContainer.createComputePipeline(pipelineStateDesc, {.shaderName = shader});
+  const auto pipeline = mg::mgSystem.pipelineContainer.createComputePipeline(pipelineStateDesc, {.shaderName = shader});
 
   auto storage = mg::mgSystem.storageContainer.getStorage(computeData.storageId);
 
   VkBuffer uniformBuffer;
   uint32_t uniformOffset;
   VkDescriptorSet uboSet;
-  Ubo *ubo = (Ubo *)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
+  Ubo *ubo =
+      (Ubo *)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
   ubo->dt = frameData.dt;
 
   DescriptorSets descriptorSets = {};
@@ -72,7 +74,8 @@ void transformPositions(const ComputeData &computeData, const mg::FrameData &fra
 
   uint32_t dynamicOffsets[] = {uniformOffset, 0};
   vkCmdBindDescriptorSets(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline.layout, 0,
-                          mg::countof(descriptorSets.values), descriptorSets.values, mg::countof(dynamicOffsets), dynamicOffsets);
+                          mg::countof(descriptorSets.values), descriptorSets.values, mg::countof(dynamicOffsets),
+                          dynamicOffsets);
 
   vkCmdDispatch(mg::vkContext.commandBuffer, computeData.nrOfParticles / computeData.workgroupSize, 1, 1);
 
@@ -83,8 +86,8 @@ void transformPositions(const ComputeData &computeData, const mg::FrameData &fra
   vkBufferMemoryBarrier.buffer = storage.buffer;
   vkBufferMemoryBarrier.size = storage.size;
 
-  vkCmdPipelineBarrier(mg::vkContext.commandBuffer, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, 0,
-                       0, nullptr, 1, &vkBufferMemoryBarrier, 0, nullptr);
+  vkCmdPipelineBarrier(mg::vkContext.commandBuffer, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+                       VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, 0, 0, nullptr, 1, &vkBufferMemoryBarrier, 0, nullptr);
 }
 
 void simulatePartices(const ComputeData &computeData, const mg::FrameData &frameData) {
@@ -113,17 +116,16 @@ void renderParticels(mg::RenderContext &renderContext, const ComputeData &comput
 
   const auto pipeline = mg::mgSystem.pipelineContainer.createPipeline(pipelineStateDesc, createPipelineInfo);
 
-  using VertexInputData = InputAssembler::VertexInputData;
-
   VkBuffer uniformBuffer;
   uint32_t uniformOffset;
   VkDescriptorSet uboSet;
-  Ubo *ubo = (Ubo *)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
+  Ubo *ubo =
+      (Ubo *)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
 
   glm::mat4 projectionMatrix, viewMatrix;
 
-  projectionMatrix =
-      glm::perspective(glm::radians(45.0f), mg::vkContext.screen.width / float(mg::vkContext.screen.height), 0.1f, 256.f);
+  projectionMatrix = glm::perspective(glm::radians(45.0f),
+                                      mg::vkContext.screen.width / float(mg::vkContext.screen.height), 0.1f, 256.f);
   viewMatrix = glm::lookAt(camera.position, camera.aim, camera.up);
 
   ubo->modelview = viewMatrix;
@@ -136,7 +138,8 @@ void renderParticels(mg::RenderContext &renderContext, const ComputeData &comput
 
   uint32_t dynamicOffsets[] = {uniformOffset, 0};
   vkCmdBindDescriptorSets(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.layout, 0,
-                          mg::countof(descriptorSets.values), descriptorSets.values, mg::countof(dynamicOffsets), dynamicOffsets);
+                          mg::countof(descriptorSets.values), descriptorSets.values, mg::countof(dynamicOffsets),
+                          dynamicOffsets);
 
   TextureIndices textureIndices = {};
   textureIndices.textureIndex = mg::getTexture2DDescriptorIndex(computeData.particleId);
@@ -177,7 +180,8 @@ void renderToneMapping(const mg::RenderContext &renderContext, const NBodyRender
   VkBuffer uniformBuffer;
   uint32_t uniformOffset;
   VkDescriptorSet uboSet;
-  Ubo *ubo = (Ubo *)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
+  Ubo *ubo =
+      (Ubo *)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
   ubo->color = glm::vec4{0, 0, 0, 0};
 
   DescriptorSets descriptorSets = {};
@@ -186,7 +190,8 @@ void renderToneMapping(const mg::RenderContext &renderContext, const NBodyRender
 
   uint32_t dynamicOffsets[] = {uniformOffset, 0};
   vkCmdBindDescriptorSets(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.layout, 0,
-                          mg::countof(descriptorSets.values), descriptorSets.values, mg::countof(dynamicOffsets), dynamicOffsets);
+                          mg::countof(descriptorSets.values), descriptorSets.values, mg::countof(dynamicOffsets),
+                          dynamicOffsets);
 
   TextureIndices textureIndices = {};
   textureIndices.textureIndex = mg::getTexture2DDescriptorIndex(nBodyRenderPass.toneMapping);
