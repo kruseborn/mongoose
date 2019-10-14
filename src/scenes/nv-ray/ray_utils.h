@@ -16,6 +16,7 @@ struct RayInfo {
   mg::StorageId storageImageId;
   mg::StorageId storageAccumulationImageID;
   mg::StorageId storageSpheresId;
+  mg::TextureId sobolId;
   VkDescriptorSet topLevelASDescriptorSet;
   mg::MeshId triangleId;
   bool resetAccumulationImage;

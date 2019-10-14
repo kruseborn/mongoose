@@ -90,6 +90,7 @@ void traceTriangle(const World &world, const mg::Camera &camera, const mg::Rende
     totalNrOfSamples = nrOfSamplesPerFrame;
 
   ubo->attrib = {++frame, world.blueNoise.index, nrOfSamplesPerFrame, totalNrOfSamples};
+  ubo->sobolId = {float(rayInfo.sobolId.index),0,0,0};
   ubo->cameraPosition = {camera.position.x, camera.position.y, camera.position.z,
                          rayInfo.resetAccumulationImage ? 1.0f : 0.0f};
   ubo->cameraLookat = {camera.aim.x, camera.aim.y, camera.aim.z, rayInfo.resetAccumulationImage ? 1.0f : 0.0f};

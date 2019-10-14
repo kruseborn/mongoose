@@ -9,6 +9,8 @@ mg_cc_executable(
         ray_main.cpp
         ray_utils.h
         ray_utils.cpp
+        sobol.h
+        sobol.cpp
     COPTS
         ${CPP_FLAGS}
     DEPS

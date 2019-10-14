@@ -10,6 +10,7 @@
 #include "ray_utils.h"
 #include "rendering/rendering.h"
 #include "vulkan/vkContext.h"
+#include "sobol.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <random>
 
@@ -24,7 +25,29 @@ float rng() { return std::generate_canonical<float, std::numeric_limits<double>:
 
 glm::vec4 toVec4(const glm::vec3 &v, float s) { return glm::vec4{v.x, v.y, v.z, s}; }
 
+// http://gruenschloss.org/
+static void generateSobol() {
+  constexpr uint32_t size = 2048 * 4;
+  float sequence[size]; 
+  for (uint32_t i = 0; i < size; i += 4) {
+    int index = i + 10;
+    sequence[i] = sobol::sample(index, 2);
+    sequence[i + 1] = sobol::sample(index, 3);
+    sequence[i + 2] = sobol::sample(index, 5);
+    sequence[i + 3] = sobol::sample(index, 7);
+  }
+  mg::CreateTextureInfo texturInfo = {.id = "sobol",
+                                      .type = mg::TEXTURE_TYPE::TEXTURE_2D,
+                                      .format = VK_FORMAT_R32G32B32A32_SFLOAT,
+                                      .size = {2048, 1, 1},
+                                      .sizeInBytes = sizeof(sequence),
+                                      .data = sequence};
+
+  rayinfo.sobolId = mg::mgSystem.textureContainer.createTexture(texturInfo);
+}
+
 void initScene() {
+  generateSobol();
   world.blueNoise = mg::uploadPngImage("HDR_RGBA_0.png");
 
   generator.seed(2);

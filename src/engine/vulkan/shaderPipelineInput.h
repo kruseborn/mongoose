@@ -321,6 +321,7 @@ struct Ubo {
   glm::vec4 cameraPosition;
   glm::vec4 cameraLookat;
   glm::vec4 attrib;
+  glm::vec4 sobolId;
 };
 struct Storage {
   struct StorageData {

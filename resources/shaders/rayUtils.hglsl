@@ -1,38 +1,4 @@
 #define PI                 3.14159265358979323846264338327950
-#define TWOPI              6.28318530717958646
-#define HALFPI             1.570796326794897
-#define QUARTERPI          0.7853981633974483
-
-struct HaltonState {
-  float value, invBase;
-};
-
-HaltonState initHalton(int i, int base) {
-  HaltonState hstate;
-  float f = hstate.invBase = 1.0 / base;
-  hstate.value = 0.0;
-  while (i > 0) {
-    hstate.value += f * (i % base);
-    i /= base;
-    f *= hstate.invBase;
-  }
-  return hstate;
-}
-
-float next(inout HaltonState hstate) {
-  float r = 1.0 - hstate.value - 0.0000001;
-  if (hstate.invBase < r)
-    hstate.value += hstate.invBase;
-  else {
-    float h = hstate.invBase, hh;
-    do {
-      hh = h;
-      h *= hstate.invBase;
-    } while (h >= r);
-    hstate.value += hh + h - 1.0;
-  }
-  return hstate.value;
-}
 
 // https://en.wikipedia.org/wiki/Pairing_function
 uint seedRnd(uint k1, uint k2) {
@@ -47,6 +13,7 @@ float rndFloat(inout uint rng) {
     return rng / float(l);
 }
 
+// Ray Tracing in One Weekend, Peter Shirley
 vec3 randomInUnitSphere(inout uint seed) {
   while(true) {
     const vec3 p = 2 * vec3(rndFloat(seed), rndFloat(seed), rndFloat(seed)) - 1;
@@ -56,16 +23,28 @@ vec3 randomInUnitSphere(inout uint seed) {
   }
 }
 
-vec3 randomInUnitSphereHalton(inout HaltonState h2, inout HaltonState h3) {
+// http://gruenschloss.org/
+struct Sobol {
+  uint index;
+  vec4 offset;
+};
+
+vec4 nextSobol(inout Sobol state, texture2D tex) {
+  vec4 sequnce = texelFetch(tex, ivec2(state.index, 0) % 2048, 0);
+  state.index++;
+  return fract(state.offset + sequnce);
+}
+
+vec3 randomInUnitSphereSalton(inout Sobol state, texture2D tex) {
   while(true) {
-    const vec3 p = 2 * vec3(next(h2), next(h3), next(h2)) - 1;
+    const vec3 p = 2 * nextSobol(state, tex).xyz - 1;
     if (dot(p, p) < 1) {
       return p;
     }
   }
 }
 
-// polar mapping
+// Ray tracing gems, 16.5.1.2 CONCENTRIC MAPPING
 vec2 concentricMapping(float radius, float u, float v) {
   float a = 2*u - 1; 
   float b = 2*v - 1;
@@ -81,61 +60,11 @@ vec2 concentricMapping(float radius, float u, float v) {
   return vec2(r*cos(phi), r*sin(phi));
 }
 
-void orthoNormalBasis(vec3 n, out vec3 tangent, out vec3 bitangent) {
-    float sign = n.z >= 0.0 ? 1.0 : -1.0;
-    float a    = -1.0 / (sign + n.z);
-    float b    = n.x * n.y * a;
-
-    tangent    = vec3(1.0 + sign * n.x * n.x * a, sign * b, -sign * n.x);
-    bitangent  = vec3(b, sign + n.y * n.y * a, -n.y);
-}
-
-vec2 MapSquareToDisk (vec2 uv)
-{
-  float phi;
-  float r;
-
-  float a = uv.x * 2.0 - 1.0;
-  float b = uv.y * 2.0 - 1.0;
-
-  if (a * a > b * b)
-  {
-      r = a;
-      phi = QUARTERPI * (b / a);
-  }
-  else
-  {
-      r = b;
-
-      if (b == 0.0) {
-          phi = HALFPI;
-      }
-      else {
-          phi = HALFPI - QUARTERPI * (a / b);
-      }
-  }
-  return vec2(r * cos(phi), r * sin(phi));
-}
-
-vec3 HemisphereCosineSample (vec2 rnd)
-{
-    vec2 diskSample = MapSquareToDisk(rnd);
-    return vec3(diskSample.x, diskSample.y, sqrt(1.0 - dot(diskSample,diskSample)));
-}
-
-// smallpaint
-vec3 hemisphere(float u1, float u2) {
-	const float r = sqrt(1.0 - u1*u1);
-	const float phi = 2 * PI*u2;
-	return vec3(cos(phi)*r, sin(phi)*r, u1);
-}
-
-vec3 getBoundsDirection(vec2 rnd, vec3 normal) {
-  //vec3 hdir = hemisphere(rnd.x, rnd.y);
- vec3 hdir =  HemisphereCosineSample(rnd);
-  vec3 tangent;
-  vec3 bitangent;
-  orthoNormalBasis(normal, tangent, bitangent);
-  hdir = tangent * hdir.x + bitangent * hdir.y + hdir.z * normal;
-  return hdir;
+vec3 sampleSphere(vec2 rnd) {
+    float z = 2.0 * rnd.x - 1.0;
+    float phi = 2.0 * PI * rnd.y;
+    float r = sqrt(1.0 - z * z);
+    float x = r * cos(phi);
+    float y = r * sin(phi);
+    return vec3(x, y, z);
 }
