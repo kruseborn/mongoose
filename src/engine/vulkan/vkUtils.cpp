@@ -90,13 +90,13 @@ void beginRendering() {
 }
 
 void acquireNextSwapChainImage() {
-  checkResult(
-      vkAcquireNextImageKHR(vkContext.device, vkContext.swapChain->swapChain, UINT64_MAX,
+  const auto result = vkAcquireNextImageKHR(vkContext.device, vkContext.swapChain->swapChain, UINT64_MAX,
                             vkContext.commandBuffers.imageAquiredSemaphore[vkContext.commandBuffers.currentIndex],
-                            VK_NULL_HANDLE, &vkContext.swapChain->currentSwapChainIndex));
+                            VK_NULL_HANDLE, &vkContext.swapChain->currentSwapChainIndex);
+  checkResult(result);
 }
 
-void endRendering() {
+bool endRendering() {
   mg::mgSystem.linearHeapAllocator.swapLinearHeapBuffers();
 
   const auto commandBufferIndex = vkContext.commandBuffers.currentIndex;
@@ -125,11 +125,19 @@ void endRendering() {
   presentInfo.pWaitSemaphores = &vkContext.commandBuffers.renderCompleteSemaphore[commandBufferIndex];
   presentInfo.pResults = nullptr;
 
-  checkResult(vkQueuePresentKHR(vkContext.queue, &presentInfo));
+  bool resize = false;
+  const auto result = vkQueuePresentKHR(vkContext.queue, &presentInfo);
+  if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
+    resize = true;
+  } else {
+    checkResult(result);
+  }
+  
 
   vkContext.commandBuffers.submitted[commandBufferIndex] = true;
   vkContext.commandBuffers.currentIndex =
       (vkContext.commandBuffers.currentIndex + 1) % vkContext.commandBuffers.nrOfBuffers;
+  return resize;
 }
 
 mg::TextureId uploadPngImage(const std::string &name) {

@@ -46,7 +46,7 @@ void updateScene(const mg::FrameData &frameData) {
   mg::setCameraTransformation(&camera);
 }
 
-void renderScene(const mg::FrameData &frameData) {
+bool renderScene(const mg::FrameData &frameData) {
   mg::Texts texts = {};
   char fps[50];
   snprintf(fps, sizeof(fps), "Fps: %u", uint32_t(frameData.fps));
@@ -74,5 +74,5 @@ void renderScene(const mg::FrameData &frameData) {
 
   endNBodyRenderPass();
 
-  mg::endRendering();
+  return mg::endRendering();
 }

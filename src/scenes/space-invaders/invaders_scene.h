@@ -40,5 +40,5 @@ void invadersInit(Invaders *invaders);
 void invadersDestroy(Invaders *invaders);
 void invadersReset(Invaders *invaders);
 void invadersSimulate(Invaders *invaders, const mg::FrameData &frameData, float dt);
-void invadersRender(const Invaders &invaders, const mg::FrameData &frameData);
+bool invadersRender(const Invaders &invaders, const mg::FrameData &frameData);
 void invadersEndFrame();

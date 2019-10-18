@@ -20,7 +20,7 @@ namespace mg {
 #define __DEBUG false
 #endif
 
-#define ENABLE_DEBUGGING (false && std::getenv("VULKAN_SDK") != nullptr)
+#define ENABLE_DEBUGGING (true && std::getenv("VULKAN_SDK") != nullptr)
 
 static char *DEBUG_LAYER = (char *)"VK_LAYER_LUNARG_standard_validation";
 
@@ -387,10 +387,11 @@ void resizeWindow() {
   VkSurfaceCapabilitiesKHR surfaceCapabilities;
   checkResult(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(mg::vkContext.physicalDevice, mg::vkContext.windowSurface,
                                                         &surfaceCapabilities));
-  mgAssert(mg::vkContext.screen.width == surfaceCapabilities.currentExtent.width &&
-           mg::vkContext.screen.height == surfaceCapabilities.currentExtent.height);
+  mg::vkContext.screen.width = surfaceCapabilities.currentExtent.width;
+  mg::vkContext.screen.height = surfaceCapabilities.currentExtent.height;
 
-  mg::vkContext.swapChain->resize();
+  vkContext.swapChain->resize();
+
   waitForDeviceIdle();
 }
 

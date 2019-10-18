@@ -87,7 +87,7 @@ void invadersSimulate(Invaders *invaders, const mg::FrameData &frameData, float 
   player.health *= !isAliensOutSideBorder;
 }
 
-void invadersRender(const Invaders &invaders, const mg::FrameData &frameData) {
+bool invadersRender(const Invaders &invaders, const mg::FrameData &frameData) {
   mg::beginRendering();
   mg::setFullscreenViewport();
   mg::beginSingleRenderPass(singleRenderPass);
@@ -118,7 +118,5 @@ void invadersRender(const Invaders &invaders, const mg::FrameData &frameData) {
   mg::renderText(renderContext, texts);
 
   mg::endSingleRenderPass();
-  mg::endRendering();
-
-  // engine->drawText(textBuffer, 0, 0);
+  return mg::endRendering();
 }

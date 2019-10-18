@@ -28,7 +28,7 @@ void destroyWindow();
 
 bool startFrame();
 void endFrame();
-FrameData getFrameData();
+FrameData getFrameData(bool resize);
 float getScreenWidth();
 float getScreenHeight();
 float getTime();

@@ -68,7 +68,7 @@ void updateScene(const mg::FrameData &frameData) {
   mg::setCameraTransformation(&camera);
 }
 
-void renderScene(const mg::FrameData &frameData) {
+bool renderScene(const mg::FrameData &frameData) {
   mg::beginRendering();
   mg::setFullscreenViewport();
 
@@ -80,5 +80,5 @@ void renderScene(const mg::FrameData &frameData) {
 
   mg::endSingleRenderPass();
 
-  mg::endRendering();
+  return mg::endRendering();
 }

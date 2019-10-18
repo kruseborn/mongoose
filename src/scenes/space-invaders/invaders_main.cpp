@@ -11,16 +11,16 @@ int main() {
 
   constexpr float lastFrameMsMin = 16.0f;
   float startTime = mg::getTime();
-
+  bool resize = true;
   while (mg::startFrame()) {
     if (invaders.aliens.nrAliens == 0 || invaders.player.health <= 0)
       invadersReset(&invaders);
 
     {
-      const auto frameData = mg::getFrameData();
+      const auto frameData = mg::getFrameData(resize);
       const auto dt = 0.01f;
       invadersSimulate(&invaders, frameData, dt);
-      invadersRender(invaders, frameData);
+      resize = invadersRender(invaders, frameData);
 
       invadersEndFrame();
     }

@@ -53,7 +53,7 @@ void updateScene(const mg::FrameData &frameData) {
   }
 }
 
-void renderScene(const mg::FrameData &frameData) {
+bool renderScene(const mg::FrameData &frameData) {
   mg::Texts texts = {};
   mg::Text text = {"Rungholt"};
 
@@ -96,5 +96,5 @@ void renderScene(const mg::FrameData &frameData) {
     mg::mgSystem.imguiOverlay.draw(renderContext, frameData);
   }
   endDeferredRenderPass();
-  mg::endRendering();
+  return mg::endRendering();
 }

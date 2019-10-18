@@ -19,7 +19,7 @@ void setViewPort(float x, float y, float width, float height, float minDepth, fl
 void setFullscreenViewport();
 
 void beginRendering();
-void endRendering();
+bool endRendering();
 void acquireNextSwapChainImage();
 void waitForDeviceIdle();
 

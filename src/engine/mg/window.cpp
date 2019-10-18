@@ -60,8 +60,9 @@ void endFrame() { glfwPollEvents(); }
 float getScreenWidth() { return float(vkContext.screen.width); }
 float getScreenHeight(){ return float(vkContext.screen.height); };
 
-FrameData getFrameData() {
+FrameData getFrameData(bool resize) {
   FrameData frameData = {};
+  frameData.resize = resize;
   static auto startTime = getCurrentTimeUs();
   static auto currentTime = getCurrentTimeUs();
   static auto prevTime = getCurrentTimeUs();
@@ -77,21 +78,12 @@ currentTime = getCurrentTimeUs();
     frameData.fps = uint32_t(newFps);
   frameData.fps = uint32_t(frameData.fps * 0.1 + 0.9 * newFps);
 
-  int32_t width, height;
-  glfwGetWindowSize(window, &width, &height);
   
-  frameData.width = width;
-  frameData.height = height;
-  if (width != vkContext.screen.width || height != vkContext.screen.height) {
-    frameData.resize = true;
-
-    vkContext.screen.width = width;
-    vkContext.screen.height = height;
+  if(resize)
     resizeWindow();
-  }
 
   frameData.mouse.prevXY = prevXY;
-  frameData.mouse.xy = cursorPosition(width, height);
+  frameData.mouse.xy = cursorPosition(vkContext.screen.width, vkContext.screen.height);
 
   prevXY = frameData.mouse.xy;
 

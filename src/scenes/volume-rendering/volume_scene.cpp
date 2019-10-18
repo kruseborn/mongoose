@@ -33,6 +33,7 @@ void destroyScene() {
 void updateScene(const mg::FrameData &frameData) {
   if (frameData.resize) {
     resizeVolumeRenderPass(&volumeRenderPass);
+    mg::mgSystem.textureContainer.setupDescriptorSets();
   }
   if (frameData.keys.r) {
     mg::mgSystem.pipelineContainer.resetPipelineContainer();
@@ -43,7 +44,8 @@ void updateScene(const mg::FrameData &frameData) {
   mg::setCameraTransformation(&camera);
 }
 
-void renderScene(const mg::FrameData &frameData) {
+bool renderScene(const mg::FrameData &frameData) {
+
   mg::beginRendering();
 
   mg::RenderContext renderContext = {};
@@ -67,5 +69,5 @@ void renderScene(const mg::FrameData &frameData) {
   }
   endVolumeRenderPass();
 
-  mg::endRendering();
+  return mg::endRendering();
 }
