@@ -8,7 +8,7 @@
 #include <memory>
 #include <vulkan/vulkan.h>
 
-struct GLFWwindow;
+struct SDL_Window;
  
 namespace mg {
 
@@ -84,7 +84,7 @@ struct VulkanContext {
 
 extern VulkanContext vkContext;
 
-bool initVulkan(GLFWwindow *window);
+bool initVulkan(SDL_Window *window);
 void destroyVulkan();
 
 namespace nv {

@@ -50,7 +50,7 @@ void initScene() {
   generateSobol();
   world.blueNoise = mg::uploadPngImage("HDR_RGBA_0.png");
 
-  generator.seed(2);
+  generator.seed(8);
 
   addSphere({.world = &world,
              .position = {0, -1000.0f, 0, 1000.0f},
@@ -100,6 +100,7 @@ void destroyScene() {
 
 void updateScene(const mg::FrameData &frameData) {
   if (frameData.resize) {
+    printf("here we are\n");
     rayinfo.resetAccumulationImage = true;
     mg::resizeSingleRenderPass(&singleRenderPass);
     resetSizeStorageImages(&rayinfo);

@@ -1,0 +1,32 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/kruseborn/git/mongoose/libs/lodepng/lodepng.cpp
+lodepng.h
+/home/kruseborn/git/mongoose/libs/lodepng/lodepng.h
+limits.h
+-
+stdio.h
+-
+stdlib.h
+-
+
+/home/kruseborn/git/mongoose/libs/lodepng/lodepng.h
+string.h
+-
+vector
+-
+string
+-
+lodepng.h
+/home/kruseborn/git/mongoose/libs/lodepng/lodepng.h
+iostream
+-
+lodepng.h
+/home/kruseborn/git/mongoose/libs/lodepng/lodepng.h
+

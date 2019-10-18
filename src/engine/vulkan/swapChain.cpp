@@ -78,29 +78,33 @@ void SwapChain::createImageViews() {
 
 void SwapChain::createImages() {
   VkSurfaceCapabilitiesKHR surfaceCapabilities;
-  checkResult(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(mg::vkContext.physicalDevice, mg::vkContext.windowSurface, &surfaceCapabilities));
+  checkResult(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(mg::vkContext.physicalDevice, mg::vkContext.windowSurface,
+                                                        &surfaceCapabilities));
+  mg::vkContext.screen.width =surfaceCapabilities.currentExtent.width;
+  mg::vkContext.screen.height  =surfaceCapabilities.currentExtent.height;
   if (surfaceCapabilities.currentExtent.width != mg::vkContext.screen.width ||
       surfaceCapabilities.currentExtent.height != mg::vkContext.screen.height) {
     mgAssertDesc(false, "Surface doesn't match video width or height");
     exit(1);
   }
   uint32_t formatCount;
-  checkResult(vkGetPhysicalDeviceSurfaceFormatsKHR(mg::vkContext.physicalDevice, mg::vkContext.windowSurface, &formatCount, nullptr));
+  checkResult(vkGetPhysicalDeviceSurfaceFormatsKHR(mg::vkContext.physicalDevice, mg::vkContext.windowSurface,
+                                                   &formatCount, nullptr));
   mgAssert(formatCount != 0);
 
   std::vector<VkSurfaceFormatKHR> surfaceFormats(formatCount);
-  checkResult(vkGetPhysicalDeviceSurfaceFormatsKHR(mg::vkContext.physicalDevice, mg::vkContext.windowSurface, &formatCount,
-                                                   surfaceFormats.data()));
+  checkResult(vkGetPhysicalDeviceSurfaceFormatsKHR(mg::vkContext.physicalDevice, mg::vkContext.windowSurface,
+                                                   &formatCount, surfaceFormats.data()));
 
   // Find supported present modes
   uint32_t presentModeCount;
-  checkResult(
-      vkGetPhysicalDeviceSurfacePresentModesKHR(mg::vkContext.physicalDevice, mg::vkContext.windowSurface, &presentModeCount, nullptr));
+  checkResult(vkGetPhysicalDeviceSurfacePresentModesKHR(mg::vkContext.physicalDevice, mg::vkContext.windowSurface,
+                                                        &presentModeCount, nullptr));
   mgAssert(presentModeCount != 0);
 
   std::vector<VkPresentModeKHR> presentModes(presentModeCount);
-  checkResult(vkGetPhysicalDeviceSurfacePresentModesKHR(mg::vkContext.physicalDevice, mg::vkContext.windowSurface, &presentModeCount,
-                                                        presentModes.data()));
+  checkResult(vkGetPhysicalDeviceSurfacePresentModesKHR(mg::vkContext.physicalDevice, mg::vkContext.windowSurface,
+                                                        &presentModeCount, presentModes.data()));
 
   VkSurfaceFormatKHR surfaceFormat = chooseSurfaceFormat(surfaceFormats);
   // Select swap chain size

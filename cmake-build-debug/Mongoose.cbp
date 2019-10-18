@@ -1,0 +1,3223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="Mongoose"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="clang"/>
+		<Option virtualFolders="CMake Files\;CMake Files\libs\;CMake Files\libs\glfw-3.2.1\;CMake Files\libs\glfw-3.2.1\CMake\;CMake Files\libs\glfw-3.2.1\CMake\modules\;CMake Files\libs\glfw-3.2.1\src\;CMake Files\libs\glm\;CMake Files\libs\glm\cmake\;CMake Files\libs\glm\glm\;CMake Files\libs\freetype-2.6.2\;CMake Files\libs\freetype-2.6.2\builds\;CMake Files\libs\freetype-2.6.2\builds\cmake\;CMake Files\libs\lodepng\;CMake Files\libs\imgui\;CMake Files\libs\tiny_gltf\;CMake Files\libs\stb\;CMake Files\cmake-modules\;CMake Files\src\;CMake Files\src\scenes\;CMake Files\src\scenes\deferred-rendering-ssao\;CMake Files\src\scenes\gltf-rendering-pbr\;CMake Files\src\scenes\volume-rendering\;CMake Files\src\scenes\space-invaders\;CMake Files\src\scenes\n-body\;CMake Files\src\scenes\nv-ray\;CMake Files\src\engine\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/home/kruseborn/git/mongoose/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="install/strip">
+				<Option working_dir="/home/kruseborn/git/mongoose/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/Makefile&quot;  VERBOSE=1 install/strip"/>
+					<CompileFile command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="install">
+				<Option working_dir="/home/kruseborn/git/mongoose/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/Makefile&quot;  VERBOSE=1 install"/>
+					<CompileFile command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="install/local">
+				<Option working_dir="/home/kruseborn/git/mongoose/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/Makefile&quot;  VERBOSE=1 install/local"/>
+					<CompileFile command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="list_install_components">
+				<Option working_dir="/home/kruseborn/git/mongoose/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/Makefile&quot;  VERBOSE=1 list_install_components"/>
+					<CompileFile command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="/home/kruseborn/git/mongoose/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="/home/kruseborn/git/mongoose/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="uninstall">
+				<Option working_dir="/home/kruseborn/git/mongoose/cmake-build-debug/libs/glm"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/libs/glm/Makefile&quot;  VERBOSE=1 uninstall"/>
+					<CompileFile command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/libs/glm/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/libs/glm/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/libs/glm/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="glm_shared">
+				<Option output="/home/kruseborn/git/mongoose/build/Debug/lib/libglm_shared.so" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kruseborn/git/mongoose/cmake-build-debug/libs/glm/glm"/>
+				<Option object_output="./"/>
+				<Option type="3"/>
+				<Option compiler="clang"/>
+				<Compiler>
+					<Add directory="/home/kruseborn/git/mongoose/libs/glm"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/glm/glm/.."/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/x86_64-pc-linux-gnu"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/backward"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/clang/8.0.0/include"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/libs/glm/glm/Makefile&quot;  VERBOSE=1 glm_shared"/>
+					<CompileFile command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/libs/glm/glm/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/libs/glm/glm/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/libs/glm/glm/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="glm_shared/fast">
+				<Option output="/home/kruseborn/git/mongoose/build/Debug/lib/libglm_shared.so" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kruseborn/git/mongoose/cmake-build-debug/libs/glm/glm"/>
+				<Option object_output="./"/>
+				<Option type="3"/>
+				<Option compiler="clang"/>
+				<Compiler>
+					<Add directory="/home/kruseborn/git/mongoose/libs/glm"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/glm/glm/.."/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/x86_64-pc-linux-gnu"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/backward"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/clang/8.0.0/include"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/libs/glm/glm/Makefile&quot;  VERBOSE=1 glm_shared/fast"/>
+					<CompileFile command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/libs/glm/glm/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/libs/glm/glm/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/libs/glm/glm/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="glm_static">
+				<Option output="/home/kruseborn/git/mongoose/build/Debug/lib/libglm_static.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kruseborn/git/mongoose/cmake-build-debug/libs/glm/glm"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="clang"/>
+				<Compiler>
+					<Add directory="/home/kruseborn/git/mongoose/libs/glm"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/glm/glm/.."/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/x86_64-pc-linux-gnu"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/backward"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/clang/8.0.0/include"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/libs/glm/glm/Makefile&quot;  VERBOSE=1 glm_static"/>
+					<CompileFile command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/libs/glm/glm/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/libs/glm/glm/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/libs/glm/glm/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="glm_static/fast">
+				<Option output="/home/kruseborn/git/mongoose/build/Debug/lib/libglm_static.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kruseborn/git/mongoose/cmake-build-debug/libs/glm/glm"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="clang"/>
+				<Compiler>
+					<Add directory="/home/kruseborn/git/mongoose/libs/glm"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/glm/glm/.."/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/x86_64-pc-linux-gnu"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/backward"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/clang/8.0.0/include"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/libs/glm/glm/Makefile&quot;  VERBOSE=1 glm_static/fast"/>
+					<CompileFile command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/libs/glm/glm/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/libs/glm/glm/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/libs/glm/glm/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="glfw">
+				<Option output="/home/kruseborn/git/mongoose/build/Debug/lib/libglfw3.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kruseborn/git/mongoose/cmake-build-debug/libs/glfw-3.2.1/src"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="clang"/>
+				<Compiler>
+					<Add option="-D_GLFW_USE_CONFIG_H"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/glfw-3.2.1/include"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/glfw-3.2.1/src"/>
+					<Add directory="/home/kruseborn/git/mongoose/cmake-build-debug/libs/glfw-3.2.1/src"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/x86_64-pc-linux-gnu"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/backward"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/clang/8.0.0/include"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/libs/glfw-3.2.1/src/Makefile&quot;  VERBOSE=1 glfw"/>
+					<CompileFile command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/libs/glfw-3.2.1/src/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/libs/glfw-3.2.1/src/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/libs/glfw-3.2.1/src/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="glfw/fast">
+				<Option output="/home/kruseborn/git/mongoose/build/Debug/lib/libglfw3.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kruseborn/git/mongoose/cmake-build-debug/libs/glfw-3.2.1/src"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="clang"/>
+				<Compiler>
+					<Add option="-D_GLFW_USE_CONFIG_H"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/glfw-3.2.1/include"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/glfw-3.2.1/src"/>
+					<Add directory="/home/kruseborn/git/mongoose/cmake-build-debug/libs/glfw-3.2.1/src"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/x86_64-pc-linux-gnu"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/backward"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/clang/8.0.0/include"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/libs/glfw-3.2.1/src/Makefile&quot;  VERBOSE=1 glfw/fast"/>
+					<CompileFile command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/libs/glfw-3.2.1/src/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/libs/glfw-3.2.1/src/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/libs/glfw-3.2.1/src/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="freetype">
+				<Option output="/home/kruseborn/git/mongoose/build/Debug/lib/libfreetyped.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kruseborn/git/mongoose/cmake-build-debug/libs/freetype-2.6.2"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="clang"/>
+				<Compiler>
+					<Add option="-DFT2_BUILD_LIBRARY"/>
+					<Add directory="/home/kruseborn/git/mongoose/cmake-build-debug/libs/freetype-2.6.2/include"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/x86_64-pc-linux-gnu"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/backward"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/clang/8.0.0/include"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/libs/freetype-2.6.2/Makefile&quot;  VERBOSE=1 freetype"/>
+					<CompileFile command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/libs/freetype-2.6.2/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/libs/freetype-2.6.2/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/libs/freetype-2.6.2/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="freetype/fast">
+				<Option output="/home/kruseborn/git/mongoose/build/Debug/lib/libfreetyped.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kruseborn/git/mongoose/cmake-build-debug/libs/freetype-2.6.2"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="clang"/>
+				<Compiler>
+					<Add option="-DFT2_BUILD_LIBRARY"/>
+					<Add directory="/home/kruseborn/git/mongoose/cmake-build-debug/libs/freetype-2.6.2/include"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/x86_64-pc-linux-gnu"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/backward"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/clang/8.0.0/include"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/libs/freetype-2.6.2/Makefile&quot;  VERBOSE=1 freetype/fast"/>
+					<CompileFile command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/libs/freetype-2.6.2/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/libs/freetype-2.6.2/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/libs/freetype-2.6.2/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="lodepng">
+				<Option output="/home/kruseborn/git/mongoose/build/Debug/lib/liblodepng.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kruseborn/git/mongoose/cmake-build-debug/libs/lodepng"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="clang"/>
+				<Compiler>
+					<Add directory="/home/kruseborn/git/mongoose/libs/lodepng"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/x86_64-pc-linux-gnu"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/backward"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/clang/8.0.0/include"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/libs/lodepng/Makefile&quot;  VERBOSE=1 lodepng"/>
+					<CompileFile command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/libs/lodepng/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/libs/lodepng/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/libs/lodepng/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="lodepng/fast">
+				<Option output="/home/kruseborn/git/mongoose/build/Debug/lib/liblodepng.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kruseborn/git/mongoose/cmake-build-debug/libs/lodepng"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="clang"/>
+				<Compiler>
+					<Add directory="/home/kruseborn/git/mongoose/libs/lodepng"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/x86_64-pc-linux-gnu"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/backward"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/clang/8.0.0/include"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/libs/lodepng/Makefile&quot;  VERBOSE=1 lodepng/fast"/>
+					<CompileFile command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/libs/lodepng/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/libs/lodepng/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/libs/lodepng/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="imgui">
+				<Option output="/home/kruseborn/git/mongoose/build/Debug/lib/libimgui.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kruseborn/git/mongoose/cmake-build-debug/libs/imgui"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="clang"/>
+				<Compiler>
+					<Add directory="/home/kruseborn/git/mongoose/libs/imgui"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/x86_64-pc-linux-gnu"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/backward"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/clang/8.0.0/include"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/libs/imgui/Makefile&quot;  VERBOSE=1 imgui"/>
+					<CompileFile command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/libs/imgui/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/libs/imgui/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/libs/imgui/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="imgui/fast">
+				<Option output="/home/kruseborn/git/mongoose/build/Debug/lib/libimgui.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kruseborn/git/mongoose/cmake-build-debug/libs/imgui"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="clang"/>
+				<Compiler>
+					<Add directory="/home/kruseborn/git/mongoose/libs/imgui"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/x86_64-pc-linux-gnu"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/backward"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/clang/8.0.0/include"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/libs/imgui/Makefile&quot;  VERBOSE=1 imgui/fast"/>
+					<CompileFile command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/libs/imgui/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/libs/imgui/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/libs/imgui/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="deferred-rendering-ssao">
+				<Option output="/home/kruseborn/git/mongoose/build/Debug/bin/deferred-rendering-ssao" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kruseborn/git/mongoose/build/Debug/bin"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="clang"/>
+				<Compiler>
+					<Add option="-DGLM_FORCE_DEPTH_ZERO_TO_ONE"/>
+					<Add option="-DGLM_FORCE_LEFT_HANDED"/>
+					<Add directory="/home/kruseborn/vulkan/1.1.108.0/x86_64/include"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/glm"/>
+					<Add directory="/home/kruseborn/git/mongoose/src/engine"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/glfw-3.2.1/include"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/lodepng"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/tiny_gltf"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/imgui"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/stb"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/x86_64-pc-linux-gnu"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/backward"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/clang/8.0.0/include"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/src/scenes/deferred-rendering-ssao/Makefile&quot;  VERBOSE=1 deferred-rendering-ssao"/>
+					<CompileFile command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/src/scenes/deferred-rendering-ssao/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/src/scenes/deferred-rendering-ssao/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/src/scenes/deferred-rendering-ssao/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="deferred-rendering-ssao/fast">
+				<Option output="/home/kruseborn/git/mongoose/build/Debug/bin/deferred-rendering-ssao" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kruseborn/git/mongoose/build/Debug/bin"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="clang"/>
+				<Compiler>
+					<Add option="-DGLM_FORCE_DEPTH_ZERO_TO_ONE"/>
+					<Add option="-DGLM_FORCE_LEFT_HANDED"/>
+					<Add directory="/home/kruseborn/vulkan/1.1.108.0/x86_64/include"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/glm"/>
+					<Add directory="/home/kruseborn/git/mongoose/src/engine"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/glfw-3.2.1/include"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/lodepng"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/tiny_gltf"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/imgui"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/stb"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/x86_64-pc-linux-gnu"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/backward"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/clang/8.0.0/include"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/src/scenes/deferred-rendering-ssao/Makefile&quot;  VERBOSE=1 deferred-rendering-ssao/fast"/>
+					<CompileFile command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/src/scenes/deferred-rendering-ssao/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/src/scenes/deferred-rendering-ssao/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/src/scenes/deferred-rendering-ssao/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="gltf-rendering-pbr">
+				<Option output="/home/kruseborn/git/mongoose/build/Debug/bin/gltf-rendering-pbr" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kruseborn/git/mongoose/build/Debug/bin"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="clang"/>
+				<Compiler>
+					<Add option="-DGLM_FORCE_DEPTH_ZERO_TO_ONE"/>
+					<Add option="-DGLM_FORCE_LEFT_HANDED"/>
+					<Add directory="/home/kruseborn/vulkan/1.1.108.0/x86_64/include"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/glm"/>
+					<Add directory="/home/kruseborn/git/mongoose/src/engine"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/glfw-3.2.1/include"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/lodepng"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/tiny_gltf"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/imgui"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/stb"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/x86_64-pc-linux-gnu"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/backward"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/clang/8.0.0/include"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/src/scenes/gltf-rendering-pbr/Makefile&quot;  VERBOSE=1 gltf-rendering-pbr"/>
+					<CompileFile command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/src/scenes/gltf-rendering-pbr/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/src/scenes/gltf-rendering-pbr/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/src/scenes/gltf-rendering-pbr/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="gltf-rendering-pbr/fast">
+				<Option output="/home/kruseborn/git/mongoose/build/Debug/bin/gltf-rendering-pbr" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kruseborn/git/mongoose/build/Debug/bin"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="clang"/>
+				<Compiler>
+					<Add option="-DGLM_FORCE_DEPTH_ZERO_TO_ONE"/>
+					<Add option="-DGLM_FORCE_LEFT_HANDED"/>
+					<Add directory="/home/kruseborn/vulkan/1.1.108.0/x86_64/include"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/glm"/>
+					<Add directory="/home/kruseborn/git/mongoose/src/engine"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/glfw-3.2.1/include"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/lodepng"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/tiny_gltf"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/imgui"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/stb"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/x86_64-pc-linux-gnu"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/backward"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/clang/8.0.0/include"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/src/scenes/gltf-rendering-pbr/Makefile&quot;  VERBOSE=1 gltf-rendering-pbr/fast"/>
+					<CompileFile command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/src/scenes/gltf-rendering-pbr/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/src/scenes/gltf-rendering-pbr/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/src/scenes/gltf-rendering-pbr/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="volume-rendering">
+				<Option output="/home/kruseborn/git/mongoose/build/Debug/bin/volume-rendering" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kruseborn/git/mongoose/build/Debug/bin"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="clang"/>
+				<Compiler>
+					<Add option="-DGLM_FORCE_DEPTH_ZERO_TO_ONE"/>
+					<Add option="-DGLM_FORCE_LEFT_HANDED"/>
+					<Add directory="/home/kruseborn/vulkan/1.1.108.0/x86_64/include"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/glm"/>
+					<Add directory="/home/kruseborn/git/mongoose/src/engine"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/glfw-3.2.1/include"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/lodepng"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/tiny_gltf"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/imgui"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/stb"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/x86_64-pc-linux-gnu"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/backward"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/clang/8.0.0/include"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/src/scenes/volume-rendering/Makefile&quot;  VERBOSE=1 volume-rendering"/>
+					<CompileFile command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/src/scenes/volume-rendering/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/src/scenes/volume-rendering/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/src/scenes/volume-rendering/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="volume-rendering/fast">
+				<Option output="/home/kruseborn/git/mongoose/build/Debug/bin/volume-rendering" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kruseborn/git/mongoose/build/Debug/bin"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="clang"/>
+				<Compiler>
+					<Add option="-DGLM_FORCE_DEPTH_ZERO_TO_ONE"/>
+					<Add option="-DGLM_FORCE_LEFT_HANDED"/>
+					<Add directory="/home/kruseborn/vulkan/1.1.108.0/x86_64/include"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/glm"/>
+					<Add directory="/home/kruseborn/git/mongoose/src/engine"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/glfw-3.2.1/include"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/lodepng"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/tiny_gltf"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/imgui"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/stb"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/x86_64-pc-linux-gnu"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/backward"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/clang/8.0.0/include"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/src/scenes/volume-rendering/Makefile&quot;  VERBOSE=1 volume-rendering/fast"/>
+					<CompileFile command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/src/scenes/volume-rendering/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/src/scenes/volume-rendering/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/src/scenes/volume-rendering/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="space-invaders">
+				<Option output="/home/kruseborn/git/mongoose/build/Debug/bin/space-invaders" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kruseborn/git/mongoose/build/Debug/bin"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="clang"/>
+				<Compiler>
+					<Add option="-DGLM_FORCE_DEPTH_ZERO_TO_ONE"/>
+					<Add option="-DGLM_FORCE_LEFT_HANDED"/>
+					<Add directory="/home/kruseborn/vulkan/1.1.108.0/x86_64/include"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/glm"/>
+					<Add directory="/home/kruseborn/git/mongoose/src/engine"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/glfw-3.2.1/include"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/lodepng"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/tiny_gltf"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/imgui"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/stb"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/x86_64-pc-linux-gnu"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/backward"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/clang/8.0.0/include"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/src/scenes/space-invaders/Makefile&quot;  VERBOSE=1 space-invaders"/>
+					<CompileFile command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/src/scenes/space-invaders/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/src/scenes/space-invaders/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/src/scenes/space-invaders/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="space-invaders/fast">
+				<Option output="/home/kruseborn/git/mongoose/build/Debug/bin/space-invaders" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kruseborn/git/mongoose/build/Debug/bin"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="clang"/>
+				<Compiler>
+					<Add option="-DGLM_FORCE_DEPTH_ZERO_TO_ONE"/>
+					<Add option="-DGLM_FORCE_LEFT_HANDED"/>
+					<Add directory="/home/kruseborn/vulkan/1.1.108.0/x86_64/include"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/glm"/>
+					<Add directory="/home/kruseborn/git/mongoose/src/engine"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/glfw-3.2.1/include"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/lodepng"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/tiny_gltf"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/imgui"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/stb"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/x86_64-pc-linux-gnu"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/backward"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/clang/8.0.0/include"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/src/scenes/space-invaders/Makefile&quot;  VERBOSE=1 space-invaders/fast"/>
+					<CompileFile command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/src/scenes/space-invaders/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/src/scenes/space-invaders/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/src/scenes/space-invaders/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="nbody-rendering">
+				<Option output="/home/kruseborn/git/mongoose/build/Debug/bin/nbody-rendering" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kruseborn/git/mongoose/build/Debug/bin"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="clang"/>
+				<Compiler>
+					<Add option="-DGLM_FORCE_DEPTH_ZERO_TO_ONE"/>
+					<Add option="-DGLM_FORCE_LEFT_HANDED"/>
+					<Add directory="/home/kruseborn/vulkan/1.1.108.0/x86_64/include"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/glm"/>
+					<Add directory="/home/kruseborn/git/mongoose/src/engine"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/glfw-3.2.1/include"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/lodepng"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/tiny_gltf"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/imgui"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/stb"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/x86_64-pc-linux-gnu"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/backward"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/clang/8.0.0/include"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/src/scenes/n-body/Makefile&quot;  VERBOSE=1 nbody-rendering"/>
+					<CompileFile command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/src/scenes/n-body/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/src/scenes/n-body/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/src/scenes/n-body/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="nbody-rendering/fast">
+				<Option output="/home/kruseborn/git/mongoose/build/Debug/bin/nbody-rendering" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kruseborn/git/mongoose/build/Debug/bin"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="clang"/>
+				<Compiler>
+					<Add option="-DGLM_FORCE_DEPTH_ZERO_TO_ONE"/>
+					<Add option="-DGLM_FORCE_LEFT_HANDED"/>
+					<Add directory="/home/kruseborn/vulkan/1.1.108.0/x86_64/include"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/glm"/>
+					<Add directory="/home/kruseborn/git/mongoose/src/engine"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/glfw-3.2.1/include"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/lodepng"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/tiny_gltf"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/imgui"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/stb"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/x86_64-pc-linux-gnu"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/backward"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/clang/8.0.0/include"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/src/scenes/n-body/Makefile&quot;  VERBOSE=1 nbody-rendering/fast"/>
+					<CompileFile command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/src/scenes/n-body/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/src/scenes/n-body/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/src/scenes/n-body/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="ray-tracing">
+				<Option output="/home/kruseborn/git/mongoose/build/Debug/bin/ray-tracing" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kruseborn/git/mongoose/build/Debug/bin"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="clang"/>
+				<Compiler>
+					<Add option="-DGLM_FORCE_DEPTH_ZERO_TO_ONE"/>
+					<Add option="-DGLM_FORCE_LEFT_HANDED"/>
+					<Add directory="/home/kruseborn/vulkan/1.1.108.0/x86_64/include"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/glm"/>
+					<Add directory="/home/kruseborn/git/mongoose/src/engine"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/glfw-3.2.1/include"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/lodepng"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/tiny_gltf"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/imgui"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/stb"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/x86_64-pc-linux-gnu"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/backward"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/clang/8.0.0/include"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/src/scenes/nv-ray/Makefile&quot;  VERBOSE=1 ray-tracing"/>
+					<CompileFile command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/src/scenes/nv-ray/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/src/scenes/nv-ray/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/src/scenes/nv-ray/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="ray-tracing/fast">
+				<Option output="/home/kruseborn/git/mongoose/build/Debug/bin/ray-tracing" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kruseborn/git/mongoose/build/Debug/bin"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="clang"/>
+				<Compiler>
+					<Add option="-DGLM_FORCE_DEPTH_ZERO_TO_ONE"/>
+					<Add option="-DGLM_FORCE_LEFT_HANDED"/>
+					<Add directory="/home/kruseborn/vulkan/1.1.108.0/x86_64/include"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/glm"/>
+					<Add directory="/home/kruseborn/git/mongoose/src/engine"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/glfw-3.2.1/include"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/lodepng"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/tiny_gltf"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/imgui"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/stb"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/x86_64-pc-linux-gnu"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/backward"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/clang/8.0.0/include"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/src/scenes/nv-ray/Makefile&quot;  VERBOSE=1 ray-tracing/fast"/>
+					<CompileFile command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/src/scenes/nv-ray/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/src/scenes/nv-ray/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/src/scenes/nv-ray/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="mg-engine">
+				<Option output="/home/kruseborn/git/mongoose/build/Debug/lib/libmg-engine.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kruseborn/git/mongoose/cmake-build-debug/src/engine"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="clang"/>
+				<Compiler>
+					<Add directory="/home/kruseborn/git/mongoose/src/engine"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/glfw-3.2.1/include"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/glm"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/lodepng"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/tiny_gltf"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/imgui"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/stb"/>
+					<Add directory="/home/kruseborn/vulkan/1.1.108.0/x86_64/include"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/x86_64-pc-linux-gnu"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/backward"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/clang/8.0.0/include"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/src/engine/Makefile&quot;  VERBOSE=1 mg-engine"/>
+					<CompileFile command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/src/engine/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/src/engine/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/src/engine/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="mg-engine/fast">
+				<Option output="/home/kruseborn/git/mongoose/build/Debug/lib/libmg-engine.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kruseborn/git/mongoose/cmake-build-debug/src/engine"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="clang"/>
+				<Compiler>
+					<Add directory="/home/kruseborn/git/mongoose/src/engine"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/glfw-3.2.1/include"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/glm"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/lodepng"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/tiny_gltf"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/imgui"/>
+					<Add directory="/home/kruseborn/git/mongoose/libs/stb"/>
+					<Add directory="/home/kruseborn/vulkan/1.1.108.0/x86_64/include"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/x86_64-pc-linux-gnu"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/backward"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/clang/8.0.0/include"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/src/engine/Makefile&quot;  VERBOSE=1 mg-engine/fast"/>
+					<CompileFile command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/src/engine/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/src/engine/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j16 -f &quot;/home/kruseborn/git/mongoose/cmake-build-debug/src/engine/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/home/kruseborn/git/mongoose/cmake-build-debug/libs/glfw-3.2.1/src/glfw_config.h">
+			<Option target="glfw"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/config/ftconfig.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/config/ftheader.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/config/ftmodule.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/config/ftoption.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/config/ftstdlib.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/freetype.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/ftadvanc.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/ftautoh.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/ftbbox.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/ftbdf.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/ftbitmap.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/ftbzip2.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/ftcache.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/ftcffdrv.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/ftchapters.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/ftcid.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/fterrdef.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/fterrors.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/ftfntfmt.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/ftgasp.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/ftglyph.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/ftgxval.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/ftgzip.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/ftimage.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/ftincrem.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/ftlcdfil.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/ftlist.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/ftlzw.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/ftmac.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/ftmm.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/ftmodapi.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/ftmoderr.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/ftotval.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/ftoutln.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/ftpfr.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/ftrender.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/ftsizes.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/ftsnames.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/ftstroke.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/ftsynth.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/ftsystem.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/fttrigon.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/ftttdrv.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/fttypes.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/ftwinfnt.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/internal/autohint.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/internal/ftcalc.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/internal/ftdebug.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/internal/ftdriver.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/internal/ftgloadr.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/internal/ftmemory.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/internal/ftobjs.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/internal/ftpic.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/internal/ftrfork.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/internal/ftserv.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/internal/ftstream.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/internal/fttrace.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/internal/ftvalid.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/internal/internal.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/internal/psaux.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/internal/pshints.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/internal/sfnt.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/internal/t1types.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/internal/tttypes.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/t1tables.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/ttnameid.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/tttables.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/tttags.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/freetype/ttunpat.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/include/ft2build.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/src/autofit/autofit.c">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/src/base/ftbase.c">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/src/base/ftbase.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/src/base/ftbbox.c">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/src/base/ftbdf.c">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/src/base/ftbitmap.c">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/src/base/ftcid.c">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/src/base/ftdebug.c">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/src/base/ftfntfmt.c">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/src/base/ftfstype.c">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/src/base/ftgasp.c">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/src/base/ftglyph.c">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/src/base/ftgxval.c">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/src/base/ftinit.c">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/src/base/ftlcdfil.c">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/src/base/ftmm.c">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/src/base/ftotval.c">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/src/base/ftpatent.c">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/src/base/ftpfr.c">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/src/base/ftstroke.c">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/src/base/ftsynth.c">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/src/base/ftsystem.c">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/src/base/fttype1.c">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/src/base/ftwinfnt.c">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/src/bdf/bdf.c">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/src/bdf/bdf.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/src/bzip2/ftbzip2.c">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/src/cache/ftcache.c">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/src/cff/cff.c">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/src/cid/type1cid.c">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/src/gzip/ftgzip.c">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/src/lzw/ftlzw.c">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/src/pcf/pcf.c">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/src/pcf/pcf.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/src/pfr/pfr.c">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/src/psaux/psaux.c">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/src/pshinter/pshinter.c">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/src/psnames/psnames.c">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/src/raster/raster.c">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/src/sfnt/sfnt.c">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/src/smooth/smooth.c">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/src/truetype/truetype.c">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/src/type1/type1.c">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/src/type42/type42.c">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/src/winfonts/winfnt.c">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/src/winfonts/winfnt.h">
+			<Option target="freetype"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glfw-3.2.1/include/GLFW/glfw3.h">
+			<Option target="glfw"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glfw-3.2.1/include/GLFW/glfw3native.h">
+			<Option target="glfw"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glfw-3.2.1/src/context.c">
+			<Option target="glfw"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glfw-3.2.1/src/egl_context.c">
+			<Option target="glfw"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glfw-3.2.1/src/egl_context.h">
+			<Option target="glfw"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glfw-3.2.1/src/glx_context.c">
+			<Option target="glfw"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glfw-3.2.1/src/glx_context.h">
+			<Option target="glfw"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glfw-3.2.1/src/init.c">
+			<Option target="glfw"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glfw-3.2.1/src/input.c">
+			<Option target="glfw"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glfw-3.2.1/src/internal.h">
+			<Option target="glfw"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glfw-3.2.1/src/linux_joystick.c">
+			<Option target="glfw"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glfw-3.2.1/src/linux_joystick.h">
+			<Option target="glfw"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glfw-3.2.1/src/monitor.c">
+			<Option target="glfw"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glfw-3.2.1/src/posix_time.c">
+			<Option target="glfw"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glfw-3.2.1/src/posix_time.h">
+			<Option target="glfw"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glfw-3.2.1/src/posix_tls.c">
+			<Option target="glfw"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glfw-3.2.1/src/posix_tls.h">
+			<Option target="glfw"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glfw-3.2.1/src/vulkan.c">
+			<Option target="glfw"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glfw-3.2.1/src/window.c">
+			<Option target="glfw"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glfw-3.2.1/src/x11_init.c">
+			<Option target="glfw"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glfw-3.2.1/src/x11_monitor.c">
+			<Option target="glfw"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glfw-3.2.1/src/x11_platform.h">
+			<Option target="glfw"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glfw-3.2.1/src/x11_window.c">
+			<Option target="glfw"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glfw-3.2.1/src/xkb_unicode.c">
+			<Option target="glfw"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glfw-3.2.1/src/xkb_unicode.h">
+			<Option target="glfw"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/CMakeLists.txt">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/common.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/_features.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/_fixes.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/_noise.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/_swizzle.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/_swizzle_func.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/_vectorize.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/compute_common.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/compute_vector_relational.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/func_common.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/func_common_simd.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/func_exponential.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/func_exponential_simd.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/func_geometric.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/func_geometric_simd.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/func_integer.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/func_integer_simd.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/func_matrix.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/func_matrix_simd.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/func_packing.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/func_packing_simd.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/func_trigonometric.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/func_trigonometric_simd.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/func_vector_relational.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/func_vector_relational_simd.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/glm.cpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/qualifier.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/setup.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/type_float.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/type_half.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/type_half.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/type_mat2x2.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/type_mat2x2.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/type_mat2x3.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/type_mat2x3.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/type_mat2x4.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/type_mat2x4.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/type_mat3x2.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/type_mat3x2.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/type_mat3x3.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/type_mat3x3.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/type_mat3x4.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/type_mat3x4.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/type_mat4x2.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/type_mat4x2.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/type_mat4x3.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/type_mat4x3.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/type_mat4x4.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/type_mat4x4.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/type_mat4x4_simd.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/type_quat.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/type_quat.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/type_quat_simd.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/type_vec1.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/type_vec1.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/type_vec2.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/type_vec2.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/type_vec3.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/type_vec3.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/type_vec4.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/type_vec4.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/detail/type_vec4_simd.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/exponential.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/matrix_clip_space.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/matrix_clip_space.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/matrix_double2x2.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/matrix_double2x2_precision.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/matrix_double2x3.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/matrix_double2x3_precision.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/matrix_double2x4.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/matrix_double2x4_precision.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/matrix_double3x2.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/matrix_double3x2_precision.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/matrix_double3x3.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/matrix_double3x3_precision.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/matrix_double3x4.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/matrix_double3x4_precision.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/matrix_double4x2.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/matrix_double4x2_precision.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/matrix_double4x3.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/matrix_double4x3_precision.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/matrix_double4x4.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/matrix_double4x4_precision.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/matrix_float2x2.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/matrix_float2x2_precision.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/matrix_float2x3.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/matrix_float2x3_precision.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/matrix_float2x4.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/matrix_float2x4_precision.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/matrix_float3x2.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/matrix_float3x2_precision.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/matrix_float3x3.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/matrix_float3x3_precision.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/matrix_float3x4.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/matrix_float3x4_precision.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/matrix_float4x2.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/matrix_float4x2_precision.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/matrix_float4x3.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/matrix_float4x3_precision.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/matrix_float4x4.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/matrix_float4x4_precision.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/matrix_projection.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/matrix_projection.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/matrix_relational.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/matrix_relational.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/matrix_transform.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/matrix_transform.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/quaternion_common.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/quaternion_common.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/quaternion_common_simd.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/quaternion_double.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/quaternion_double_precision.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/quaternion_exponential.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/quaternion_exponential.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/quaternion_float.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/quaternion_float_precision.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/quaternion_geometric.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/quaternion_geometric.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/quaternion_relational.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/quaternion_relational.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/quaternion_transform.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/quaternion_transform.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/quaternion_trigonometric.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/quaternion_trigonometric.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/scalar_common.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/scalar_common.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/scalar_constants.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/scalar_constants.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/scalar_int_sized.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/scalar_relational.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/scalar_relational.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/scalar_uint_sized.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/scalar_ulp.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/scalar_ulp.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/vector_bool1.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/vector_bool1_precision.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/vector_bool2.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/vector_bool2_precision.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/vector_bool3.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/vector_bool3_precision.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/vector_bool4.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/vector_bool4_precision.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/vector_common.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/vector_common.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/vector_double1.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/vector_double1_precision.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/vector_double2.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/vector_double2_precision.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/vector_double3.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/vector_double3_precision.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/vector_double4.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/vector_double4_precision.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/vector_float1.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/vector_float1_precision.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/vector_float2.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/vector_float2_precision.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/vector_float3.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/vector_float3_precision.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/vector_float4.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/vector_float4_precision.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/vector_int1.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/vector_int1_precision.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/vector_int2.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/vector_int2_precision.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/vector_int3.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/vector_int3_precision.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/vector_int4.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/vector_int4_precision.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/vector_relational.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/vector_relational.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/vector_uint1.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/vector_uint1_precision.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/vector_uint2.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/vector_uint2_precision.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/vector_uint3.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/vector_uint3_precision.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/vector_uint4.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/vector_uint4_precision.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/vector_ulp.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/ext/vector_ulp.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/fwd.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/geometric.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/glm.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtc/bitfield.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtc/bitfield.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtc/color_space.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtc/color_space.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtc/constants.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtc/constants.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtc/epsilon.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtc/epsilon.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtc/integer.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtc/integer.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtc/matrix_access.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtc/matrix_access.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtc/matrix_integer.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtc/matrix_inverse.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtc/matrix_inverse.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtc/matrix_transform.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtc/matrix_transform.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtc/noise.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtc/noise.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtc/packing.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtc/packing.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtc/quaternion.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtc/quaternion.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtc/quaternion_simd.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtc/random.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtc/random.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtc/reciprocal.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtc/reciprocal.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtc/round.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtc/round.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtc/type_aligned.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtc/type_precision.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtc/type_precision.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtc/type_ptr.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtc/type_ptr.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtc/ulp.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtc/ulp.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtc/vec1.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/associated_min_max.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/associated_min_max.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/bit.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/bit.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/closest_point.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/closest_point.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/color_encoding.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/color_encoding.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/color_space.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/color_space.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/color_space_YCoCg.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/color_space_YCoCg.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/common.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/common.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/compatibility.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/compatibility.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/component_wise.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/component_wise.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/dual_quaternion.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/dual_quaternion.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/easing.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/easing.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/euler_angles.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/euler_angles.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/extend.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/extend.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/extended_min_max.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/extended_min_max.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/exterior_product.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/exterior_product.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/fast_exponential.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/fast_exponential.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/fast_square_root.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/fast_square_root.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/fast_trigonometry.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/fast_trigonometry.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/float_notmalize.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/functions.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/functions.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/gradient_paint.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/gradient_paint.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/handed_coordinate_space.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/handed_coordinate_space.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/hash.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/hash.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/integer.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/integer.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/intersect.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/intersect.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/io.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/io.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/log_base.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/log_base.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/matrix_cross_product.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/matrix_cross_product.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/matrix_decompose.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/matrix_decompose.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/matrix_factorisation.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/matrix_factorisation.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/matrix_interpolation.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/matrix_interpolation.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/matrix_major_storage.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/matrix_major_storage.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/matrix_operation.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/matrix_operation.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/matrix_query.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/matrix_query.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/matrix_transform_2d.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/matrix_transform_2d.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/mixed_product.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/mixed_product.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/norm.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/norm.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/normal.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/normal.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/normalize_dot.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/normalize_dot.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/number_precision.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/number_precision.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/optimum_pow.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/optimum_pow.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/orthonormalize.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/orthonormalize.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/perpendicular.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/perpendicular.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/polar_coordinates.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/polar_coordinates.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/projection.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/projection.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/quaternion.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/quaternion.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/range.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/raw_data.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/raw_data.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/rotate_normalized_axis.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/rotate_normalized_axis.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/rotate_vector.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/rotate_vector.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/scalar_multiplication.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/scalar_relational.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/scalar_relational.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/spline.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/spline.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/std_based_type.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/std_based_type.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/string_cast.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/string_cast.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/texture.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/texture.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/transform.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/transform.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/transform2.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/transform2.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/type_aligned.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/type_aligned.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/type_trait.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/type_trait.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/vec_swizzle.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/vector_angle.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/vector_angle.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/vector_query.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/vector_query.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/wrap.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/gtx/wrap.inl">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/integer.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/mat2x2.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/mat2x3.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/mat2x4.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/mat3x2.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/mat3x3.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/mat3x4.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/mat4x2.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/mat4x3.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/mat4x4.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/matrix.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/packing.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/simd/common.h">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/simd/exponential.h">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/simd/geometric.h">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/simd/integer.h">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/simd/matrix.h">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/simd/packing.h">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/simd/platform.h">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/simd/trigonometric.h">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/simd/vector_relational.h">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/trigonometric.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/vec2.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/vec3.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/vec4.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/vector_relational.hpp">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/manual.md">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/readme.md">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/util/glm.natvis">
+			<Option target="glm_shared"/>
+			<Option target="glm_static"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/imgui/imconfig.h">
+			<Option target="imgui"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/imgui/imgui.cpp">
+			<Option target="imgui"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/imgui/imgui.h">
+			<Option target="imgui"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/imgui/imgui_demo.cpp">
+			<Option target="imgui"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/imgui/imgui_draw.cpp">
+			<Option target="imgui"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/imgui/imgui_internal.h">
+			<Option target="imgui"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/imgui/imgui_widgets.cpp">
+			<Option target="imgui"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/imgui/imstb_rectpack.h">
+			<Option target="imgui"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/imgui/imstb_textedit.h">
+			<Option target="imgui"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/imgui/imstb_truetype.h">
+			<Option target="imgui"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/lodepng/lodepng.cpp">
+			<Option target="lodepng"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/lodepng/lodepng.h">
+			<Option target="lodepng"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/engine/mg/camera.cpp">
+			<Option target="mg-engine"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/engine/mg/camera.h">
+			<Option target="mg-engine"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/engine/mg/fonts.cpp">
+			<Option target="mg-engine"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/engine/mg/fonts.h">
+			<Option target="mg-engine"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/engine/mg/geometryUtils.cpp">
+			<Option target="mg-engine"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/engine/mg/geometryUtils.h">
+			<Option target="mg-engine"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/engine/mg/gltfLoader.cpp">
+			<Option target="mg-engine"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/engine/mg/logger.cpp">
+			<Option target="mg-engine"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/engine/mg/logger.h">
+			<Option target="mg-engine"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/engine/mg/meshContainer.cpp">
+			<Option target="mg-engine"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/engine/mg/meshContainer.h">
+			<Option target="mg-engine"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/engine/mg/meshLoader.h">
+			<Option target="mg-engine"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/engine/mg/meshUtils.cpp">
+			<Option target="mg-engine"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/engine/mg/meshUtils.h">
+			<Option target="mg-engine"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/engine/mg/mgAssert.cpp">
+			<Option target="mg-engine"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/engine/mg/mgAssert.h">
+			<Option target="mg-engine"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/engine/mg/mgSystem.cpp">
+			<Option target="mg-engine"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/engine/mg/mgSystem.h">
+			<Option target="mg-engine"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/engine/mg/mgUtils.cpp">
+			<Option target="mg-engine"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/engine/mg/mgUtils.h">
+			<Option target="mg-engine"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/engine/mg/objLoader.cpp">
+			<Option target="mg-engine"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/engine/mg/storageContainer.cpp">
+			<Option target="mg-engine"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/engine/mg/storageContainer.h">
+			<Option target="mg-engine"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/engine/mg/texts.cpp">
+			<Option target="mg-engine"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/engine/mg/texts.h">
+			<Option target="mg-engine"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/engine/mg/textureContainer.cpp">
+			<Option target="mg-engine"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/engine/mg/textureContainer.h">
+			<Option target="mg-engine"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/engine/mg/tools.cpp">
+			<Option target="mg-engine"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/engine/mg/tools.h">
+			<Option target="mg-engine"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/engine/mg/window.cpp">
+			<Option target="mg-engine"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/engine/mg/window.h">
+			<Option target="mg-engine"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/engine/rendering/boxRendering.cpp">
+			<Option target="mg-engine"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/engine/rendering/rendering.h">
+			<Option target="mg-engine"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/engine/rendering/textRendering.cpp">
+			<Option target="mg-engine"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/engine/vulkan/deviceAllocator.cpp">
+			<Option target="mg-engine"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/engine/vulkan/deviceAllocator.h">
+			<Option target="mg-engine"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/engine/vulkan/imguiOverlay.cpp">
+			<Option target="mg-engine"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/engine/vulkan/imguiOverlay.h">
+			<Option target="mg-engine"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/engine/vulkan/linearHeapAllocator.cpp">
+			<Option target="mg-engine"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/engine/vulkan/linearHeapAllocator.h">
+			<Option target="mg-engine"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/engine/vulkan/pipelineContainer.cpp">
+			<Option target="mg-engine"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/engine/vulkan/pipelineContainer.h">
+			<Option target="mg-engine"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/engine/vulkan/shaderPipelineInput.h">
+			<Option target="mg-engine"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/engine/vulkan/shaders.cpp">
+			<Option target="mg-engine"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/engine/vulkan/shaders.h">
+			<Option target="mg-engine"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/engine/vulkan/singleRenderpass.cpp">
+			<Option target="mg-engine"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/engine/vulkan/singleRenderpass.h">
+			<Option target="mg-engine"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/engine/vulkan/swapChain.cpp">
+			<Option target="mg-engine"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/engine/vulkan/swapChain.h">
+			<Option target="mg-engine"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/engine/vulkan/vkContext.cpp">
+			<Option target="mg-engine"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/engine/vulkan/vkContext.h">
+			<Option target="mg-engine"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/engine/vulkan/vkUtils.cpp">
+			<Option target="mg-engine"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/engine/vulkan/vkUtils.h">
+			<Option target="mg-engine"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/engine/vulkan/vkWindow.cpp">
+			<Option target="mg-engine"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/engine/vulkan/vkWindow.h">
+			<Option target="mg-engine"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/deferred-rendering-ssao/deferred_main.cpp">
+			<Option target="deferred-rendering-ssao"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/deferred-rendering-ssao/deferred_rendering.cpp">
+			<Option target="deferred-rendering-ssao"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/deferred-rendering-ssao/deferred_rendering.h">
+			<Option target="deferred-rendering-ssao"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/deferred-rendering-ssao/deferred_renderpass.cpp">
+			<Option target="deferred-rendering-ssao"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/deferred-rendering-ssao/deferred_renderpass.h">
+			<Option target="deferred-rendering-ssao"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/deferred-rendering-ssao/deferred_scene.cpp">
+			<Option target="deferred-rendering-ssao"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/deferred-rendering-ssao/deferred_scene.h">
+			<Option target="deferred-rendering-ssao"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/deferred-rendering-ssao/deferred_utils.cpp">
+			<Option target="deferred-rendering-ssao"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/deferred-rendering-ssao/deferred_utils.h">
+			<Option target="deferred-rendering-ssao"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/gltf-rendering-pbr/gltf_main.cpp">
+			<Option target="gltf-rendering-pbr"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/gltf-rendering-pbr/gltf_rendering.cpp">
+			<Option target="gltf-rendering-pbr"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/gltf-rendering-pbr/gltf_rendering.h">
+			<Option target="gltf-rendering-pbr"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/gltf-rendering-pbr/gltf_scene.cpp">
+			<Option target="gltf-rendering-pbr"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/gltf-rendering-pbr/gltf_scene.h">
+			<Option target="gltf-rendering-pbr"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/n-body/nbody_main.cpp">
+			<Option target="nbody-rendering"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/n-body/nbody_rendering.cpp">
+			<Option target="nbody-rendering"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/n-body/nbody_rendering.h">
+			<Option target="nbody-rendering"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/n-body/nbody_renderpass.cpp">
+			<Option target="nbody-rendering"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/n-body/nbody_renderpass.h">
+			<Option target="nbody-rendering"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/n-body/nbody_scene.cpp">
+			<Option target="nbody-rendering"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/n-body/nbody_scene.h">
+			<Option target="nbody-rendering"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/n-body/nbody_utils.cpp">
+			<Option target="nbody-rendering"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/n-body/nbody_utils.h">
+			<Option target="nbody-rendering"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/nv-ray/ray_main.cpp">
+			<Option target="ray-tracing"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/nv-ray/ray_rendering.cpp">
+			<Option target="ray-tracing"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/nv-ray/ray_rendering.h">
+			<Option target="ray-tracing"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/nv-ray/ray_scene.cpp">
+			<Option target="ray-tracing"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/nv-ray/ray_scene.h">
+			<Option target="ray-tracing"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/nv-ray/ray_utils.cpp">
+			<Option target="ray-tracing"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/nv-ray/ray_utils.h">
+			<Option target="ray-tracing"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/nv-ray/sobol.cpp">
+			<Option target="ray-tracing"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/nv-ray/sobol.h">
+			<Option target="ray-tracing"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/space-invaders/allocator.cpp">
+			<Option target="space-invaders"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/space-invaders/allocator.h">
+			<Option target="space-invaders"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/space-invaders/array.h">
+			<Option target="space-invaders"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/space-invaders/collisions.cpp">
+			<Option target="space-invaders"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/space-invaders/collisions.h">
+			<Option target="space-invaders"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/space-invaders/hashmap.cpp">
+			<Option target="space-invaders"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/space-invaders/hashmap.h">
+			<Option target="space-invaders"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/space-invaders/invaders_helper.cpp">
+			<Option target="space-invaders"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/space-invaders/invaders_helper.h">
+			<Option target="space-invaders"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/space-invaders/invaders_main.cpp">
+			<Option target="space-invaders"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/space-invaders/invaders_scene.cpp">
+			<Option target="space-invaders"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/space-invaders/invaders_scene.h">
+			<Option target="space-invaders"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/space-invaders/invaders_utils.cpp">
+			<Option target="space-invaders"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/space-invaders/invaders_utils.h">
+			<Option target="space-invaders"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/space-invaders/player.cpp">
+			<Option target="space-invaders"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/space-invaders/player.h">
+			<Option target="space-invaders"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/space-invaders/transforms.cpp">
+			<Option target="space-invaders"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/space-invaders/transforms.h">
+			<Option target="space-invaders"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/space-invaders/types.h">
+			<Option target="space-invaders"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/volume-rendering/volume_main.cpp">
+			<Option target="volume-rendering"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/volume-rendering/volume_rendering.cpp">
+			<Option target="volume-rendering"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/volume-rendering/volume_rendering.h">
+			<Option target="volume-rendering"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/volume-rendering/volume_renderpass.cpp">
+			<Option target="volume-rendering"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/volume-rendering/volume_renderpass.h">
+			<Option target="volume-rendering"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/volume-rendering/volume_scene.cpp">
+			<Option target="volume-rendering"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/volume-rendering/volume_scene.h">
+			<Option target="volume-rendering"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/volume-rendering/volume_utils.cpp">
+			<Option target="volume-rendering"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/volume-rendering/volume_utils.h">
+			<Option target="volume-rendering"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\libs\"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glfw-3.2.1/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\libs\glfw-3.2.1\"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glfw-3.2.1/CMake/modules/FindVulkan.cmake">
+			<Option virtualFolder="CMake Files\libs\glfw-3.2.1\CMake\modules\"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glfw-3.2.1/src/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\libs\glfw-3.2.1\src\"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glfw-3.2.1/src/glfw3.pc.in">
+			<Option virtualFolder="CMake Files\libs\glfw-3.2.1\src\"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glfw-3.2.1/src/glfw3Config.cmake.in">
+			<Option virtualFolder="CMake Files\libs\glfw-3.2.1\src\"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glfw-3.2.1/src/glfw_config.h.in">
+			<Option virtualFolder="CMake Files\libs\glfw-3.2.1\src\"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\libs\glm\"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/cmake_uninstall.cmake.in">
+			<Option virtualFolder="CMake Files\libs\glm\"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/cmake/glm.pc.in">
+			<Option virtualFolder="CMake Files\libs\glm\cmake\"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/cmake/glmBuildConfig.cmake.in">
+			<Option virtualFolder="CMake Files\libs\glm\cmake\"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/cmake/glmConfig.cmake.in">
+			<Option virtualFolder="CMake Files\libs\glm\cmake\"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/glm/glm/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\libs\glm\glm\"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\libs\freetype-2.6.2\"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/freetype-2.6.2/builds/cmake/FindHarfBuzz.cmake">
+			<Option virtualFolder="CMake Files\libs\freetype-2.6.2\builds\cmake\"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/lodepng/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\libs\lodepng\"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/imgui/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\libs\imgui\"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/tiny_gltf/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\libs\tiny_gltf\"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/libs/stb/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\libs\stb\"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/cmake-modules/copts.cmake">
+			<Option virtualFolder="CMake Files\cmake-modules\"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/cmake-modules/helper.cmake">
+			<Option virtualFolder="CMake Files\cmake-modules\"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/cmake-modules/platform.cmake">
+			<Option virtualFolder="CMake Files\cmake-modules\"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\src\"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\src\scenes\"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/deferred-rendering-ssao/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\src\scenes\deferred-rendering-ssao\"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/gltf-rendering-pbr/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\src\scenes\gltf-rendering-pbr\"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/volume-rendering/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\src\scenes\volume-rendering\"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/space-invaders/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\src\scenes\space-invaders\"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/n-body/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\src\scenes\n-body\"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/scenes/nv-ray/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\src\scenes\nv-ray\"/>
+		</Unit>
+		<Unit filename="/home/kruseborn/git/mongoose/src/engine/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\src\engine\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>

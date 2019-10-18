@@ -1,0 +1,565 @@
+The system is: Linux - 5.1.15-arch1-1-ARCH - x86_64
+Compiling the C compiler identification source file "CMakeCCompilerId.c" succeeded.
+Compiler: /usr/bin/clang 
+Build flags: 
+Id flags:  
+
+The output was:
+0
+
+
+Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "a.out"
+
+The C compiler identification is Clang, found in "/home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/3.15.3/CompilerIdC/a.out"
+
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+Compiler: /usr/bin/clang++ 
+Build flags: 
+Id flags:  
+
+The output was:
+0
+
+
+Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "a.out"
+
+The CXX compiler identification is Clang, found in "/home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/3.15.3/CompilerIdCXX/a.out"
+
+Determining if the C compiler works passed with the following output:
+Change Dir: /home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_53f80/fast && /usr/bin/make -f CMakeFiles/cmTC_53f80.dir/build.make CMakeFiles/cmTC_53f80.dir/build
+make[1]: Entering directory '/home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_53f80.dir/testCCompiler.c.o
+/usr/bin/clang    -o CMakeFiles/cmTC_53f80.dir/testCCompiler.c.o   -c /home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp/testCCompiler.c
+Linking C executable cmTC_53f80
+/home/kruseborn/clion/clion-2019.2.4/bin/cmake/linux/bin/cmake -E cmake_link_script CMakeFiles/cmTC_53f80.dir/link.txt --verbose=1
+/usr/bin/clang      CMakeFiles/cmTC_53f80.dir/testCCompiler.c.o  -o cmTC_53f80 
+make[1]: Leaving directory '/home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp'
+
+
+
+Detecting C compiler ABI info compiled with the following output:
+Change Dir: /home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_0858e/fast && /usr/bin/make -f CMakeFiles/cmTC_0858e.dir/build.make CMakeFiles/cmTC_0858e.dir/build
+make[1]: Entering directory '/home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_0858e.dir/CMakeCCompilerABI.c.o
+/usr/bin/clang   -v -o CMakeFiles/cmTC_0858e.dir/CMakeCCompilerABI.c.o   -c /home/kruseborn/clion/clion-2019.2.4/bin/cmake/linux/share/cmake-3.15/Modules/CMakeCCompilerABI.c
+clang version 8.0.0 (tags/RELEASE_800/final)
+Target: x86_64-pc-linux-gnu
+Thread model: posix
+InstalledDir: /usr/bin
+Found candidate GCC installation: /usr/bin/../lib/gcc/x86_64-pc-linux-gnu/9.1.0
+Found candidate GCC installation: /usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0
+Found candidate GCC installation: /usr/lib/gcc/x86_64-pc-linux-gnu/9.1.0
+Found candidate GCC installation: /usr/lib64/gcc/x86_64-pc-linux-gnu/9.1.0
+Selected GCC installation: /usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0
+Candidate multilib: .;@m64
+Candidate multilib: 32;@m32
+Selected multilib: .;@m64
+ "/usr/bin/clang-8" -cc1 -triple x86_64-pc-linux-gnu -emit-obj -mrelax-all -disable-free -disable-llvm-verifier -discard-value-names -main-file-name CMakeCCompilerABI.c -mrelocation-model pic -pic-level 2 -pic-is-pie -mthread-model posix -mdisable-fp-elim -fmath-errno -masm-verbose -mconstructor-aliases -munwind-tables -fuse-init-array -target-cpu x86-64 -dwarf-column-info -debugger-tuning=gdb -v -coverage-notes-file /home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp/CMakeFiles/cmTC_0858e.dir/CMakeCCompilerABI.c.gcno -resource-dir /usr/lib/clang/8.0.0 -internal-isystem /usr/local/include -internal-isystem /usr/lib/clang/8.0.0/include -internal-externc-isystem /include -internal-externc-isystem /usr/include -fdebug-compilation-dir /home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp -ferror-limit 19 -fmessage-length 0 -stack-protector 2 -fobjc-runtime=gcc -fdiagnostics-show-option -o CMakeFiles/cmTC_0858e.dir/CMakeCCompilerABI.c.o -x c /home/kruseborn/clion/clion-2019.2.4/bin/cmake/linux/share/cmake-3.15/Modules/CMakeCCompilerABI.c -faddrsig
+clang -cc1 version 8.0.0 based upon LLVM 8.0.0 default target x86_64-pc-linux-gnu
+ignoring nonexistent directory "/include"
+#include "..." search starts here:
+#include <...> search starts here:
+ /usr/local/include
+ /usr/lib/clang/8.0.0/include
+ /usr/include
+End of search list.
+Linking C executable cmTC_0858e
+/home/kruseborn/clion/clion-2019.2.4/bin/cmake/linux/bin/cmake -E cmake_link_script CMakeFiles/cmTC_0858e.dir/link.txt --verbose=1
+/usr/bin/clang     -v CMakeFiles/cmTC_0858e.dir/CMakeCCompilerABI.c.o  -o cmTC_0858e 
+clang version 8.0.0 (tags/RELEASE_800/final)
+Target: x86_64-pc-linux-gnu
+Thread model: posix
+InstalledDir: /usr/bin
+Found candidate GCC installation: /usr/bin/../lib/gcc/x86_64-pc-linux-gnu/9.1.0
+Found candidate GCC installation: /usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0
+Found candidate GCC installation: /usr/lib/gcc/x86_64-pc-linux-gnu/9.1.0
+Found candidate GCC installation: /usr/lib64/gcc/x86_64-pc-linux-gnu/9.1.0
+Selected GCC installation: /usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0
+Candidate multilib: .;@m64
+Candidate multilib: 32;@m32
+Selected multilib: .;@m64
+ "/usr/bin/ld" -pie --eh-frame-hdr -m elf_x86_64 -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o cmTC_0858e /usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../lib64/Scrt1.o /usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../lib64/crti.o /usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/crtbeginS.o -L/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0 -L/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../lib64 -L/usr/bin/../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -L/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../.. -L/usr/bin/../lib -L/lib -L/usr/lib CMakeFiles/cmTC_0858e.dir/CMakeCCompilerABI.c.o -lgcc --as-needed -lgcc_s --no-as-needed -lc -lgcc --as-needed -lgcc_s --no-as-needed /usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/crtendS.o /usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../lib64/crtn.o
+make[1]: Leaving directory '/home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp'
+
+
+
+Parsed C implicit include dir info from above output: rv=done
+  found start of include info
+  found start of implicit include info
+    add: [/usr/local/include]
+    add: [/usr/lib/clang/8.0.0/include]
+    add: [/usr/include]
+  end of search list found
+  collapse include dir [/usr/local/include] ==> [/usr/local/include]
+  collapse include dir [/usr/lib/clang/8.0.0/include] ==> [/usr/lib/clang/8.0.0/include]
+  collapse include dir [/usr/include] ==> [/usr/include]
+  implicit include dirs: [/usr/local/include;/usr/lib/clang/8.0.0/include;/usr/include]
+
+
+Parsed C implicit link information from above output:
+  link line regex: [^( *|.*[/\])(ld|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\]+-)?ld|collect2)[^/\]*( |$)]
+  ignore line: [Change Dir: /home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp]
+  ignore line: []
+  ignore line: [Run Build Command(s):/usr/bin/make cmTC_0858e/fast && /usr/bin/make -f CMakeFiles/cmTC_0858e.dir/build.make CMakeFiles/cmTC_0858e.dir/build]
+  ignore line: [make[1]: Entering directory '/home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp']
+  ignore line: [Building C object CMakeFiles/cmTC_0858e.dir/CMakeCCompilerABI.c.o]
+  ignore line: [/usr/bin/clang   -v -o CMakeFiles/cmTC_0858e.dir/CMakeCCompilerABI.c.o   -c /home/kruseborn/clion/clion-2019.2.4/bin/cmake/linux/share/cmake-3.15/Modules/CMakeCCompilerABI.c]
+  ignore line: [clang version 8.0.0 (tags/RELEASE_800/final)]
+  ignore line: [Target: x86_64-pc-linux-gnu]
+  ignore line: [Thread model: posix]
+  ignore line: [InstalledDir: /usr/bin]
+  ignore line: [Found candidate GCC installation: /usr/bin/../lib/gcc/x86_64-pc-linux-gnu/9.1.0]
+  ignore line: [Found candidate GCC installation: /usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0]
+  ignore line: [Found candidate GCC installation: /usr/lib/gcc/x86_64-pc-linux-gnu/9.1.0]
+  ignore line: [Found candidate GCC installation: /usr/lib64/gcc/x86_64-pc-linux-gnu/9.1.0]
+  ignore line: [Selected GCC installation: /usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0]
+  ignore line: [Candidate multilib: .]
+  ignore line: [@m64]
+  ignore line: [Candidate multilib: 32]
+  ignore line: [@m32]
+  ignore line: [Selected multilib: .]
+  ignore line: [@m64]
+  ignore line: [ "/usr/bin/clang-8" -cc1 -triple x86_64-pc-linux-gnu -emit-obj -mrelax-all -disable-free -disable-llvm-verifier -discard-value-names -main-file-name CMakeCCompilerABI.c -mrelocation-model pic -pic-level 2 -pic-is-pie -mthread-model posix -mdisable-fp-elim -fmath-errno -masm-verbose -mconstructor-aliases -munwind-tables -fuse-init-array -target-cpu x86-64 -dwarf-column-info -debugger-tuning=gdb -v -coverage-notes-file /home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp/CMakeFiles/cmTC_0858e.dir/CMakeCCompilerABI.c.gcno -resource-dir /usr/lib/clang/8.0.0 -internal-isystem /usr/local/include -internal-isystem /usr/lib/clang/8.0.0/include -internal-externc-isystem /include -internal-externc-isystem /usr/include -fdebug-compilation-dir /home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp -ferror-limit 19 -fmessage-length 0 -stack-protector 2 -fobjc-runtime=gcc -fdiagnostics-show-option -o CMakeFiles/cmTC_0858e.dir/CMakeCCompilerABI.c.o -x c /home/kruseborn/clion/clion-2019.2.4/bin/cmake/linux/share/cmake-3.15/Modules/CMakeCCompilerABI.c -faddrsig]
+  ignore line: [clang -cc1 version 8.0.0 based upon LLVM 8.0.0 default target x86_64-pc-linux-gnu]
+  ignore line: [ignoring nonexistent directory "/include"]
+  ignore line: [#include "..." search starts here:]
+  ignore line: [#include <...> search starts here:]
+  ignore line: [ /usr/local/include]
+  ignore line: [ /usr/lib/clang/8.0.0/include]
+  ignore line: [ /usr/include]
+  ignore line: [End of search list.]
+  ignore line: [Linking C executable cmTC_0858e]
+  ignore line: [/home/kruseborn/clion/clion-2019.2.4/bin/cmake/linux/bin/cmake -E cmake_link_script CMakeFiles/cmTC_0858e.dir/link.txt --verbose=1]
+  ignore line: [/usr/bin/clang     -v CMakeFiles/cmTC_0858e.dir/CMakeCCompilerABI.c.o  -o cmTC_0858e ]
+  ignore line: [clang version 8.0.0 (tags/RELEASE_800/final)]
+  ignore line: [Target: x86_64-pc-linux-gnu]
+  ignore line: [Thread model: posix]
+  ignore line: [InstalledDir: /usr/bin]
+  ignore line: [Found candidate GCC installation: /usr/bin/../lib/gcc/x86_64-pc-linux-gnu/9.1.0]
+  ignore line: [Found candidate GCC installation: /usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0]
+  ignore line: [Found candidate GCC installation: /usr/lib/gcc/x86_64-pc-linux-gnu/9.1.0]
+  ignore line: [Found candidate GCC installation: /usr/lib64/gcc/x86_64-pc-linux-gnu/9.1.0]
+  ignore line: [Selected GCC installation: /usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0]
+  ignore line: [Candidate multilib: .]
+  ignore line: [@m64]
+  ignore line: [Candidate multilib: 32]
+  ignore line: [@m32]
+  ignore line: [Selected multilib: .]
+  ignore line: [@m64]
+  link line: [ "/usr/bin/ld" -pie --eh-frame-hdr -m elf_x86_64 -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o cmTC_0858e /usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../lib64/Scrt1.o /usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../lib64/crti.o /usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/crtbeginS.o -L/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0 -L/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../lib64 -L/usr/bin/../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -L/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../.. -L/usr/bin/../lib -L/lib -L/usr/lib CMakeFiles/cmTC_0858e.dir/CMakeCCompilerABI.c.o -lgcc --as-needed -lgcc_s --no-as-needed -lc -lgcc --as-needed -lgcc_s --no-as-needed /usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/crtendS.o /usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../lib64/crtn.o]
+    arg [/usr/bin/ld] ==> ignore
+    arg [-pie] ==> ignore
+    arg [--eh-frame-hdr] ==> ignore
+    arg [-m] ==> ignore
+    arg [elf_x86_64] ==> ignore
+    arg [-dynamic-linker] ==> ignore
+    arg [/lib64/ld-linux-x86-64.so.2] ==> ignore
+    arg [-o] ==> ignore
+    arg [cmTC_0858e] ==> ignore
+    arg [/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../lib64/Scrt1.o] ==> ignore
+    arg [/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../lib64/crti.o] ==> ignore
+    arg [/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/crtbeginS.o] ==> ignore
+    arg [-L/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0] ==> dir [/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0]
+    arg [-L/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../lib64] ==> dir [/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../lib64]
+    arg [-L/usr/bin/../lib64] ==> dir [/usr/bin/../lib64]
+    arg [-L/lib/../lib64] ==> dir [/lib/../lib64]
+    arg [-L/usr/lib/../lib64] ==> dir [/usr/lib/../lib64]
+    arg [-L/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../..] ==> dir [/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../..]
+    arg [-L/usr/bin/../lib] ==> dir [/usr/bin/../lib]
+    arg [-L/lib] ==> dir [/lib]
+    arg [-L/usr/lib] ==> dir [/usr/lib]
+    arg [CMakeFiles/cmTC_0858e.dir/CMakeCCompilerABI.c.o] ==> ignore
+    arg [-lgcc] ==> lib [gcc]
+    arg [--as-needed] ==> ignore
+    arg [-lgcc_s] ==> lib [gcc_s]
+    arg [--no-as-needed] ==> ignore
+    arg [-lc] ==> lib [c]
+    arg [-lgcc] ==> lib [gcc]
+    arg [--as-needed] ==> ignore
+    arg [-lgcc_s] ==> lib [gcc_s]
+    arg [--no-as-needed] ==> ignore
+    arg [/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/crtendS.o] ==> ignore
+    arg [/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../lib64/crtn.o] ==> ignore
+  collapse library dir [/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0] ==> [/usr/lib64/gcc/x86_64-pc-linux-gnu/9.1.0]
+  collapse library dir [/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../lib64] ==> [/usr/lib64]
+  collapse library dir [/usr/bin/../lib64] ==> [/usr/lib64]
+  collapse library dir [/lib/../lib64] ==> [/lib64]
+  collapse library dir [/usr/lib/../lib64] ==> [/usr/lib64]
+  collapse library dir [/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../..] ==> [/usr/lib64]
+  collapse library dir [/usr/bin/../lib] ==> [/usr/lib]
+  collapse library dir [/lib] ==> [/lib]
+  collapse library dir [/usr/lib] ==> [/usr/lib]
+  implicit libs: [gcc;gcc_s;c;gcc;gcc_s]
+  implicit dirs: [/usr/lib64/gcc/x86_64-pc-linux-gnu/9.1.0;/usr/lib64;/lib64;/usr/lib;/lib]
+  implicit fwks: []
+
+
+Determining if the CXX compiler works passed with the following output:
+Change Dir: /home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_9195e/fast && /usr/bin/make -f CMakeFiles/cmTC_9195e.dir/build.make CMakeFiles/cmTC_9195e.dir/build
+make[1]: Entering directory '/home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_9195e.dir/testCXXCompiler.cxx.o
+/usr/bin/clang++     -o CMakeFiles/cmTC_9195e.dir/testCXXCompiler.cxx.o -c /home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp/testCXXCompiler.cxx
+Linking CXX executable cmTC_9195e
+/home/kruseborn/clion/clion-2019.2.4/bin/cmake/linux/bin/cmake -E cmake_link_script CMakeFiles/cmTC_9195e.dir/link.txt --verbose=1
+/usr/bin/clang++       CMakeFiles/cmTC_9195e.dir/testCXXCompiler.cxx.o  -o cmTC_9195e 
+make[1]: Leaving directory '/home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp'
+
+
+
+Detecting CXX compiler ABI info compiled with the following output:
+Change Dir: /home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_a9882/fast && /usr/bin/make -f CMakeFiles/cmTC_a9882.dir/build.make CMakeFiles/cmTC_a9882.dir/build
+make[1]: Entering directory '/home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_a9882.dir/CMakeCXXCompilerABI.cpp.o
+/usr/bin/clang++    -v -o CMakeFiles/cmTC_a9882.dir/CMakeCXXCompilerABI.cpp.o -c /home/kruseborn/clion/clion-2019.2.4/bin/cmake/linux/share/cmake-3.15/Modules/CMakeCXXCompilerABI.cpp
+clang version 8.0.0 (tags/RELEASE_800/final)
+Target: x86_64-pc-linux-gnu
+Thread model: posix
+InstalledDir: /usr/bin
+Found candidate GCC installation: /usr/bin/../lib/gcc/x86_64-pc-linux-gnu/9.1.0
+Found candidate GCC installation: /usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0
+Found candidate GCC installation: /usr/lib/gcc/x86_64-pc-linux-gnu/9.1.0
+Found candidate GCC installation: /usr/lib64/gcc/x86_64-pc-linux-gnu/9.1.0
+Selected GCC installation: /usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0
+Candidate multilib: .;@m64
+Candidate multilib: 32;@m32
+Selected multilib: .;@m64
+ "/usr/bin/clang-8" -cc1 -triple x86_64-pc-linux-gnu -emit-obj -mrelax-all -disable-free -disable-llvm-verifier -discard-value-names -main-file-name CMakeCXXCompilerABI.cpp -mrelocation-model pic -pic-level 2 -pic-is-pie -mthread-model posix -mdisable-fp-elim -fmath-errno -masm-verbose -mconstructor-aliases -munwind-tables -fuse-init-array -target-cpu x86-64 -dwarf-column-info -debugger-tuning=gdb -v -coverage-notes-file /home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp/CMakeFiles/cmTC_a9882.dir/CMakeCXXCompilerABI.cpp.gcno -resource-dir /usr/lib/clang/8.0.0 -internal-isystem /usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0 -internal-isystem /usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/x86_64-pc-linux-gnu -internal-isystem /usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/backward -internal-isystem /usr/local/include -internal-isystem /usr/lib/clang/8.0.0/include -internal-externc-isystem /include -internal-externc-isystem /usr/include -fdeprecated-macro -fdebug-compilation-dir /home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp -ferror-limit 19 -fmessage-length 0 -stack-protector 2 -fobjc-runtime=gcc -fcxx-exceptions -fexceptions -fdiagnostics-show-option -o CMakeFiles/cmTC_a9882.dir/CMakeCXXCompilerABI.cpp.o -x c++ /home/kruseborn/clion/clion-2019.2.4/bin/cmake/linux/share/cmake-3.15/Modules/CMakeCXXCompilerABI.cpp -faddrsig
+clang -cc1 version 8.0.0 based upon LLVM 8.0.0 default target x86_64-pc-linux-gnu
+ignoring nonexistent directory "/include"
+#include "..." search starts here:
+#include <...> search starts here:
+ /usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0
+ /usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/x86_64-pc-linux-gnu
+ /usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/backward
+ /usr/local/include
+ /usr/lib/clang/8.0.0/include
+ /usr/include
+End of search list.
+Linking CXX executable cmTC_a9882
+/home/kruseborn/clion/clion-2019.2.4/bin/cmake/linux/bin/cmake -E cmake_link_script CMakeFiles/cmTC_a9882.dir/link.txt --verbose=1
+/usr/bin/clang++      -v CMakeFiles/cmTC_a9882.dir/CMakeCXXCompilerABI.cpp.o  -o cmTC_a9882 
+clang version 8.0.0 (tags/RELEASE_800/final)
+Target: x86_64-pc-linux-gnu
+Thread model: posix
+InstalledDir: /usr/bin
+Found candidate GCC installation: /usr/bin/../lib/gcc/x86_64-pc-linux-gnu/9.1.0
+Found candidate GCC installation: /usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0
+Found candidate GCC installation: /usr/lib/gcc/x86_64-pc-linux-gnu/9.1.0
+Found candidate GCC installation: /usr/lib64/gcc/x86_64-pc-linux-gnu/9.1.0
+Selected GCC installation: /usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0
+Candidate multilib: .;@m64
+Candidate multilib: 32;@m32
+Selected multilib: .;@m64
+ "/usr/bin/ld" -pie --eh-frame-hdr -m elf_x86_64 -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o cmTC_a9882 /usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../lib64/Scrt1.o /usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../lib64/crti.o /usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/crtbeginS.o -L/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0 -L/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../lib64 -L/usr/bin/../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -L/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../.. -L/usr/bin/../lib -L/lib -L/usr/lib CMakeFiles/cmTC_a9882.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/crtendS.o /usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../lib64/crtn.o
+make[1]: Leaving directory '/home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp'
+
+
+
+Parsed CXX implicit include dir info from above output: rv=done
+  found start of include info
+  found start of implicit include info
+    add: [/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0]
+    add: [/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/x86_64-pc-linux-gnu]
+    add: [/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/backward]
+    add: [/usr/local/include]
+    add: [/usr/lib/clang/8.0.0/include]
+    add: [/usr/include]
+  end of search list found
+  collapse include dir [/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0] ==> [/usr/include/c++/9.1.0]
+  collapse include dir [/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/x86_64-pc-linux-gnu] ==> [/usr/include/c++/9.1.0/x86_64-pc-linux-gnu]
+  collapse include dir [/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/backward] ==> [/usr/include/c++/9.1.0/backward]
+  collapse include dir [/usr/local/include] ==> [/usr/local/include]
+  collapse include dir [/usr/lib/clang/8.0.0/include] ==> [/usr/lib/clang/8.0.0/include]
+  collapse include dir [/usr/include] ==> [/usr/include]
+  implicit include dirs: [/usr/include/c++/9.1.0;/usr/include/c++/9.1.0/x86_64-pc-linux-gnu;/usr/include/c++/9.1.0/backward;/usr/local/include;/usr/lib/clang/8.0.0/include;/usr/include]
+
+
+Parsed CXX implicit link information from above output:
+  link line regex: [^( *|.*[/\])(ld|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\]+-)?ld|collect2)[^/\]*( |$)]
+  ignore line: [Change Dir: /home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp]
+  ignore line: []
+  ignore line: [Run Build Command(s):/usr/bin/make cmTC_a9882/fast && /usr/bin/make -f CMakeFiles/cmTC_a9882.dir/build.make CMakeFiles/cmTC_a9882.dir/build]
+  ignore line: [make[1]: Entering directory '/home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp']
+  ignore line: [Building CXX object CMakeFiles/cmTC_a9882.dir/CMakeCXXCompilerABI.cpp.o]
+  ignore line: [/usr/bin/clang++    -v -o CMakeFiles/cmTC_a9882.dir/CMakeCXXCompilerABI.cpp.o -c /home/kruseborn/clion/clion-2019.2.4/bin/cmake/linux/share/cmake-3.15/Modules/CMakeCXXCompilerABI.cpp]
+  ignore line: [clang version 8.0.0 (tags/RELEASE_800/final)]
+  ignore line: [Target: x86_64-pc-linux-gnu]
+  ignore line: [Thread model: posix]
+  ignore line: [InstalledDir: /usr/bin]
+  ignore line: [Found candidate GCC installation: /usr/bin/../lib/gcc/x86_64-pc-linux-gnu/9.1.0]
+  ignore line: [Found candidate GCC installation: /usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0]
+  ignore line: [Found candidate GCC installation: /usr/lib/gcc/x86_64-pc-linux-gnu/9.1.0]
+  ignore line: [Found candidate GCC installation: /usr/lib64/gcc/x86_64-pc-linux-gnu/9.1.0]
+  ignore line: [Selected GCC installation: /usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0]
+  ignore line: [Candidate multilib: .]
+  ignore line: [@m64]
+  ignore line: [Candidate multilib: 32]
+  ignore line: [@m32]
+  ignore line: [Selected multilib: .]
+  ignore line: [@m64]
+  ignore line: [ "/usr/bin/clang-8" -cc1 -triple x86_64-pc-linux-gnu -emit-obj -mrelax-all -disable-free -disable-llvm-verifier -discard-value-names -main-file-name CMakeCXXCompilerABI.cpp -mrelocation-model pic -pic-level 2 -pic-is-pie -mthread-model posix -mdisable-fp-elim -fmath-errno -masm-verbose -mconstructor-aliases -munwind-tables -fuse-init-array -target-cpu x86-64 -dwarf-column-info -debugger-tuning=gdb -v -coverage-notes-file /home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp/CMakeFiles/cmTC_a9882.dir/CMakeCXXCompilerABI.cpp.gcno -resource-dir /usr/lib/clang/8.0.0 -internal-isystem /usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0 -internal-isystem /usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/x86_64-pc-linux-gnu -internal-isystem /usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/backward -internal-isystem /usr/local/include -internal-isystem /usr/lib/clang/8.0.0/include -internal-externc-isystem /include -internal-externc-isystem /usr/include -fdeprecated-macro -fdebug-compilation-dir /home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp -ferror-limit 19 -fmessage-length 0 -stack-protector 2 -fobjc-runtime=gcc -fcxx-exceptions -fexceptions -fdiagnostics-show-option -o CMakeFiles/cmTC_a9882.dir/CMakeCXXCompilerABI.cpp.o -x c++ /home/kruseborn/clion/clion-2019.2.4/bin/cmake/linux/share/cmake-3.15/Modules/CMakeCXXCompilerABI.cpp -faddrsig]
+  ignore line: [clang -cc1 version 8.0.0 based upon LLVM 8.0.0 default target x86_64-pc-linux-gnu]
+  ignore line: [ignoring nonexistent directory "/include"]
+  ignore line: [#include "..." search starts here:]
+  ignore line: [#include <...> search starts here:]
+  ignore line: [ /usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0]
+  ignore line: [ /usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/x86_64-pc-linux-gnu]
+  ignore line: [ /usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../include/c++/9.1.0/backward]
+  ignore line: [ /usr/local/include]
+  ignore line: [ /usr/lib/clang/8.0.0/include]
+  ignore line: [ /usr/include]
+  ignore line: [End of search list.]
+  ignore line: [Linking CXX executable cmTC_a9882]
+  ignore line: [/home/kruseborn/clion/clion-2019.2.4/bin/cmake/linux/bin/cmake -E cmake_link_script CMakeFiles/cmTC_a9882.dir/link.txt --verbose=1]
+  ignore line: [/usr/bin/clang++      -v CMakeFiles/cmTC_a9882.dir/CMakeCXXCompilerABI.cpp.o  -o cmTC_a9882 ]
+  ignore line: [clang version 8.0.0 (tags/RELEASE_800/final)]
+  ignore line: [Target: x86_64-pc-linux-gnu]
+  ignore line: [Thread model: posix]
+  ignore line: [InstalledDir: /usr/bin]
+  ignore line: [Found candidate GCC installation: /usr/bin/../lib/gcc/x86_64-pc-linux-gnu/9.1.0]
+  ignore line: [Found candidate GCC installation: /usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0]
+  ignore line: [Found candidate GCC installation: /usr/lib/gcc/x86_64-pc-linux-gnu/9.1.0]
+  ignore line: [Found candidate GCC installation: /usr/lib64/gcc/x86_64-pc-linux-gnu/9.1.0]
+  ignore line: [Selected GCC installation: /usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0]
+  ignore line: [Candidate multilib: .]
+  ignore line: [@m64]
+  ignore line: [Candidate multilib: 32]
+  ignore line: [@m32]
+  ignore line: [Selected multilib: .]
+  ignore line: [@m64]
+  link line: [ "/usr/bin/ld" -pie --eh-frame-hdr -m elf_x86_64 -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o cmTC_a9882 /usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../lib64/Scrt1.o /usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../lib64/crti.o /usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/crtbeginS.o -L/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0 -L/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../lib64 -L/usr/bin/../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -L/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../.. -L/usr/bin/../lib -L/lib -L/usr/lib CMakeFiles/cmTC_a9882.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/crtendS.o /usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../lib64/crtn.o]
+    arg [/usr/bin/ld] ==> ignore
+    arg [-pie] ==> ignore
+    arg [--eh-frame-hdr] ==> ignore
+    arg [-m] ==> ignore
+    arg [elf_x86_64] ==> ignore
+    arg [-dynamic-linker] ==> ignore
+    arg [/lib64/ld-linux-x86-64.so.2] ==> ignore
+    arg [-o] ==> ignore
+    arg [cmTC_a9882] ==> ignore
+    arg [/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../lib64/Scrt1.o] ==> ignore
+    arg [/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../lib64/crti.o] ==> ignore
+    arg [/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/crtbeginS.o] ==> ignore
+    arg [-L/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0] ==> dir [/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0]
+    arg [-L/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../lib64] ==> dir [/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../lib64]
+    arg [-L/usr/bin/../lib64] ==> dir [/usr/bin/../lib64]
+    arg [-L/lib/../lib64] ==> dir [/lib/../lib64]
+    arg [-L/usr/lib/../lib64] ==> dir [/usr/lib/../lib64]
+    arg [-L/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../..] ==> dir [/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../..]
+    arg [-L/usr/bin/../lib] ==> dir [/usr/bin/../lib]
+    arg [-L/lib] ==> dir [/lib]
+    arg [-L/usr/lib] ==> dir [/usr/lib]
+    arg [CMakeFiles/cmTC_a9882.dir/CMakeCXXCompilerABI.cpp.o] ==> ignore
+    arg [-lstdc++] ==> lib [stdc++]
+    arg [-lm] ==> lib [m]
+    arg [-lgcc_s] ==> lib [gcc_s]
+    arg [-lgcc] ==> lib [gcc]
+    arg [-lc] ==> lib [c]
+    arg [-lgcc_s] ==> lib [gcc_s]
+    arg [-lgcc] ==> lib [gcc]
+    arg [/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/crtendS.o] ==> ignore
+    arg [/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../lib64/crtn.o] ==> ignore
+  collapse library dir [/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0] ==> [/usr/lib64/gcc/x86_64-pc-linux-gnu/9.1.0]
+  collapse library dir [/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../../../lib64] ==> [/usr/lib64]
+  collapse library dir [/usr/bin/../lib64] ==> [/usr/lib64]
+  collapse library dir [/lib/../lib64] ==> [/lib64]
+  collapse library dir [/usr/lib/../lib64] ==> [/usr/lib64]
+  collapse library dir [/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/9.1.0/../../..] ==> [/usr/lib64]
+  collapse library dir [/usr/bin/../lib] ==> [/usr/lib]
+  collapse library dir [/lib] ==> [/lib]
+  collapse library dir [/usr/lib] ==> [/usr/lib]
+  implicit libs: [stdc++;m;gcc_s;gcc;c;gcc_s;gcc]
+  implicit dirs: [/usr/lib64/gcc/x86_64-pc-linux-gnu/9.1.0;/usr/lib64;/lib64;/usr/lib;/lib]
+  implicit fwks: []
+
+
+Determining if the include file pthread.h exists passed with the following output:
+Change Dir: /home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_081d7/fast && /usr/bin/make -f CMakeFiles/cmTC_081d7.dir/build.make CMakeFiles/cmTC_081d7.dir/build
+make[1]: Entering directory '/home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_081d7.dir/CheckIncludeFile.c.o
+/usr/bin/clang    -o CMakeFiles/cmTC_081d7.dir/CheckIncludeFile.c.o   -c /home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+Linking C executable cmTC_081d7
+/home/kruseborn/clion/clion-2019.2.4/bin/cmake/linux/bin/cmake -E cmake_link_script CMakeFiles/cmTC_081d7.dir/link.txt --verbose=1
+/usr/bin/clang      -rdynamic CMakeFiles/cmTC_081d7.dir/CheckIncludeFile.c.o  -o cmTC_081d7 
+make[1]: Leaving directory '/home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp'
+
+
+
+Determining if the function pthread_create exists in the pthread passed with the following output:
+Change Dir: /home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_54d29/fast && /usr/bin/make -f CMakeFiles/cmTC_54d29.dir/build.make CMakeFiles/cmTC_54d29.dir/build
+make[1]: Entering directory '/home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_54d29.dir/CheckFunctionExists.c.o
+/usr/bin/clang   -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTC_54d29.dir/CheckFunctionExists.c.o   -c /home/kruseborn/clion/clion-2019.2.4/bin/cmake/linux/share/cmake-3.15/Modules/CheckFunctionExists.c
+Linking C executable cmTC_54d29
+/home/kruseborn/clion/clion-2019.2.4/bin/cmake/linux/bin/cmake -E cmake_link_script CMakeFiles/cmTC_54d29.dir/link.txt --verbose=1
+/usr/bin/clang  -DCHECK_FUNCTION_EXISTS=pthread_create    -rdynamic CMakeFiles/cmTC_54d29.dir/CheckFunctionExists.c.o  -o cmTC_54d29 -lpthread 
+make[1]: Leaving directory '/home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp'
+
+
+
+Determining if the function XOpenDisplay exists in the /usr/lib/libX11.so;/usr/lib/libXext.so passed with the following output:
+Change Dir: /home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_cd247/fast && /usr/bin/make -f CMakeFiles/cmTC_cd247.dir/build.make CMakeFiles/cmTC_cd247.dir/build
+make[1]: Entering directory '/home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_cd247.dir/CheckFunctionExists.c.o
+/usr/bin/clang   -DCHECK_FUNCTION_EXISTS=XOpenDisplay   -o CMakeFiles/cmTC_cd247.dir/CheckFunctionExists.c.o   -c /home/kruseborn/clion/clion-2019.2.4/bin/cmake/linux/share/cmake-3.15/Modules/CheckFunctionExists.c
+Linking C executable cmTC_cd247
+/home/kruseborn/clion/clion-2019.2.4/bin/cmake/linux/bin/cmake -E cmake_link_script CMakeFiles/cmTC_cd247.dir/link.txt --verbose=1
+/usr/bin/clang  -DCHECK_FUNCTION_EXISTS=XOpenDisplay    -rdynamic CMakeFiles/cmTC_cd247.dir/CheckFunctionExists.c.o  -o cmTC_cd247 /usr/lib/libX11.so /usr/lib/libXext.so 
+make[1]: Leaving directory '/home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp'
+
+
+
+Determining if the function gethostbyname exists passed with the following output:
+Change Dir: /home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_51a10/fast && /usr/bin/make -f CMakeFiles/cmTC_51a10.dir/build.make CMakeFiles/cmTC_51a10.dir/build
+make[1]: Entering directory '/home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_51a10.dir/CheckFunctionExists.c.o
+/usr/bin/clang   -DCHECK_FUNCTION_EXISTS=gethostbyname   -o CMakeFiles/cmTC_51a10.dir/CheckFunctionExists.c.o   -c /home/kruseborn/clion/clion-2019.2.4/bin/cmake/linux/share/cmake-3.15/Modules/CheckFunctionExists.c
+Linking C executable cmTC_51a10
+/home/kruseborn/clion/clion-2019.2.4/bin/cmake/linux/bin/cmake -E cmake_link_script CMakeFiles/cmTC_51a10.dir/link.txt --verbose=1
+/usr/bin/clang  -DCHECK_FUNCTION_EXISTS=gethostbyname    -rdynamic CMakeFiles/cmTC_51a10.dir/CheckFunctionExists.c.o  -o cmTC_51a10 
+make[1]: Leaving directory '/home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp'
+
+
+
+Determining if the function connect exists passed with the following output:
+Change Dir: /home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_fcdaf/fast && /usr/bin/make -f CMakeFiles/cmTC_fcdaf.dir/build.make CMakeFiles/cmTC_fcdaf.dir/build
+make[1]: Entering directory '/home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_fcdaf.dir/CheckFunctionExists.c.o
+/usr/bin/clang   -DCHECK_FUNCTION_EXISTS=connect   -o CMakeFiles/cmTC_fcdaf.dir/CheckFunctionExists.c.o   -c /home/kruseborn/clion/clion-2019.2.4/bin/cmake/linux/share/cmake-3.15/Modules/CheckFunctionExists.c
+Linking C executable cmTC_fcdaf
+/home/kruseborn/clion/clion-2019.2.4/bin/cmake/linux/bin/cmake -E cmake_link_script CMakeFiles/cmTC_fcdaf.dir/link.txt --verbose=1
+/usr/bin/clang  -DCHECK_FUNCTION_EXISTS=connect    -rdynamic CMakeFiles/cmTC_fcdaf.dir/CheckFunctionExists.c.o  -o cmTC_fcdaf 
+make[1]: Leaving directory '/home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp'
+
+
+
+Determining if the function remove exists passed with the following output:
+Change Dir: /home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_6e4ba/fast && /usr/bin/make -f CMakeFiles/cmTC_6e4ba.dir/build.make CMakeFiles/cmTC_6e4ba.dir/build
+make[1]: Entering directory '/home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_6e4ba.dir/CheckFunctionExists.c.o
+/usr/bin/clang   -DCHECK_FUNCTION_EXISTS=remove   -o CMakeFiles/cmTC_6e4ba.dir/CheckFunctionExists.c.o   -c /home/kruseborn/clion/clion-2019.2.4/bin/cmake/linux/share/cmake-3.15/Modules/CheckFunctionExists.c
+Linking C executable cmTC_6e4ba
+/home/kruseborn/clion/clion-2019.2.4/bin/cmake/linux/bin/cmake -E cmake_link_script CMakeFiles/cmTC_6e4ba.dir/link.txt --verbose=1
+/usr/bin/clang  -DCHECK_FUNCTION_EXISTS=remove    -rdynamic CMakeFiles/cmTC_6e4ba.dir/CheckFunctionExists.c.o  -o cmTC_6e4ba 
+make[1]: Leaving directory '/home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp'
+
+
+
+Determining if the function shmat exists passed with the following output:
+Change Dir: /home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_457b8/fast && /usr/bin/make -f CMakeFiles/cmTC_457b8.dir/build.make CMakeFiles/cmTC_457b8.dir/build
+make[1]: Entering directory '/home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_457b8.dir/CheckFunctionExists.c.o
+/usr/bin/clang   -DCHECK_FUNCTION_EXISTS=shmat   -o CMakeFiles/cmTC_457b8.dir/CheckFunctionExists.c.o   -c /home/kruseborn/clion/clion-2019.2.4/bin/cmake/linux/share/cmake-3.15/Modules/CheckFunctionExists.c
+Linking C executable cmTC_457b8
+/home/kruseborn/clion/clion-2019.2.4/bin/cmake/linux/bin/cmake -E cmake_link_script CMakeFiles/cmTC_457b8.dir/link.txt --verbose=1
+/usr/bin/clang  -DCHECK_FUNCTION_EXISTS=shmat    -rdynamic CMakeFiles/cmTC_457b8.dir/CheckFunctionExists.c.o  -o cmTC_457b8 
+make[1]: Leaving directory '/home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp'
+
+
+
+Determining if the function IceConnectionNumber exists in the ICE passed with the following output:
+Change Dir: /home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_fc423/fast && /usr/bin/make -f CMakeFiles/cmTC_fc423.dir/build.make CMakeFiles/cmTC_fc423.dir/build
+make[1]: Entering directory '/home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_fc423.dir/CheckFunctionExists.c.o
+/usr/bin/clang   -DCHECK_FUNCTION_EXISTS=IceConnectionNumber   -o CMakeFiles/cmTC_fc423.dir/CheckFunctionExists.c.o   -c /home/kruseborn/clion/clion-2019.2.4/bin/cmake/linux/share/cmake-3.15/Modules/CheckFunctionExists.c
+Linking C executable cmTC_fc423
+/home/kruseborn/clion/clion-2019.2.4/bin/cmake/linux/bin/cmake -E cmake_link_script CMakeFiles/cmTC_fc423.dir/link.txt --verbose=1
+/usr/bin/clang  -DCHECK_FUNCTION_EXISTS=IceConnectionNumber    -rdynamic CMakeFiles/cmTC_fc423.dir/CheckFunctionExists.c.o  -o cmTC_fc423 -lICE 
+make[1]: Leaving directory '/home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp'
+
+
+
+Determining if the BZ2_bzCompressInit exist passed with the following output:
+Change Dir: /home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_02ff0/fast && /usr/bin/make -f CMakeFiles/cmTC_02ff0.dir/build.make CMakeFiles/cmTC_02ff0.dir/build
+make[1]: Entering directory '/home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_02ff0.dir/CheckSymbolExists.c.o
+/usr/bin/clang    -o CMakeFiles/cmTC_02ff0.dir/CheckSymbolExists.c.o   -c /home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_02ff0
+/home/kruseborn/clion/clion-2019.2.4/bin/cmake/linux/bin/cmake -E cmake_link_script CMakeFiles/cmTC_02ff0.dir/link.txt --verbose=1
+/usr/bin/clang      -rdynamic CMakeFiles/cmTC_02ff0.dir/CheckSymbolExists.c.o  -o cmTC_02ff0 /usr/lib/libbz2.so 
+make[1]: Leaving directory '/home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp'
+
+
+File /home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <bzlib.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef BZ2_bzCompressInit
+  return ((int*)(&BZ2_bzCompressInit))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
+Determining if the include file unistd.h exists passed with the following output:
+Change Dir: /home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_71c9d/fast && /usr/bin/make -f CMakeFiles/cmTC_71c9d.dir/build.make CMakeFiles/cmTC_71c9d.dir/build
+make[1]: Entering directory '/home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_71c9d.dir/CheckIncludeFile.c.o
+/usr/bin/clang    -o CMakeFiles/cmTC_71c9d.dir/CheckIncludeFile.c.o   -c /home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+Linking C executable cmTC_71c9d
+/home/kruseborn/clion/clion-2019.2.4/bin/cmake/linux/bin/cmake -E cmake_link_script CMakeFiles/cmTC_71c9d.dir/link.txt --verbose=1
+/usr/bin/clang      -rdynamic CMakeFiles/cmTC_71c9d.dir/CheckIncludeFile.c.o  -o cmTC_71c9d 
+make[1]: Leaving directory '/home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp'
+
+
+
+Determining if the include file fcntl.h exists passed with the following output:
+Change Dir: /home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_43185/fast && /usr/bin/make -f CMakeFiles/cmTC_43185.dir/build.make CMakeFiles/cmTC_43185.dir/build
+make[1]: Entering directory '/home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_43185.dir/CheckIncludeFile.c.o
+/usr/bin/clang    -o CMakeFiles/cmTC_43185.dir/CheckIncludeFile.c.o   -c /home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+Linking C executable cmTC_43185
+/home/kruseborn/clion/clion-2019.2.4/bin/cmake/linux/bin/cmake -E cmake_link_script CMakeFiles/cmTC_43185.dir/link.txt --verbose=1
+/usr/bin/clang      -rdynamic CMakeFiles/cmTC_43185.dir/CheckIncludeFile.c.o  -o cmTC_43185 
+make[1]: Leaving directory '/home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp'
+
+
+
+Determining if the include file stdint.h exists passed with the following output:
+Change Dir: /home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_a97a2/fast && /usr/bin/make -f CMakeFiles/cmTC_a97a2.dir/build.make CMakeFiles/cmTC_a97a2.dir/build
+make[1]: Entering directory '/home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_a97a2.dir/CheckIncludeFile.c.o
+/usr/bin/clang    -o CMakeFiles/cmTC_a97a2.dir/CheckIncludeFile.c.o   -c /home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+Linking C executable cmTC_a97a2
+/home/kruseborn/clion/clion-2019.2.4/bin/cmake/linux/bin/cmake -E cmake_link_script CMakeFiles/cmTC_a97a2.dir/link.txt --verbose=1
+/usr/bin/clang      -rdynamic CMakeFiles/cmTC_a97a2.dir/CheckIncludeFile.c.o  -o cmTC_a97a2 
+make[1]: Leaving directory '/home/kruseborn/git/mongoose/cmake-build-debug/CMakeFiles/CMakeTmp'
+
+
+

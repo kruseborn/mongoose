@@ -75,7 +75,8 @@ mg_cc_library(
         ${CPP_FLAGS}
 	DEPS_DIR
 		"$ENV{VULKAN_SDK}/include"
-    DEPS
+	DEPS
+		SDL2
         glfw
 		glm
 		freetype

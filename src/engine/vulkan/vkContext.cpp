@@ -367,7 +367,7 @@ static void initNvidiaFunctions() {
 }
 } // namespace nv
 
-bool initVulkan(GLFWwindow *window) {
+bool initVulkan(SDL_Window *window) {
   if (!createVulkanContext(window))
     return false;
 

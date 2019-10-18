@@ -1,10 +1,10 @@
 #pragma once
 
-struct GLFWwindow;
+struct SDL_Window;
 
 namespace mg {
 
-bool createVulkanContext(GLFWwindow *window);
+bool createVulkanContext(SDL_Window *window);
 
 void createCommandBuffers();
 void createCommandBufferFences();

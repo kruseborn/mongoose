@@ -5,11 +5,12 @@
 #include "singleRenderpass.h"
 #include "vkContext.h"
 #include "vkUtils.h"
-#include <GLFW/glfw3.h>
 #include <algorithm>
 #include <cstdlib>
 #include <iostream>
 #include <vector>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_vulkan.h>
 
 using namespace std;
 
@@ -20,7 +21,7 @@ namespace mg {
 #define __DEBUG false
 #endif
 
-#define ENABLE_DEBUGGING (false && std::getenv("VULKAN_SDK") != nullptr)
+#define ENABLE_DEBUGGING (true && std::getenv("VULKAN_SDK") != nullptr)
 
 static char *DEBUG_LAYER = (char *)"VK_LAYER_LUNARG_standard_validation";
 
@@ -169,8 +170,13 @@ static bool createInstance() {
   return false;
 }
 
-static void createWindowSurface(GLFWwindow *window) {
-  checkResult(glfwCreateWindowSurface(mg::vkContext.instance, window, nullptr, &mg::vkContext.windowSurface));
+static void createWindowSurface(SDL_Window *window) {
+  if(SDL_Vulkan_CreateSurface(window, mg::vkContext.instance, &mg::vkContext.windowSurface) == SDL_FALSE) {
+    SDL_LogError(
+            SDL_LOG_CATEGORY_APPLICATION,
+            "Couldn't initialize SDL: %s",
+            SDL_GetError());
+  }
 }
 
 static void findPhysicalDevice() {
@@ -354,7 +360,7 @@ static VkFormat getSupportedDepthFormat() {
 
 static void setupFormats() { mg::vkContext.formats.depth = getSupportedDepthFormat(); }
 
-bool createVulkanContext(GLFWwindow *window) {
+bool createVulkanContext(SDL_Window *window) {
   if (!createInstance())
     return false;
   createDebugCallback();
@@ -387,11 +393,14 @@ void resizeWindow() {
   VkSurfaceCapabilitiesKHR surfaceCapabilities;
   checkResult(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(mg::vkContext.physicalDevice, mg::vkContext.windowSurface,
                                                         &surfaceCapabilities));
+
+  LOG("surfaceCapabilities.currentExtent.width" << surfaceCapabilities.currentExtent.width << " " << surfaceCapabilities.currentExtent.height);
   mgAssert(mg::vkContext.screen.width == surfaceCapabilities.currentExtent.width &&
-           mg::vkContext.screen.height == surfaceCapabilities.currentExtent.height);
+          mg::vkContext.screen.height == surfaceCapabilities.currentExtent.height);
 
   mg::vkContext.swapChain->resize();
   waitForDeviceIdle();
+
 }
 
 } // namespace mg

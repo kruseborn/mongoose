@@ -1,0 +1,82 @@
+/home/kruseborn/clion/clion-2019.2.4/bin/cmake/linux/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /home/kruseborn/git/mongoose
+-- The C compiler identification is Clang 8.0.0
+-- The CXX compiler identification is Clang 8.0.0
+-- Check for working C compiler: /usr/bin/clang
+-- Check for working C compiler: /usr/bin/clang -- works
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Check for working CXX compiler: /usr/bin/clang++
+-- Check for working CXX compiler: /usr/bin/clang++ -- works
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+GLM: Clang - Clang compiler
+CMake Deprecation Warning at libs/glfw-3.2.1/CMakeLists.txt:10 (cmake_policy):
+  The OLD behavior for policy CMP0042 will be removed from a future version
+  of CMake.
+
+  The cmake-policies(7) manual explains that the OLD behaviors of all
+  policies are deprecated and that a policy should be set to OLD only under
+  specific short-term circumstances.  Projects should be ported to the NEW
+  behavior and not rely on setting a policy to OLD.
+
+
+-- Looking for pthread.h
+-- Looking for pthread.h - found
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Failed
+-- Looking for pthread_create in pthreads
+-- Looking for pthread_create in pthreads - not found
+-- Looking for pthread_create in pthread
+-- Looking for pthread_create in pthread - found
+-- Found Threads: TRUE  
+-- Found Vulkan: /home/kruseborn/vulkan/1.1.108.0/x86_64/lib/libvulkan.so  
+-- Using X11 for window creation
+-- Found X11: /usr/include   
+-- Looking for XOpenDisplay in /usr/lib/libX11.so;/usr/lib/libXext.so
+-- Looking for XOpenDisplay in /usr/lib/libX11.so;/usr/lib/libXext.so - found
+-- Looking for gethostbyname
+-- Looking for gethostbyname - found
+-- Looking for connect
+-- Looking for connect - found
+-- Looking for remove
+-- Looking for remove - found
+-- Looking for shmat
+-- Looking for shmat - found
+-- Looking for IceConnectionNumber in ICE
+-- Looking for IceConnectionNumber in ICE - found
+-- Building with ZLIB
+-- Building with BZip2
+-- Building with PNG
+-- Found PkgConfig: /usr/bin/pkg-config (found version "1.6.1") 
+-- Checking for module 'harfbuzz>=0.9.7'
+--   Found harfbuzz, version 2.5.3
+-- Checking for module 'harfbuzz-icu>=0.9.18'
+--   Package 'harfbuzz-icu', required by 'virtual:world', not found
+-- Creating directory /home/kruseborn/git/mongoose/cmake-build-debug/libs/freetype-2.6.2/include/freetype/config
+-- Creating file /home/kruseborn/git/mongoose/cmake-build-debug/libs/freetype-2.6.2/include/freetype/config/ftconfig.h
+-- Looking for unistd.h
+-- Looking for unistd.h - found
+-- Looking for fcntl.h
+-- Looking for fcntl.h - found
+-- Looking for stdint.h
+-- Looking for stdint.h - found
+-- Creating file /home/kruseborn/git/mongoose/cmake-build-debug/libs/freetype-2.6.2/include/freetype/config/ftoption.h
+lodepng
+imgui
+tiny_gltf
+stb
+GLM_FORCE_DEPTH_ZERO_TO_ONEGLM_FORCE_LEFT_HANDED
+GLM_FORCE_DEPTH_ZERO_TO_ONEGLM_FORCE_LEFT_HANDED
+GLM_FORCE_DEPTH_ZERO_TO_ONEGLM_FORCE_LEFT_HANDED
+GLM_FORCE_DEPTH_ZERO_TO_ONEGLM_FORCE_LEFT_HANDED
+GLM_FORCE_DEPTH_ZERO_TO_ONEGLM_FORCE_LEFT_HANDED
+GLM_FORCE_DEPTH_ZERO_TO_ONEGLM_FORCE_LEFT_HANDED
+CPP_FLAGS-Wno-gnu-anonymous-struct-Wno-nested-anon-types-mavx-Wall-Werror
+mg-engine
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/kruseborn/git/mongoose/cmake-build-debug
