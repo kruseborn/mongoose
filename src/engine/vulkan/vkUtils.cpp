@@ -90,10 +90,14 @@ void beginRendering() {
 }
 
 void acquireNextSwapChainImage() {
-  checkResult(
-      vkAcquireNextImageKHR(vkContext.device, vkContext.swapChain->swapChain, UINT64_MAX,
+  auto result = vkAcquireNextImageKHR(vkContext.device, vkContext.swapChain->swapChain, UINT64_MAX,
                             vkContext.commandBuffers.imageAquiredSemaphore[vkContext.commandBuffers.currentIndex],
-                            VK_NULL_HANDLE, &vkContext.swapChain->currentSwapChainIndex));
+                            VK_NULL_HANDLE, &vkContext.swapChain->currentSwapChainIndex);
+  if(result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
+    mg::vkContext.swapChain->resize();
+  } else if (result != VK_SUCCESS) {
+    throw std::runtime_error("failed to present swap chain image!");
+  }
 }
 
 void endRendering() {
@@ -125,7 +129,10 @@ void endRendering() {
   presentInfo.pWaitSemaphores = &vkContext.commandBuffers.renderCompleteSemaphore[commandBufferIndex];
   presentInfo.pResults = nullptr;
 
-  checkResult(vkQueuePresentKHR(vkContext.queue, &presentInfo));
+  auto result = vkQueuePresentKHR(vkContext.queue, &presentInfo);
+    if(!(result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || result == VK_SUCCESS)) {
+    throw std::runtime_error("failed to present swap chain image!");
+  }
 
   vkContext.commandBuffers.submitted[commandBufferIndex] = true;
   vkContext.commandBuffers.currentIndex =

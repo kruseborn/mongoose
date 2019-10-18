@@ -40,7 +40,7 @@ void initWindow(uint32_t width, uint32_t height) {
     exit(1);
   }
 
-  window = SDL_CreateWindow("Live long and prosper", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_VULKAN | SDL_WINDOW_SHOWN);
+  window = SDL_CreateWindow("Live long and prosper", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_VULKAN | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
   mgAssert(window && "Could not create SDL window");
 
   int32_t w, h;
@@ -88,10 +88,13 @@ FrameData getFrameData() {
     frameData.fps = uint32_t(newFps);
   frameData.fps = uint32_t(frameData.fps * 0.1 + 0.9 * newFps);
 
+  SDL_PumpEvents();
+
   int32_t width, height;
   SDL_GetWindowSize(window, &width, &height);
   frameData.width = width;
   frameData.height = height;
+  LOG(width);
   if (frameData.width != vkContext.screen.width || frameData.height != vkContext.screen.height) {
     frameData.resize = true;
     vkContext.screen.width = frameData.width;
@@ -104,7 +107,6 @@ FrameData getFrameData() {
 
   prevXY = frameData.mouse.xy;
 
-  SDL_PumpEvents();
   frameData.mouse.left = SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT);
   frameData.mouse.middle = SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_MIDDLE);
   frameData.mouse.right = SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_RIGHT);
