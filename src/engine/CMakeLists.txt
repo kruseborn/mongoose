@@ -61,7 +61,7 @@ set(SRC
 	"mg/meshUtils.h"
 	"mg/meshUtils.cpp"
 )
-message(CPP_FLAGS ${CPP_FLAGS})
+
 mg_cc_library(
     NAME
         mg-engine
@@ -75,8 +75,9 @@ mg_cc_library(
         ${CPP_FLAGS}
 	DEPS_DIR
 		"$ENV{VULKAN_SDK}/include"
+		"${SDL2_INCLUDE_DIRS}"
 	DEPS
-		SDL2
+		SDL2-static
         glfw
 		glm
 		freetype

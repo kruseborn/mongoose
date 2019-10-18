@@ -9,8 +9,8 @@
 #include <cstdlib>
 #include <iostream>
 #include <vector>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_vulkan.h>
+#include <SDL.h>
+#include <SDL_vulkan.h>
 
 using namespace std;
 

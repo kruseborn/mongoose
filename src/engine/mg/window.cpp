@@ -8,7 +8,7 @@
 #include "vulkan/vkWindow.h"
 #include <cassert>
 #include <cstdio>
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <cstdlib>
 
 namespace mg {
