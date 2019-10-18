@@ -126,12 +126,8 @@ static bool createInstance() {
   extensions.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
   extensions.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
-#elif defined(VK_USE_PLATFORM_IOS_MVK)
-  extensions.push_back(VK_MVK_IOS_SURFACE_EXTENSION_NAME);
-#elif defined(VK_USE_PLATFORM_MACOS_MVK)
-  extensions.push_back(VK_MVK_MACOS_SURFACE_EXTENSION_NAME);
-#elif defined(VK_USE_PLATFORM_XCB_KHR)
-  extensions.push_back(VK_KHR_XCB_SURFACE_EXTENSION_NAME);
+#elif defined(VK_USE_PLATFORM_XLIB_KHR)
+  extensions.push_back(VK_KHR_XLIB_SURFACE_EXTENSION_NAME);
 #endif
   if (ENABLE_DEBUGGING)
     extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
@@ -176,6 +172,7 @@ static void createWindowSurface(SDL_Window *window) {
             SDL_LOG_CATEGORY_APPLICATION,
             "Couldn't initialize SDL: %s",
             SDL_GetError());
+            exit(1);
   }
 }
 

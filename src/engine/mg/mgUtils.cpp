@@ -117,12 +117,7 @@ std::vector<char> readBinaryCharVecFromDisc(const std::string &fileName) {
 }
 
 std::string readStringFromDisc(const std::string &fileName) {
-#if defined(VK_USE_PLATFORM_IOS_MVK) || defined(VK_USE_PLATFORM_MACOS_MVK)
-  auto macFileName = getMacResourcePath(fileName.c_str());
-  std::ifstream file(macFileName);
-#else
   std::ifstream file(fileName);
-#endif
   mgAssert(file.is_open());
   std::string res;
   std::string line;
