@@ -2,10 +2,10 @@
 
 #include "mg/logger.h"
 #include "mg/mgSystem.h"
+#include "mg/window.h"
 #include "singleRenderpass.h"
 #include "vkContext.h"
 #include "vkUtils.h"
-#include "mg/window.h"
 #include <GLFW/glfw3.h>
 #include <algorithm>
 #include <cstdlib>
@@ -15,13 +15,13 @@
 using namespace std;
 
 namespace mg {
-#if (defined _DEBUG) || (defined DEBUG)
-#define __DEBUG true
-#else
+#if (defined NDEBUG)
 #define __DEBUG false
+#else
+#define __DEBUG true
 #endif
 
-#define ENABLE_DEBUGGING (true && std::getenv("VULKAN_SDK") != nullptr)
+#define ENABLE_DEBUGGING (__DEBUG && std::getenv("VULKAN_SDK") != nullptr)
 
 static char *DEBUG_LAYER = (char *)"VK_LAYER_LUNARG_standard_validation";
 

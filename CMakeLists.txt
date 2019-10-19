@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.12)
 
 project(Mongoose)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+if (NOT CMAKE_BUILD_TYPE MATCHES Debug)
+    add_definitions(-DNDEBUG)
+endif()
 
 include(cmake-modules/copts.cmake)
 include(cmake-modules/platform.cmake)
