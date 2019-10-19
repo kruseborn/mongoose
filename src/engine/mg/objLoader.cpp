@@ -185,9 +185,22 @@ struct Outputs {
   std::ofstream binary, sizes, materials, mesh;
 };
 
+inline bool exists(const std::string &name) {
+  std::ifstream f(name.c_str());
+  return f.good();
+}
+
 ObjMeshes loadObjFromFile(const std::string &filename) {
+  if (!exists(filename)) {
+    LOG("Could not find .obj file, some obj files may need to be unzipped before use");
+    exit(1);
+  }
+
   ObjMeshes tinyObjMeshes = {};
   Outputs outputs = {};
+
+
+
   const auto name = getName(filename);
   std::ifstream ifText(name + ".txt");
   if (ifText.good()) {
