@@ -43,7 +43,6 @@ public:
   void* allocateUniform(VkDeviceSize sizeInBytes, VkBuffer *buffer, uint32_t *offset, VkDescriptorSet *vkDescriptorSet);
   void *allocateStorage(VkDeviceSize sizeInBytes, VkBuffer *buffer, uint32_t *offset, VkDescriptorSet *vkDescriptorSet);
   void* allocateStaging(VkDeviceSize sizeInBytes, VkDeviceSize alignmentOffset, VkCommandBuffer *commandBuffer, VkBuffer *buffer, VkDeviceSize *offset);
-  VkCommandBuffer getCopyCommandBuffer();
 
   void submitStagingMemoryToDeviceLocalMemory();
   void swapLinearHeapBuffers();

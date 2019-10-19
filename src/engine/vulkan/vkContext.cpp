@@ -237,12 +237,6 @@ static void createPipelineLayout() {
     layoutCreateInfo.setLayoutCount = mg::countof(descriptorSetLayoutsStorages);
     layoutCreateInfo.pSetLayouts = descriptorSetLayoutsStorages;
 
-    VkPushConstantRange pushConstantRange = {};
-    pushConstantRange.stageFlags = VK_SHADER_STAGE_ALL;
-    pushConstantRange.size = 256;
-
-    layoutCreateInfo.pPushConstantRanges = &pushConstantRange;
-    layoutCreateInfo.pushConstantRangeCount = 1;
     checkResult(vkCreatePipelineLayout(mg::vkContext.device, &layoutCreateInfo, nullptr,
                                        &mg::vkContext.pipelineLayouts.pipelineLayoutRayTracing));
   }

@@ -176,9 +176,38 @@ StorageId StorageContainer::createImageStorage(const CreateImageStorageInfo &inf
   preCopyMemoryBarrier.image = _storageData.storage.image;
   preCopyMemoryBarrier.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
 
-  auto copyCommandBuffer = mg::mgSystem.linearHeapAllocator.getCopyCommandBuffer();
-  vkCmdPipelineBarrier(copyCommandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0,
+    VkCommandBufferAllocateInfo commandBufferAllocateInfo = {};
+  commandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+  commandBufferAllocateInfo.commandPool = mg::vkContext.commandPool;
+  commandBufferAllocateInfo.commandBufferCount = 1;
+  commandBufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+
+  VkCommandBuffer commandBuffer;
+  mg::checkResult(vkAllocateCommandBuffers(mg::vkContext.device, &commandBufferAllocateInfo, &commandBuffer));
+
+  VkCommandBufferBeginInfo commandBufferBeginInfo = {};
+  commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+  commandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+  mg::checkResult(vkBeginCommandBuffer(commandBuffer, &commandBufferBeginInfo));
+
+  vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0,
                        nullptr, 0, nullptr, 1, &preCopyMemoryBarrier);
+  mg::checkResult(vkEndCommandBuffer(commandBuffer));
+
+  VkSubmitInfo submitInfo = {};
+  submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+  submitInfo.commandBufferCount = 1;
+  submitInfo.pCommandBuffers = &commandBuffer;
+
+  VkFenceCreateInfo fenceInfo = {};
+  fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+  VkFence fence;
+  mg::checkResult(vkCreateFence(mg::vkContext.device, &fenceInfo, nullptr, &fence));
+
+  mg::checkResult(vkQueueSubmit(mg::vkContext.queue, 1, &submitInfo, fence));
+  mg::checkResult(vkWaitForFences(mg::vkContext.device, 1, &fence, VK_TRUE, UINT64_MAX));
+  vkDestroyFence(mg::vkContext.device, fence, nullptr);
+  vkFreeCommandBuffers(mg::vkContext.device, mg::vkContext.commandPool, 1, &commandBuffer);
 
   VkImageViewCreateInfo vkImageViewCreateInfo = {};
   vkImageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -221,25 +250,6 @@ StorageId StorageContainer::createImageStorage(const CreateImageStorageInfo &inf
   return storageId;
 }
 
-void *StorageContainer::mapDeviceMemory(StorageId storageId) {
-  mgAssert(storageId.index < _idToStorage.size());
-  mgAssert(storageId.generation == _generations[storageId.index]);
-
-  const auto &_storage = _idToStorage[storageId.index];
-
-  void *mappedMemory = nullptr;
-  mg::checkResult(vkMapMemory(mg::vkContext.device, _storage.heapAllocation.deviceMemory, _storage.heapAllocation.offset,
-              _storage.storage.size, 0, &mappedMemory));
-  return mappedMemory;
-}
-void StorageContainer::unmapDeviceMemory(StorageId storageId) {
-  mgAssert(storageId.index < _idToStorage.size());
-  mgAssert(storageId.generation == _generations[storageId.index]);
-
-  const auto &_storage = _idToStorage[storageId.index];
-  vkUnmapMemory(mg::vkContext.device, _storage.heapAllocation.deviceMemory);
-}
-
 StorageData StorageContainer::getStorage(StorageId storageId) const {
   mgAssert(storageId.index < _idToStorage.size());
   mgAssert(storageId.generation == _generations[storageId.index]);
@@ -253,6 +263,8 @@ void StorageContainer::removeStorage(StorageId storageId) {
 
   mg::mgSystem.textureDeviceMemoryAllocator.freeDeviceOnlyMemory(_idToStorage[storageId.index].heapAllocation);
   vkDestroyBuffer(mg::vkContext.device, _idToStorage[storageId.index].storage.buffer, nullptr);
+  vkDestroyImageView(mg::vkContext.device, _idToStorage[storageId.index].storage.imageView, nullptr);
+  vkDestroyImage(mg::vkContext.device, _idToStorage[storageId.index].storage.image, nullptr);
   _idToStorage[storageId.index] = {};
   _generations[storageId.index]++;
   _freeIndices.push_back(storageId.index);

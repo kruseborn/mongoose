@@ -83,5 +83,5 @@ void renderScene(const mg::FrameData &frameData) {
 
   mg::endSingleRenderPass();
 
-  return mg::endRendering();
+  mg::endRendering();
 }

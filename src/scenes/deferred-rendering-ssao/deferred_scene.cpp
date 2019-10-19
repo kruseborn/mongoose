@@ -100,5 +100,5 @@ void renderScene(const mg::FrameData &frameData) {
     mg::mgSystem.imguiOverlay.draw(renderContext, frameData);
   }
   endDeferredRenderPass();
-  return mg::endRendering();
+  mg::endRendering();
 }

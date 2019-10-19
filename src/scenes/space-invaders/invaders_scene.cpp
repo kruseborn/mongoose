@@ -121,5 +121,5 @@ void invadersRender(const Invaders &invaders, const mg::FrameData &frameData) {
   mg::renderText(renderContext, texts);
 
   mg::endSingleRenderPass();
-  return mg::endRendering();
+  mg::endRendering();
 }

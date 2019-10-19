@@ -127,13 +127,15 @@ void renderScene(const mg::FrameData &frameData) {
 
   mg::beginRendering();
   mg::RenderContext renderContext = {};
+
   renderContext.projection = glm::perspective(
       glm::radians(camera.fov), mg::vkContext.screen.width / float(mg::vkContext.screen.height), 0.1f, 1000.f);
   renderContext.view = glm::lookAt(camera.position, camera.aim, camera.up);
 
-  traceTriangle(world, camera, renderContext, rayinfo);
 
   mg::beginSingleRenderPass(singleRenderPass);
+  traceTriangle(world, camera, renderContext, rayinfo);
+
   renderContext.renderPass = singleRenderPass.vkRenderPass;
 
   drawImageStorage(renderContext, rayinfo);
@@ -141,8 +143,8 @@ void renderScene(const mg::FrameData &frameData) {
   mg::validateTexts(texts);
   mg::renderText(renderContext, texts);
 
-  mg::endSingleRenderPass();
-
   rayinfo.resetAccumulationImage = false;
+
+  mg::endSingleRenderPass();
   mg::endRendering();
 }

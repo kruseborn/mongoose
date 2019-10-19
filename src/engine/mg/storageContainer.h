@@ -39,8 +39,6 @@ public:
 
   StorageData getStorage(StorageId storageId) const;
 
-  void *mapDeviceMemory(StorageId storageId);
-  void unmapDeviceMemory(StorageId storageId);
   void removeStorage(StorageId storageId);
 
   void destroyStorageContainer();

@@ -72,5 +72,5 @@ void renderScene(const mg::FrameData &frameData) {
   }
   endVolumeRenderPass();
 
-  return mg::endRendering();
+  mg::endRendering();
 }

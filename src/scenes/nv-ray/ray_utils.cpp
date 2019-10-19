@@ -203,7 +203,7 @@ static ScratchBuffer createScrathMemory(RayInfo *rayInfo) {
   for (uint64_t i = 0; i < rayInfo->bottomLevelASs.size(); i++) {
     VkAccelerationStructureMemoryRequirementsInfoNV memoryRequirementsInfo{};
     memoryRequirementsInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_INFO_NV;
-    memoryRequirementsInfo.type = VK_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_TYPE_OBJECT_NV;
+    memoryRequirementsInfo.type = VK_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_TYPE_BUILD_SCRATCH_NV;
 
     VkMemoryRequirements2 memReqBottomLevelAS = {};
     memReqBottomLevelAS.sType = VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS_2;
@@ -215,7 +215,7 @@ static ScratchBuffer createScrathMemory(RayInfo *rayInfo) {
   }
   VkAccelerationStructureMemoryRequirementsInfoNV memoryRequirementsInfo{};
   memoryRequirementsInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_INFO_NV;
-  memoryRequirementsInfo.type = VK_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_TYPE_OBJECT_NV;
+  memoryRequirementsInfo.type = VK_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_TYPE_BUILD_SCRATCH_NV;
 
   VkMemoryRequirements2 memReqTopLevelAS = {};
   memReqTopLevelAS.sType = VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS_2;
@@ -337,6 +337,7 @@ void resetSizeStorageImages(RayInfo *rayInfo) {
 }
 
 void destroyRayInfo(RayInfo *rayInfo) {
+  mg::waitForDeviceIdle();
   destroyStorageImges(rayInfo);
   mg::mgSystem.storageContainer.removeStorage(rayInfo->storageSpheresId);
 

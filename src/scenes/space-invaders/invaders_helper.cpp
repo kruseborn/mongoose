@@ -180,7 +180,7 @@ void alienOnPlayerCollision(const Hashmap &hashmap, const Settings &settings, Al
 void removeBulletsOutsideBorders(Bullets *bullets) {
   assert(bullets);
   for (int32_t i = int32_t(bullets->nrBullets) - 1; i >= 0; i--) {
-    if (!inRange(bullets->y[i], 0.0f, mg::vkContext.screen.height)) {
+    if (!inRange(bullets->y[i], 0.0f, float(mg::vkContext.screen.height))) {
       bullets->x[i] = bullets->x[--bullets->nrBullets];
       bullets->y[i] = bullets->y[bullets->nrBullets];
     }

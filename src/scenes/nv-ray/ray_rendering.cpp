@@ -128,7 +128,7 @@ static mg::Pipeline createImageStoragePipeline(const mg::RenderContext &renderCo
   pipelineStateDesc.rasterization.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayoutRayTracing;
   pipelineStateDesc.rasterization.rasterization.cullMode = VK_CULL_MODE_NONE;
   pipelineStateDesc.rasterization.graphics.subpass = renderContext.subpass;
-  pipelineStateDesc.rasterization.depth.TestEnable = VK_FALSE;
+  pipelineStateDesc.rasterization.depth.TestEnable = VK_TRUE;
   pipelineStateDesc.rasterization.depth.writeEnable = VK_FALSE;
 
   mg::CreatePipelineInfo createPipelineInfo = {};

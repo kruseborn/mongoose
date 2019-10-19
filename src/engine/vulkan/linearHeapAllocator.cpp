@@ -273,10 +273,6 @@ void *LinearHeapAllocator::allocateStaging(VkDeviceSize sizeInBytes, VkDeviceSiz
   return dataBuffer;
 }
 
-VkCommandBuffer LinearHeapAllocator::getCopyCommandBuffer() { 
-  return _stagingBuffer.vkCommandBuffers[_currentBufferIndex];
-}
-
 void LinearHeapAllocator::create() {
   VkDescriptorSetAllocateInfo vkDescriptorSetAllocateInfo = {};
   vkDescriptorSetAllocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
