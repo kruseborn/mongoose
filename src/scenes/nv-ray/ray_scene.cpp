@@ -46,6 +46,12 @@ static void generateSobol() {
   rayinfo.sobolId = mg::mgSystem.textureContainer.createTexture(texturInfo);
 }
 
+static void resizeCallback() {
+    rayinfo.resetAccumulationImage = true;
+    mg::resizeSingleRenderPass(&singleRenderPass);
+    resetSizeStorageImages(&rayinfo);
+}
+
 void initScene() {
   generateSobol();
   world.blueNoise = mg::uploadPngImage("HDR_RGBA_0.png");
@@ -90,6 +96,7 @@ void initScene() {
   createRayInfo(world, &rayinfo);
   mg::initSingleRenderPass(&singleRenderPass);
   mg::mgSystem.textureContainer.setupDescriptorSets();
+  mg::vkContext.swapChain->resizeCallack = resizeCallback;
 }
 
 void destroyScene() {
@@ -99,11 +106,6 @@ void destroyScene() {
 }
 
 void updateScene(const mg::FrameData &frameData) {
-  if (frameData.resize) {
-    rayinfo.resetAccumulationImage = true;
-    mg::resizeSingleRenderPass(&singleRenderPass);
-    resetSizeStorageImages(&rayinfo);
-  }
   if (frameData.keys.r) {
     rayinfo.resetAccumulationImage = true;
     mg::mgSystem.pipelineContainer.resetPipelineContainer();
@@ -115,7 +117,7 @@ void updateScene(const mg::FrameData &frameData) {
   mg::setCameraTransformation(&camera);
 }
 
-bool renderScene(const mg::FrameData &frameData) {
+void renderScene(const mg::FrameData &frameData) {
   mg::Texts texts = {};
   char fps[50];
   snprintf(fps, sizeof(fps), "Fps: %u", uint32_t(frameData.fps));
@@ -142,5 +144,5 @@ bool renderScene(const mg::FrameData &frameData) {
   mg::endSingleRenderPass();
 
   rayinfo.resetAccumulationImage = false;
-  return mg::endRendering();
+  mg::endRendering();
 }

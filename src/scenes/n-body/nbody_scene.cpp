@@ -18,6 +18,11 @@ static NBodyRenderPass nbodyRenderPass = {};
 
 static ComputeData computeData = {};
 
+static void resizeCallback() {
+  resizeNBodyRenderPass(&nbodyRenderPass);
+  mg::mgSystem.textureContainer.setupDescriptorSets();
+}
+
 void initScene() {
   initNBodyRenderPass(&nbodyRenderPass);
 
@@ -26,6 +31,7 @@ void initScene() {
 
   initParticles(&computeData);
   mg::mgSystem.textureContainer.setupDescriptorSets();
+  mg::vkContext.swapChain->resizeCallack = resizeCallback;
 }
 
 void destroyScene() {
@@ -35,9 +41,6 @@ void destroyScene() {
 }
 
 void updateScene(const mg::FrameData &frameData) {
-  if (frameData.resize) {
-    resizeNBodyRenderPass(&nbodyRenderPass);
-  }
   if (frameData.keys.r) {
     mg::mgSystem.pipelineContainer.resetPipelineContainer();
   }
@@ -46,7 +49,7 @@ void updateScene(const mg::FrameData &frameData) {
   mg::setCameraTransformation(&camera);
 }
 
-bool renderScene(const mg::FrameData &frameData) {
+void renderScene(const mg::FrameData &frameData) {
   mg::Texts texts = {};
   char fps[50];
   snprintf(fps, sizeof(fps), "Fps: %u", uint32_t(frameData.fps));
@@ -74,5 +77,5 @@ bool renderScene(const mg::FrameData &frameData) {
 
   endNBodyRenderPass();
 
-  return mg::endRendering();
+  mg::endRendering();
 }

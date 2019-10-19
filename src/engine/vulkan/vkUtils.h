@@ -19,9 +19,9 @@ void setViewPort(float x, float y, float width, float height, float minDepth, fl
 void setFullscreenViewport();
 
 void beginRendering();
-bool endRendering();
-void acquireNextSwapChainImage();
+void endRendering();
 void waitForDeviceIdle();
+void resizeWindow();
 
 inline char *errorString(VkResult errorCode) {
   switch (errorCode) {

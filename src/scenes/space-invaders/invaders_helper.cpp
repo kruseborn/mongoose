@@ -45,14 +45,14 @@ void invadersReset(Invaders *invaders, const Settings &settings) {
     for (uint32_t x = 0; x < settings.aliensCols; x++) {
       aliens.colors[aliens.nrAliens] = colors[(x & 1) ^ (y & 1)];
       aliens.x[aliens.nrAliens] = float(settings.alienSize * x);
-      aliens.y[aliens.nrAliens++] = mg::getScreenHeight() - float((y + 1) * settings.alienSize);
+      aliens.y[aliens.nrAliens++] = mg::vkContext.screen.height - float((y + 1) * settings.alienSize);
     }
   }
   // player
   player.health = settings.startHealth;
   player.weaponColdDown = settings.playerFireColdDown;
   player.speed = settings.playerSpeed;
-  player.position.x = float(mg::getScreenWidth() / 2);
+  player.position.x = float(mg::vkContext.screen.width / 2);
   player.position.y = 0;
   playerBullets.speed = settings.playerBulletSpeed;
   playerBullets.direction = {0, 1};
@@ -64,7 +64,7 @@ MinMax transformAliens(const Settings &settings, Aliens *aliens, float dt) {
   const auto minMax = transformPositionsCalculateLimits(aliens->x, aliens->y, aliens->nrAliens, dir, aliens->speed, dt);
   Limits limits = {};
   limits.left = settings.alienSize * 0.1f;
-  limits.right = mg::getScreenWidth() - settings.alienSize;
+  limits.right = mg::vkContext.screen.width - settings.alienSize;
   limits.down = settings.alienSize * 0.8f;
   changeAlienDirectionIfNeeded(aliens, minMax, limits, dt);
   return minMax;
@@ -180,7 +180,7 @@ void alienOnPlayerCollision(const Hashmap &hashmap, const Settings &settings, Al
 void removeBulletsOutsideBorders(Bullets *bullets) {
   assert(bullets);
   for (int32_t i = int32_t(bullets->nrBullets) - 1; i >= 0; i--) {
-    if (!inRange(bullets->y[i], 0.0f, mg::getScreenHeight())) {
+    if (!inRange(bullets->y[i], 0.0f, mg::vkContext.screen.height)) {
       bullets->x[i] = bullets->x[--bullets->nrBullets];
       bullets->y[i] = bullets->y[bullets->nrBullets];
     }

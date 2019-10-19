@@ -79,11 +79,7 @@ void SwapChain::createImageViews() {
 void SwapChain::createImages() {
   VkSurfaceCapabilitiesKHR surfaceCapabilities;
   checkResult(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(mg::vkContext.physicalDevice, mg::vkContext.windowSurface, &surfaceCapabilities));
-  if (surfaceCapabilities.currentExtent.width != mg::vkContext.screen.width ||
-      surfaceCapabilities.currentExtent.height != mg::vkContext.screen.height) {
-    mgAssertDesc(false, "Surface doesn't match video width or height");
-    exit(1);
-  }
+
   uint32_t formatCount;
   checkResult(vkGetPhysicalDeviceSurfaceFormatsKHR(mg::vkContext.physicalDevice, mg::vkContext.windowSurface, &formatCount, nullptr));
   mgAssert(formatCount != 0);
@@ -186,6 +182,10 @@ void SwapChain::resize() {
 
   createImages();
   createImageViews();
+
+  if(resizeCallack) {
+    resizeCallack();
+  }
 }
 
 void SwapChain::destroy() {

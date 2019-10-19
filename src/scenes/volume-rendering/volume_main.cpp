@@ -4,11 +4,10 @@
 int main() {
   mg::initWindow(1500, 1024);
   initScene();
-  bool resize = true;
   while (mg::startFrame()) {
-    auto frameData = mg::getFrameData(resize);
+    auto frameData = mg::getFrameData();
     updateScene(frameData);
-    resize = renderScene(frameData);
+    renderScene(frameData);
     mg::endFrame();
   }
   destroyScene();

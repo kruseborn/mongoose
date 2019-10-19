@@ -15,6 +15,11 @@ Device device = {};
 static const Settings settings = {};
 static mg::SingleRenderPass singleRenderPass;
 
+static void resizeCallback() {
+  mg::resizeSingleRenderPass(&singleRenderPass);
+  mg::mgSystem.textureContainer.setupDescriptorSets();
+}
+
 void invadersInit(Invaders *invaders) {
   mg::initSingleRenderPass(&singleRenderPass);
 
@@ -23,6 +28,7 @@ void invadersInit(Invaders *invaders) {
   invadersReset(invaders);
 
   mg::mgSystem.textureContainer.setupDescriptorSets();
+  mg::vkContext.swapChain->resizeCallack = resizeCallback;
 }
 
 void invadersDestroy(Invaders *invaders) {
@@ -39,9 +45,6 @@ void invadersReset(Invaders *invaders) { invadersReset(invaders, settings); }
 void invadersSimulate(Invaders *invaders, const mg::FrameData &frameData, float dt) {
   assert(invaders);
 
-  if (frameData.resize) {
-    mg::resizeSingleRenderPass(&singleRenderPass);
-  }
   if (frameData.keys.r) {
     mg::mgSystem.pipelineContainer.resetPipelineContainer();
   }
@@ -57,7 +60,7 @@ void invadersSimulate(Invaders *invaders, const mg::FrameData &frameData, float 
   auto &alienBullets = invaders->alienBullets;
 
   // transform
-  transformPlayer(&player, uint32_t(mg::getScreenWidth()), settings.playerSize, frameData, dt);
+  transformPlayer(&player, mg::vkContext.screen.width, settings.playerSize, frameData, dt);
   const auto minMaxAliens = transformAliens(settings, &aliens, dt);
   transformPositions(playerBullets.x, playerBullets.y, playerBullets.nrBullets, playerBullets.direction, playerBullets.speed, dt);
   transformPositions(alienBullets.x, alienBullets.y, alienBullets.nrBullets, alienBullets.direction, alienBullets.speed, dt);
@@ -83,11 +86,11 @@ void invadersSimulate(Invaders *invaders, const mg::FrameData &frameData, float 
   removeBulletsOutsideBorders(&playerBullets);
   removeBulletsOutsideBorders(&alienBullets);
 
-  const bool isAliensOutSideBorder = minMaxAliens.ymax > (mg::getScreenHeight() - settings.alienSize);
+  const bool isAliensOutSideBorder = minMaxAliens.ymax > (mg::vkContext.screen.height - settings.alienSize);
   player.health *= !isAliensOutSideBorder;
 }
 
-bool invadersRender(const Invaders &invaders, const mg::FrameData &frameData) {
+void invadersRender(const Invaders &invaders, const mg::FrameData &frameData) {
   mg::beginRendering();
   mg::setFullscreenViewport();
   mg::beginSingleRenderPass(singleRenderPass);

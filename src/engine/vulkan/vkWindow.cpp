@@ -5,6 +5,7 @@
 #include "singleRenderpass.h"
 #include "vkContext.h"
 #include "vkUtils.h"
+#include "mg/window.h"
 #include <GLFW/glfw3.h>
 #include <algorithm>
 #include <cstdlib>
@@ -234,11 +235,9 @@ static void findPhysicalDevice() {
   VkSurfaceCapabilitiesKHR surfaceCapabilities;
   checkResult(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(mg::vkContext.physicalDevice, mg::vkContext.windowSurface,
                                                         &surfaceCapabilities));
-  if (mg::vkContext.screen.width != surfaceCapabilities.currentExtent.width ||
-      mg::vkContext.screen.height != surfaceCapabilities.currentExtent.height) {
-    mg::vkContext.screen.width = surfaceCapabilities.currentExtent.width;
-    mg::vkContext.screen.height = surfaceCapabilities.currentExtent.height;
-  }
+
+  mg::vkContext.screen.width = surfaceCapabilities.currentExtent.width;
+  mg::vkContext.screen.height = surfaceCapabilities.currentExtent.height;
 }
 
 static void createLogicalDevice() {
@@ -380,19 +379,5 @@ void destroyVulkanWindow() {
 }
 
 void destoyInstance() { vkDestroyInstance(mg::vkContext.instance, nullptr); }
-
-void resizeWindow() {
-  waitForDeviceIdle();
-
-  VkSurfaceCapabilitiesKHR surfaceCapabilities;
-  checkResult(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(mg::vkContext.physicalDevice, mg::vkContext.windowSurface,
-                                                        &surfaceCapabilities));
-  mg::vkContext.screen.width = surfaceCapabilities.currentExtent.width;
-  mg::vkContext.screen.height = surfaceCapabilities.currentExtent.height;
-
-  vkContext.swapChain->resize();
-
-  waitForDeviceIdle();
-}
 
 } // namespace mg

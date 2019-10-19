@@ -20,6 +20,12 @@ static Noise noise;
 static mg::ObjMeshes objMeshes;
 
 using namespace std;
+
+static void resizeCallback() {
+  resizeDeferredRenderPass(&deferredRenderPass);
+  mg::mgSystem.textureContainer.setupDescriptorSets();
+}
+
 void initScene() {
 
   camera = mg::create3DCamera(glm::vec3(0.5, 200, 470), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
@@ -30,6 +36,7 @@ void initScene() {
   noise = createNoise();
 
   mg::mgSystem.textureContainer.setupDescriptorSets();
+  mg::vkContext.swapChain->resizeCallack = resizeCallback;
 }
 
 void destroyScene() {
@@ -39,9 +46,6 @@ void destroyScene() {
 }
 
 void updateScene(const mg::FrameData &frameData) {
-  if (frameData.resize) {
-    resizeDeferredRenderPass(&deferredRenderPass);
-  }
   if (frameData.keys.r) {
     mg::mgSystem.pipelineContainer.resetPipelineContainer();
   }
@@ -53,7 +57,7 @@ void updateScene(const mg::FrameData &frameData) {
   }
 }
 
-bool renderScene(const mg::FrameData &frameData) {
+void renderScene(const mg::FrameData &frameData) {
   mg::Texts texts = {};
   mg::Text text = {"Rungholt"};
 

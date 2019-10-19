@@ -59,6 +59,8 @@ static void setFullscreenScissor() {
   vkCmdSetScissor(vkContext.commandBuffer, 0, 1, &scissor);
 }
 
+static bool acquireNextSwapChainImage();
+
 void setFullscreenViewport() {
   setViewPort(0, 0, float(vkContext.screen.width), float(vkContext.screen.height), 0.0f, 1.0f);
   setFullscreenScissor();
@@ -85,18 +87,48 @@ void beginRendering() {
   vkCommandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
   checkResult(vkBeginCommandBuffer(vkContext.commandBuffer, &vkCommandBufferBeginInfo));
 
+  
   setFullscreenViewport();
   acquireNextSwapChainImage();
 }
 
-void acquireNextSwapChainImage() {
-  const auto result = vkAcquireNextImageKHR(vkContext.device, vkContext.swapChain->swapChain, UINT64_MAX,
+static bool acquireNextSwapChainImage() {
+  uint32_t count = 0;
+  VkResult res = VK_TIMEOUT;
+  while(res != VK_SUCCESS) {
+    res = vkAcquireNextImageKHR(vkContext.device, vkContext.swapChain->swapChain, UINT64_MAX,
                             vkContext.commandBuffers.imageAquiredSemaphore[vkContext.commandBuffers.currentIndex],
                             VK_NULL_HANDLE, &vkContext.swapChain->currentSwapChainIndex);
-  checkResult(result);
+    
+    switch (res) {
+    case VK_SUCCESS:
+        break;
+      case VK_ERROR_OUT_OF_DATE_KHR:
+      case VK_SUBOPTIMAL_KHR:
+        count++;
+        resizeWindow();
+        break;
+      default:
+        checkResult(res);
+        exit(1);
+    }
+  }
+  return count > 0;
 }
 
-bool endRendering() {
+void resizeWindow() {
+  waitForDeviceIdle();
+
+  VkSurfaceCapabilitiesKHR surfaceCapabilities;
+  checkResult(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(mg::vkContext.physicalDevice, mg::vkContext.windowSurface,
+                                                        &surfaceCapabilities));
+  mg::vkContext.screen.width = surfaceCapabilities.currentExtent.width;
+  mg::vkContext.screen.height = surfaceCapabilities.currentExtent.height;
+  vkContext.swapChain->resize();
+  waitForDeviceIdle();
+}
+
+void endRendering() {
   mg::mgSystem.linearHeapAllocator.swapLinearHeapBuffers();
 
   const auto commandBufferIndex = vkContext.commandBuffers.currentIndex;
@@ -125,10 +157,9 @@ bool endRendering() {
   presentInfo.pWaitSemaphores = &vkContext.commandBuffers.renderCompleteSemaphore[commandBufferIndex];
   presentInfo.pResults = nullptr;
 
-  bool resize = false;
   const auto result = vkQueuePresentKHR(vkContext.queue, &presentInfo);
   if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
-    resize = true;
+    resizeWindow();
   } else {
     checkResult(result);
   }
@@ -137,7 +168,6 @@ bool endRendering() {
   vkContext.commandBuffers.submitted[commandBufferIndex] = true;
   vkContext.commandBuffers.currentIndex =
       (vkContext.commandBuffers.currentIndex + 1) % vkContext.commandBuffers.nrOfBuffers;
-  return resize;
 }
 
 mg::TextureId uploadPngImage(const std::string &name) {

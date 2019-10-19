@@ -14,5 +14,4 @@ void createCommandBufferSemaphores();
 void destroyVulkanWindow();
 void destoyInstance();
 
-void resizeWindow();
 } // namespace mg
