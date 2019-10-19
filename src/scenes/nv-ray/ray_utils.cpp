@@ -279,6 +279,7 @@ static void buildAccelerationStructures(const RayInfo &rayInfo, const Buffer &in
                        VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_NV, 0, 1, &memoryBarrier, 0, 0, 0, 0);
 
   VkAccelerationStructureInfoNV accelerationStructureInfo = {};
+  accelerationStructureInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_INFO_NV;
   accelerationStructureInfo.type = VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_NV;
   accelerationStructureInfo.instanceCount = uint32_t(rayInfo.bottomLevelASs.size());
 
