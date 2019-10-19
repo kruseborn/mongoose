@@ -11,14 +11,14 @@ static mg::Pipeline createSolidRendering(const mg::RenderContext &renderContext)
   using namespace mg::shaders::solid;
 
   mg::PipelineStateDesc pipelineStateDesc = {};
-  pipelineStateDesc.vkRenderPass = renderContext.renderPass;
-  pipelineStateDesc.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
-  pipelineStateDesc.graphics.subpass = renderContext.subpass;
-  pipelineStateDesc.depth.TestEnable = VK_FALSE;
-  pipelineStateDesc.rasterization.cullMode = VK_CULL_MODE_NONE;
+  pipelineStateDesc.rasterization.vkRenderPass = renderContext.renderPass;
+  pipelineStateDesc.rasterization.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
+  pipelineStateDesc.rasterization.graphics.subpass = renderContext.subpass;
+  pipelineStateDesc.rasterization.depth.TestEnable = VK_FALSE;
+  pipelineStateDesc.rasterization.rasterization.cullMode = VK_CULL_MODE_NONE;
 
   mg::CreatePipelineInfo createPipelineInfo = {};
-  createPipelineInfo.shaderName = "solid";
+  createPipelineInfo.shaderName = shader;
   createPipelineInfo.vertexInputState = InputAssembler::vertexInputState;
   createPipelineInfo.vertexInputStateCount = mg::countof(InputAssembler::vertexInputState);
 
@@ -36,8 +36,9 @@ void renderSolidBoxes(const mg::RenderContext &renderContext, const float *xPosi
   VkBuffer uniformBuffer;
   uint32_t uniformOffset;
   VkDescriptorSet uboSet;
-  Ubo *dynamic = (Ubo *)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
-  dynamic->mvp = glm::ortho(0.0f, float(vkContext.screen.width), 0.0f, float(vkContext.screen.height), -10.0f, 10.0f);
+  Ubo *ubo =
+      (Ubo *)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
+  ubo->mvp = glm::ortho(0.0f, float(vkContext.screen.width), 0.0f, float(vkContext.screen.height), -10.0f, 10.0f);
   VkBuffer storageBuffer;
   uint32_t storageOffset;
   VkDescriptorSet storageSet;
@@ -58,8 +59,8 @@ void renderSolidBoxes(const mg::RenderContext &renderContext, const float *xPosi
   constexpr uint32_t indicesInputData[6] = {0, 1, 2, 2, 3, 0};
   VkBuffer indexBuffer;
   VkDeviceSize indexBufferOffset;
-  uint32_t *indices = (uint32_t *)mg::mgSystem.linearHeapAllocator.allocateBuffer(mg::sizeofArrayInBytes(indicesInputData),
-                                                                                  &indexBuffer, &indexBufferOffset);
+  uint32_t *indices = (uint32_t *)mg::mgSystem.linearHeapAllocator.allocateBuffer(
+      mg::sizeofArrayInBytes(indicesInputData), &indexBuffer, &indexBufferOffset);
   memcpy(indices, indicesInputData, sizeof(indicesInputData));
 
   // render boxes
@@ -74,7 +75,7 @@ void renderSolidBoxes(const mg::RenderContext &renderContext, const float *xPosi
   DescriptorSets descriptorSets = {};
   descriptorSets.ubo = uboSet;
 
-  uint32_t offsets[] = { uniformOffset, storageOffset };
+  uint32_t offsets[] = {uniformOffset, storageOffset};
   vkCmdBindDescriptorSets(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, solidPipeline.layout, 0,
                           mg::countof(descriptorSets.values), descriptorSets.values, mg::countof(offsets), offsets);
 
@@ -88,15 +89,14 @@ void renderSolidBoxes(const mg::RenderContext &renderContext, const float *xPosi
 static mg::Pipeline createTextureRenderingPipeline(const mg::RenderContext &renderContext) {
   using namespace mg::shaders::textureRendering;
 
-  const auto pipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
   mg::PipelineStateDesc pipelineStateDesc = {};
-  pipelineStateDesc.vkRenderPass = renderContext.renderPass;
-  pipelineStateDesc.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
-  pipelineStateDesc.graphics.subpass = renderContext.subpass;
-  pipelineStateDesc.depth.TestEnable = VK_FALSE;
+  pipelineStateDesc.rasterization.vkRenderPass = renderContext.renderPass;
+  pipelineStateDesc.rasterization.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
+  pipelineStateDesc.rasterization.graphics.subpass = renderContext.subpass;
+  pipelineStateDesc.rasterization.depth.TestEnable = VK_FALSE;
 
   mg::CreatePipelineInfo createPipelineInfo = {};
-  createPipelineInfo.shaderName = "textureRendering";
+  createPipelineInfo.shaderName = shader;
   createPipelineInfo.vertexInputState = InputAssembler::vertexInputState;
   createPipelineInfo.vertexInputStateCount = mg::countof(InputAssembler::vertexInputState);
 
@@ -113,7 +113,8 @@ void renderBoxWithTexture(mg::RenderContext &renderContext, const glm::vec4 &pos
   VkBuffer uniformBuffer;
   uint32_t uniformOffset;
   VkDescriptorSet uboSet;
-  Ubo *dynamic = (Ubo *)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
+  Ubo *dynamic =
+      (Ubo *)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
   dynamic->mvp = glm::mat4(1);
 
   DescriptorSets descriptorSets = {};
@@ -122,8 +123,8 @@ void renderBoxWithTexture(mg::RenderContext &renderContext, const glm::vec4 &pos
 
   TextureIndices textureIndices = {};
   textureIndices.textureIndex = mg::getTexture2DDescriptorIndex(textureId);
-  vkCmdPushConstants(mg::vkContext.commandBuffer, texturePipeline.layout, VK_SHADER_STAGE_ALL, 0, sizeof(TextureIndices),
-                     &textureIndices);
+  vkCmdPushConstants(mg::vkContext.commandBuffer, texturePipeline.layout, VK_SHADER_STAGE_ALL, 0,
+                     sizeof(TextureIndices), &textureIndices);
 
   glm::vec4 vertexInputData[4] = {
       {position.x, position.y, 0, 0},
@@ -140,13 +141,14 @@ void renderBoxWithTexture(mg::RenderContext &renderContext, const glm::vec4 &pos
   constexpr uint32_t indicesInputData[6] = {0, 1, 2, 2, 3, 0};
   VkBuffer indexBuffer;
   VkDeviceSize indexBufferOffset;
-  uint32_t *indices = (uint32_t *)mg::mgSystem.linearHeapAllocator.allocateBuffer(mg::sizeofArrayInBytes(indicesInputData),
-                                                                                  &indexBuffer, &indexBufferOffset);
+  uint32_t *indices = (uint32_t *)mg::mgSystem.linearHeapAllocator.allocateBuffer(
+      mg::sizeofArrayInBytes(indicesInputData), &indexBuffer, &indexBufferOffset);
   memcpy(indices, indicesInputData, sizeof(indicesInputData));
 
   uint32_t dynamicOffsets[] = {uniformOffset, 0};
   vkCmdBindDescriptorSets(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, texturePipeline.layout, 0,
-                          mg::countof(descriptorSets.values), descriptorSets.values, mg::countof(dynamicOffsets), dynamicOffsets);
+                          mg::countof(descriptorSets.values), descriptorSets.values, mg::countof(dynamicOffsets),
+                          dynamicOffsets);
   vkCmdBindPipeline(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, texturePipeline.pipeline);
 
   vkCmdBindVertexBuffers(mg::vkContext.commandBuffer, 0, 1, &vertexBuffer, &vertexBufferOffset);
@@ -157,15 +159,14 @@ void renderBoxWithTexture(mg::RenderContext &renderContext, const glm::vec4 &pos
 static mg::Pipeline createDepthTextureRenderingPipeline(const mg::RenderContext &renderContext) {
   using namespace mg::shaders::depth;
 
-  const auto pipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
   mg::PipelineStateDesc pipelineStateDesc = {};
-  pipelineStateDesc.vkRenderPass = renderContext.renderPass;
-  pipelineStateDesc.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
-  pipelineStateDesc.graphics.subpass = renderContext.subpass;
-  pipelineStateDesc.depth.TestEnable = VK_FALSE;
+  pipelineStateDesc.rasterization.vkRenderPass = renderContext.renderPass;
+  pipelineStateDesc.rasterization.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
+  pipelineStateDesc.rasterization.graphics.subpass = renderContext.subpass;
+  pipelineStateDesc.rasterization.depth.TestEnable = VK_FALSE;
 
   mg::CreatePipelineInfo createPipelineInfo = {};
-  createPipelineInfo.shaderName = "depth";
+  createPipelineInfo.shaderName = shader;
   createPipelineInfo.vertexInputState = InputAssembler::vertexInputState;
   createPipelineInfo.vertexInputStateCount = mg::countof(InputAssembler::vertexInputState);
 
@@ -182,7 +183,8 @@ void renderBoxWithDepthTexture(mg::RenderContext &renderContext, const glm::vec4
   VkBuffer uniformBuffer;
   uint32_t uniformOffset;
   VkDescriptorSet uboSet;
-  Ubo *dynamic = (Ubo *)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
+  Ubo *dynamic =
+      (Ubo *)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
   dynamic->mvp = glm::mat4(1);
   dynamic->nearAndFar = {0.1f, 1000.0f};
 
@@ -192,7 +194,8 @@ void renderBoxWithDepthTexture(mg::RenderContext &renderContext, const glm::vec4
 
   TextureIndices textureIndices = {};
   textureIndices.textureIndex = mg::getTexture2DDescriptorIndex(textureId);
-  vkCmdPushConstants(mg::vkContext.commandBuffer, texturePipeline.layout, VK_SHADER_STAGE_ALL, 0, sizeof(TextureIndices), &textureIndices);
+  vkCmdPushConstants(mg::vkContext.commandBuffer, texturePipeline.layout, VK_SHADER_STAGE_ALL, 0,
+                     sizeof(TextureIndices), &textureIndices);
 
   glm::vec4 vertexInputData[4] = {
       {position.x, position.y, 0, 0},
@@ -209,13 +212,14 @@ void renderBoxWithDepthTexture(mg::RenderContext &renderContext, const glm::vec4
   constexpr uint32_t indicesInputData[6] = {0, 1, 2, 2, 3, 0};
   VkBuffer indexBuffer;
   VkDeviceSize indexBufferOffset;
-  uint32_t *indices = (uint32_t *)mg::mgSystem.linearHeapAllocator.allocateBuffer(mg::sizeofArrayInBytes(indicesInputData),
-                                                                                  &indexBuffer, &indexBufferOffset);
+  uint32_t *indices = (uint32_t *)mg::mgSystem.linearHeapAllocator.allocateBuffer(
+      mg::sizeofArrayInBytes(indicesInputData), &indexBuffer, &indexBufferOffset);
   memcpy(indices, indicesInputData, sizeof(indicesInputData));
 
   uint32_t dynamicOffsets[] = {uniformOffset, 0};
   vkCmdBindDescriptorSets(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, texturePipeline.layout, 0,
-                          mg::countof(descriptorSets.values), descriptorSets.values, mg::countof(dynamicOffsets), dynamicOffsets);
+                          mg::countof(descriptorSets.values), descriptorSets.values, mg::countof(dynamicOffsets),
+                          dynamicOffsets);
   vkCmdBindPipeline(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, texturePipeline.pipeline);
 
   vkCmdBindVertexBuffers(mg::vkContext.commandBuffer, 0, 1, &vertexBuffer, &vertexBufferOffset);

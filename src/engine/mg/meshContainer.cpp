@@ -102,7 +102,7 @@ MeshId MeshContainer::createMesh(const CreateMeshInfo &createMeshInfo) {
     currentIndex = _freeIndices.back();
     _freeIndices.pop_back();
   } else {
-    currentIndex = _idToMesh.size();
+    currentIndex = uint32_t(_idToMesh.size());
     _idToMesh.push_back({});
     _generations.push_back(0);
   }
@@ -136,7 +136,7 @@ void MeshContainer::removeMesh(MeshId meshId) {
 
   mg::mgSystem.meshDeviceMemoryAllocator.freeDeviceOnlyMemory(_idToMesh[meshId.index].heapAllocation);
   vkDestroyBuffer(mg::vkContext.device, _idToMesh[meshId.index].mesh.buffer, nullptr);
-  _idToMesh = {};
+  _idToMesh[meshId.index] = {};
   _generations[meshId.index]++;
   _freeIndices.push_back(meshId.index);
 }

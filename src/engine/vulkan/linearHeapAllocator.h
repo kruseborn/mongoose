@@ -67,7 +67,7 @@ private:
     VkDeviceMemory deviceMemory;
     VkBuffer buffer;
     VkDeviceSize offset;
-    VkDeviceSize alignSize;
+    VkDeviceSize size;
     VkCommandBuffer commandBuffer;
   };
 

@@ -22,7 +22,7 @@ do \
     if (!(cond)) \
     { \
         _mgAssert::ReportFailure(#cond, __FILE__, __LINE__, 0); \
-        if(_mgAssert::isDebuggerPresent()) DEBUG_BREAK(); else std::abort(); \
+        if(_mgAssert::isDebuggerPresent()) DEBUG_BREAK(); else exit(1); \
     } \
 } while(0)
 
@@ -33,6 +33,6 @@ do \
     { \
         std::ostringstream __stream; __stream << msg; \
         _mgAssert::ReportFailure(#cond, __FILE__, __LINE__, (__stream.str().c_str())); \
-        if(_mgAssert::isDebuggerPresent()) DEBUG_BREAK(); else std::abort(); \
+        if(_mgAssert::isDebuggerPresent()) DEBUG_BREAK(); else exit(1); \
     } \
 } while(0)

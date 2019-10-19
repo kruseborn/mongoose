@@ -11,7 +11,6 @@ int main() {
 
   constexpr float lastFrameMsMin = 16.0f;
   float startTime = mg::getTime();
-
   while (mg::startFrame()) {
     if (invaders.aliens.nrAliens == 0 || invaders.player.health <= 0)
       invadersReset(&invaders);

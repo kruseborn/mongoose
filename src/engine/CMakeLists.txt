@@ -58,6 +58,8 @@ set(SRC
 	"mg/storageContainer.h"
 	"mg/geometryUtils.h"
 	"mg/geometryUtils.cpp"
+	"mg/meshUtils.h"
+	"mg/meshUtils.cpp"
 )
 message(CPP_FLAGS ${CPP_FLAGS})
 mg_cc_library(

@@ -23,7 +23,6 @@ mg_cc_executable(
         invaders_utils.h
     COPTS
         ${CPP_FLAGS}
-        "-mavx"
     DEPS
         glm
         mg-engine

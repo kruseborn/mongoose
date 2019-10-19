@@ -240,7 +240,6 @@ static std::tuple<std::vector<float>, uint32_t> makeMeshInterleaved(const _GltfM
 
   uint32_t totalSize = 0;
   for (; ptr < end; ptr += step) {
-    auto index = type == VK_INDEX_TYPE_UINT32 ? *(uint32_t *)(ptr) : *(uint16_t *)(ptr);
     totalSize +=
         vertexData.positions.size + vertexData.normals.size + vertexData.tangents.size + vertexData.textCoords.size;
   }
@@ -276,7 +275,7 @@ GltfMeshes parseGltf(const std::string &id, const std::string &path, const std::
   tinygltf::TinyGLTF loader;
   std::string err, warn;
 
-  const auto ret = loader.LoadASCIIFromFile(&model, &err, &warn, path + name);
+  loader.LoadASCIIFromFile(&model, &err, &warn, path + name);
   if (!err.empty()) {
     printf("Err: %s\n", err.c_str());
   }
@@ -311,7 +310,7 @@ GltfMeshes parseGltf(const std::string &id, const std::string &path, const std::
   for (const auto &internalMesh : mesh.internalMeshes) {
     for (const auto &primitive : internalMesh.primitives) {
       gltfMesh.materialIndex = primitive.materialIndex;
-      gltfMesh.textureIndex = primitive.textureIndex; 
+      gltfMesh.textureIndex = primitive.textureIndex;
 
       if (primitive.vertexDatas.positions.size)
         gltfMesh.attributes.push_back({"POSITION", primitive.vertexDatas.positions.format});
@@ -326,13 +325,5 @@ GltfMeshes parseGltf(const std::string &id, const std::string &path, const std::
   gltfMeshes.meshes.push_back(std::move(gltfMesh));
   return gltfMeshes;
 }
-
-void parseObjFile(const std::string &id, const std::string &path, const std::string &name) {
-
-
-}
-
-
-
 
 } // namespace mg

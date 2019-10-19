@@ -24,7 +24,6 @@ struct MgSystem : mg::nonCopyable {
   LinearHeapAllocator linearHeapAllocator;
   DeviceMemoryAllocator meshDeviceMemoryAllocator;
   DeviceMemoryAllocator textureDeviceMemoryAllocator;
-  DeviceMemoryAllocator storageDeviceMemoryAllocator;
 
   Fonts fonts;
   Imgui imguiOverlay;

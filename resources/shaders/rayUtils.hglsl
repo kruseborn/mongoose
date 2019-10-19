@@ -1,0 +1,70 @@
+#define PI                 3.14159265358979323846264338327950
+
+// https://en.wikipedia.org/wiki/Pairing_function
+uint seedRnd(uint k1, uint k2) {
+  uint v = (k1 + k2)*(k1 + k2 + 1) + (k1*k2);
+  return v>>1;
+}
+
+// https://wiki.blender.org/wiki/Source/Render/Cycles/Sobol
+float rndFloat(inout uint rng) {
+    rng = 1103515245 * rng + 12345;
+    uint l = 0xFFFFFFFF;
+    return rng / float(l);
+}
+
+// Ray Tracing in One Weekend, Peter Shirley
+vec3 randomInUnitSphere(inout uint seed) {
+  while(true) {
+    const vec3 p = 2 * vec3(rndFloat(seed), rndFloat(seed), rndFloat(seed)) - 1;
+    if (dot(p, p) < 1) {
+      return p;
+    }
+  }
+}
+
+// http://gruenschloss.org/
+struct Sobol {
+  uint index;
+  vec4 offset;
+};
+
+vec4 nextSobol(inout Sobol state, texture2D tex) {
+  vec4 sequnce = texelFetch(tex, ivec2(state.index, 0) % 2048, 0);
+  state.index++;
+  return fract(state.offset + sequnce);
+}
+
+vec3 randomInUnitSphereSalton(inout Sobol state, texture2D tex) {
+  while(true) {
+    const vec3 p = 2 * nextSobol(state, tex).xyz - 1;
+    if (dot(p, p) < 1) {
+      return p;
+    }
+  }
+}
+
+// Ray tracing gems, 16.5.1.2 CONCENTRIC MAPPING
+vec2 concentricMapping(float radius, float u, float v) {
+  float a = 2*u - 1; 
+  float b = 2*v - 1;
+  if (b == 0) b = 1;
+  float r, phi;
+  if (a*a > b*b) {
+    r = radius*a;
+    phi = (PI/4)*(b/a);
+  } else {
+    r = radius*b;
+    phi = (PI/2.0) - (PI/4.0)*(a/b);
+  }
+  return vec2(r*cos(phi), r*sin(phi));
+}
+
+vec3 sampleSphere(vec2 rnd) {
+    float z = 2.0 * rnd.x - 1.0;
+    float phi = 2.0 * PI * rnd.y;
+    float r = sqrt(1.0 - z * z);
+    float x = r * cos(phi);
+    float y = r * sin(phi);
+    return vec3(x, y, z);
+}

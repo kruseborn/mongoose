@@ -14,27 +14,26 @@ void drawGltfMesh(const mg::RenderContext &renderContext, mg::MeshId meshId, con
   using namespace mg::shaders::gltf;
 
   mg::PipelineStateDesc pipelineStateDesc = {};
-  pipelineStateDesc.vkRenderPass = renderContext.renderPass;
-  pipelineStateDesc.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
+  pipelineStateDesc.rasterization.vkRenderPass = renderContext.renderPass;
+  pipelineStateDesc.rasterization.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
 
   mg::CreatePipelineInfo createPipelineInfo = {};
-  createPipelineInfo.shaderName = "gltf";
+  createPipelineInfo.shaderName = shader;
   createPipelineInfo.vertexInputState = InputAssembler::vertexInputState;
   createPipelineInfo.vertexInputStateCount = mg::countof(InputAssembler::vertexInputState);
 
   const auto pipeline = mg::mgSystem.pipelineContainer.createPipeline(pipelineStateDesc, createPipelineInfo);
 
-  using VertexInputData = InputAssembler::VertexInputData;
-
   VkBuffer uniformBuffer;
   uint32_t uniformOffset;
   VkDescriptorSet uboSet;
-  Ubo *dynamic = (Ubo *)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
+  Ubo *dynamic =
+      (Ubo *)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
 
   glm::mat4 projectionMatrix, viewMatrix;
 
-  projectionMatrix =
-      glm::perspective(glm::radians(45.0f), mg::vkContext.screen.width / float(mg::vkContext.screen.height), 0.1f, 256.f);
+  projectionMatrix = glm::perspective(glm::radians(45.0f),
+                                      mg::vkContext.screen.width / float(mg::vkContext.screen.height), 0.1f, 256.f);
   viewMatrix = glm::lookAt(camera.position, camera.aim, camera.up);
 
   dynamic->model = glm::scale(glm::mat4(1), {-1, 1, 1});
@@ -48,12 +47,14 @@ void drawGltfMesh(const mg::RenderContext &renderContext, mg::MeshId meshId, con
 
   uint32_t dynamicOffsets[] = {uniformOffset, 0};
   vkCmdBindDescriptorSets(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.layout, 0,
-                          mg::countof(descriptorSets.values), descriptorSets.values, mg::countof(dynamicOffsets), dynamicOffsets);
-  
+                          mg::countof(descriptorSets.values), descriptorSets.values, mg::countof(dynamicOffsets),
+                          dynamicOffsets);
+
   TextureIndices textureIndices = {};
   textureIndices.baseColorIndex = mg::getTexture2DDescriptorIndex(nameToTextureId.at("WaterBottle_baseColor.png"));
   textureIndices.normalIndex = mg::getTexture2DDescriptorIndex(nameToTextureId.at("WaterBottle_normal.png"));
-  textureIndices.roughnessMetallicIndex = mg::getTexture2DDescriptorIndex(nameToTextureId.at("WaterBottle_occlusionRoughnessMetallic.png"));
+  textureIndices.roughnessMetallicIndex =
+      mg::getTexture2DDescriptorIndex(nameToTextureId.at("WaterBottle_occlusionRoughnessMetallic.png"));
   textureIndices.emissiveIndex = mg::getTexture2DDescriptorIndex(nameToTextureId.at("WaterBottle_emissive.png"));
 
   vkCmdPushConstants(mg::vkContext.commandBuffer, pipeline.layout, VK_SHADER_STAGE_ALL, 0, sizeof(TextureIndices),

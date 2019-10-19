@@ -8,7 +8,7 @@ namespace mg {
 
 struct DeviceHeapAllocation {
   VkDeviceMemory deviceMemory;
-  VkDeviceSize alignSize;
+  VkDeviceSize size;
   VkDeviceSize offset;
   uint32_t memoryTypeIndex;
   int32_t largeSizeAllocationIndex = -1;

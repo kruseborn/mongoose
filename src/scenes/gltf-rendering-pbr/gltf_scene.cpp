@@ -18,6 +18,11 @@ static mg::SingleRenderPass singleRenderPass;
 static mg::MeshId meshId;
 static std::unordered_map<std::string, mg::TextureId> nameToTextureId;
 
+static void resizeCallback() {
+  mg::resizeSingleRenderPass(&singleRenderPass);
+  mg::mgSystem.textureContainer.setupDescriptorSets();
+}
+
 void initScene() {
   mg::initSingleRenderPass(&singleRenderPass);
 
@@ -49,6 +54,7 @@ void initScene() {
     nameToTextureId.emplace(image.name, textureId);
   }
   mg::mgSystem.textureContainer.setupDescriptorSets();
+  mg::vkContext.swapChain->resizeCallack = resizeCallback;
 }
 
 void destroyScene() {
@@ -57,9 +63,6 @@ void destroyScene() {
 }
 
 void updateScene(const mg::FrameData &frameData) {
-  if (frameData.resize) {
-    mg::resizeSingleRenderPass(&singleRenderPass);
-  }
   if (frameData.keys.r) {
     mg::mgSystem.pipelineContainer.resetPipelineContainer();
   }

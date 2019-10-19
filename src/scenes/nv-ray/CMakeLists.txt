@@ -1,0 +1,26 @@
+mg_cc_executable(
+    NAME
+        ray-tracing
+    SRCS
+        ray_scene.h
+        ray_scene.cpp
+        ray_rendering.h
+        ray_rendering.cpp
+        ray_main.cpp
+        ray_utils.h
+        ray_utils.cpp
+        sobol.h
+        sobol.cpp
+    COPTS
+        ${CPP_FLAGS}
+    DEPS
+        glm
+        mg-engine
+        ${VULKAN_LIB}
+        ${PLATFORM_LIB}
+    DEPS_DIR
+        "$ENV{VULKAN_SDK}/include"
+    DEFS
+        GLM_FORCE_DEPTH_ZERO_TO_ONE
+        GLM_FORCE_LEFT_HANDED
+)

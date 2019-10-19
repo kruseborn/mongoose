@@ -2,21 +2,26 @@
 #include "mg/camera.h"
 #include "mg/mgAssert.h"
 #include "mg/mgSystem.h"
+#include "mg/texts.h"
 #include "mg/tools.h"
 #include "mg/window.h"
 #include "nbody_rendering.h"
+#include "nbody_renderpass.h"
 #include "nbody_utils.h"
 #include "rendering/rendering.h"
-#include "nbody_renderpass.h"
 #include "vulkan/vkContext.h"
 #include "vulkan/vkUtils.h"
-#include "mg/texts.h"
 #include <lodepng.h>
 
 static mg::Camera camera;
 static NBodyRenderPass nbodyRenderPass = {};
 
 static ComputeData computeData = {};
+
+static void resizeCallback() {
+  resizeNBodyRenderPass(&nbodyRenderPass);
+  mg::mgSystem.textureContainer.setupDescriptorSets();
+}
 
 void initScene() {
   initNBodyRenderPass(&nbodyRenderPass);
@@ -26,17 +31,16 @@ void initScene() {
 
   initParticles(&computeData);
   mg::mgSystem.textureContainer.setupDescriptorSets();
+  mg::vkContext.swapChain->resizeCallack = resizeCallback;
 }
 
 void destroyScene() {
   mg::waitForDeviceIdle();
+  mg::mgSystem.storageContainer.removeStorage(computeData.storageId);
   destroyNBodyRenderPass(&nbodyRenderPass);
 }
 
 void updateScene(const mg::FrameData &frameData) {
-  if (frameData.resize) {
-    resizeNBodyRenderPass(&nbodyRenderPass);
-  }
   if (frameData.keys.r) {
     mg::mgSystem.pipelineContainer.resetPipelineContainer();
   }
@@ -65,7 +69,7 @@ void renderScene(const mg::FrameData &frameData) {
 
   vkCmdNextSubpass(mg::vkContext.commandBuffer, VK_SUBPASS_CONTENTS_INLINE);
   renderContext.subpass = 1;
-  
+
   renderToneMapping(renderContext, nbodyRenderPass);
 
   mg::validateTexts(texts);

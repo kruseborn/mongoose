@@ -16,6 +16,11 @@ static mg::Camera camera;
 static VolumeRenderPass volumeRenderPass;
 static VolumeInfo volumeInfo;
 
+static void resizeCallback() {
+  resizeVolumeRenderPass(&volumeRenderPass);
+  mg::mgSystem.textureContainer.setupDescriptorSets();
+}
+
 void initScene() {
   camera = mg::create3DCamera(glm::vec3{277 / 2.0f, 277 / 2.0f, -400.0f}, glm::vec3{277 / 2.0f, 277 / 2.0f, 0.0f},
                               glm::vec3{0, 1, 0});
@@ -23,6 +28,8 @@ void initScene() {
   volumeInfo = parseDatFile();
   initVolumeRenderPass(&volumeRenderPass);
   mg::mgSystem.textureContainer.setupDescriptorSets();
+
+  mg::vkContext.swapChain->resizeCallack = resizeCallback;
 }
 
 void destroyScene() { 
@@ -31,9 +38,6 @@ void destroyScene() {
 }
 
 void updateScene(const mg::FrameData &frameData) {
-  if (frameData.resize) {
-    resizeVolumeRenderPass(&volumeRenderPass);
-  }
   if (frameData.keys.r) {
     mg::mgSystem.pipelineContainer.resetPipelineContainer();
   }
@@ -42,6 +46,7 @@ void updateScene(const mg::FrameData &frameData) {
   }
   mg::setCameraTransformation(&camera);
 }
+
 
 void renderScene(const mg::FrameData &frameData) {
   mg::beginRendering();

@@ -1,1 +1,2 @@
-ColumnLimit: 130
+ColumnLimit: 120
+NamespaceIndentation : None

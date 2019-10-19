@@ -20,8 +20,8 @@ void setFullscreenViewport();
 
 void beginRendering();
 void endRendering();
-void acquireNextSwapChainImage();
 void waitForDeviceIdle();
+void resizeWindow();
 
 inline char *errorString(VkResult errorCode) {
   switch (errorCode) {

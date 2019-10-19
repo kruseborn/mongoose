@@ -5,11 +5,9 @@ int main() {
   mg::initWindow(1500, 1024);
   initScene();
   while (mg::startFrame()) {
-    const auto frameData = mg::getFrameData();
-
+    auto frameData = mg::getFrameData();
     updateScene(frameData);
     renderScene(frameData);
-
     mg::endFrame();
   }
   destroyScene();

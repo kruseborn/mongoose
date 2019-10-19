@@ -1,0 +1,245 @@
+#version 460
+#extension GL_NV_ray_tracing : require
+#extension GL_EXT_nonuniform_qualifier : enable
+#extension GL_EXT_control_flow_attributes : require
+#extension GL_EXT_samplerless_texture_functions : enable
+#include "rayUtils.hglsl"
+
+struct StorageData {
+	vec4 positions[500];
+	vec4 albedos[500];
+};
+
+layout (set = 0, binding = 0) uniform Ubo {
+	mat4 viewInverse;
+	mat4 projInverse;
+	vec4 cameraPosition;
+	vec4 cameraLookat;
+	vec4 attrib;
+	vec4 sobolId;
+} ubo;
+
+layout(set = 0, binding = 1) readonly buffer Storage {
+	 StorageData storageData; 
+} storage;
+
+layout(set = 1, binding = 0, rgba8) uniform image2D image;
+layout(set = 2, binding = 0) uniform accelerationStructureNV topLevelAS;
+layout(set = 3, binding = 0) uniform sampler samplers[2];
+layout(set = 3, binding = 1) uniform texture2D textures[128];
+layout(set = 4, binding = 0, rgba32f) uniform image2D accumulationImage;
+
+struct PayLoad {
+	Sobol sobol;
+	vec4 attenuation;
+	vec4 scatterDirection;
+	uint seed;
+};
+
+@gen
+layout(location = 0) rayPayloadNV PayLoad payload;
+
+void main() {
+	int frameIndex = int(ubo.attrib.x + 0.5);
+	int blueNoiseTextureId = int(ubo.attrib.y + 0.5);
+	int nrOfSamplesPerFrame = int(ubo.attrib.z + 0.5);
+	int totalNrOfSamples = int(ubo.attrib.w + 0.5);
+	bool resetAccumulationImage = ubo.cameraPosition.w > 0.5;
+
+	vec4 blueNoise = texelFetch(textures[blueNoiseTextureId], ivec2(gl_LaunchIDNV.xy) % 256, 0).rgba;
+	blueNoise = mod(blueNoise * frameIndex * 0.05, 1.0);
+
+	payload.seed = seedRnd(seedRnd(gl_LaunchIDNV.x, gl_LaunchIDNV.y), frameIndex);;
+	payload.sobol.index = 0;
+	payload.sobol.offset = blueNoise;
+
+	float aperture = 0.1;
+	float focusDistance = distance(ubo.cameraPosition.xyz, ubo.cameraLookat.xyz);
+
+	vec2 inUV = (vec2(gl_LaunchIDNV.xy) + 0.5) / vec2(gl_LaunchSizeNV.xy);
+	inUV.y = 1 - inUV.y;
+	vec2 ndc = inUV * 2.0 - 1.0;
+
+	vec3 color = vec3(0);
+	int numBounces = 5;
+	int sobolTextureId = int(ubo.sobolId.x + 0.5);
+	for(uint i = 0; i < nrOfSamplesPerFrame; i++) {
+		vec2 rnd = nextSobol(payload.sobol, textures[sobolTextureId]).xy;
+
+	  vec2 offset = concentricMapping(aperture / 2.0, rnd.x, rnd.y);
+
+		vec4 origin = ubo.viewInverse * vec4(offset,0,1);
+		vec4 target = ubo.projInverse * vec4(ndc.x, ndc.y, 1, 1);
+		vec4 direction = ubo.viewInverse * vec4(normalize(target.xyz * focusDistance - vec3(offset, 0)), 0);
+
+		uint rayFlags = gl_RayFlagsOpaqueNV;
+		uint cullMask = 0xff;
+		float tmin = 0.001;
+		float tmax = 1000.0;
+
+		vec3 bounceColor = vec3(1);
+		 for(int j = 0; j < numBounces; j++) {
+		 	traceNV(topLevelAS, rayFlags, cullMask, 0, 0, 0, origin.xyz, tmin, direction.xyz, tmax, 0);
+		 	bounceColor *= payload.attenuation.xyz;
+
+		 	if(payload.attenuation.w < 0) break;
+		 	origin = origin + direction * payload.scatterDirection.w;
+		 	direction.xyz = payload.scatterDirection.xyz;
+		 }
+		color += bounceColor;
+	}
+
+	if(resetAccumulationImage) {
+		vec3 pixelColor = color / nrOfSamplesPerFrame;
+		imageStore(accumulationImage, ivec2(gl_LaunchIDNV.xy), vec4(color, 1.0));
+		imageStore(image, ivec2(gl_LaunchIDNV.xy), vec4(sqrt(pixelColor), 1.0));
+	}
+	else {
+		vec4 accumulationPixel = imageLoad(accumulationImage, ivec2(gl_LaunchIDNV.xy));
+		accumulationPixel.xyz += color;
+		vec3 pixelColor = accumulationPixel.xyz / totalNrOfSamples;
+		imageStore(accumulationImage, ivec2(gl_LaunchIDNV.xy), vec4(accumulationPixel.xyz, 1));
+		imageStore(image, ivec2(gl_LaunchIDNV.xy), vec4(sqrt(pixelColor), 1.0));
+	}
+}
+
+@miss
+layout(location = 0) rayPayloadInNV PayLoad payload;
+
+void main()  {
+		float t = 0.5*(normalize(gl_WorldRayDirectionNV).y + 1);
+		payload.attenuation.xyz = mix(vec3(1.0), vec3(0.5, 0.7, 1.0), t);
+		payload.attenuation.w = -1;
+}
+
+@proc-int
+hitAttributeNV vec4 hitAttribute;
+
+void main() {
+	vec4 position = storage.storageData.positions[gl_InstanceCustomIndexNV];
+	vec3 center = position.xyz;
+	float radius = position.w;
+	
+	vec3 origin = gl_WorldRayOriginNV;
+	vec3 direction = gl_WorldRayDirectionNV;
+	float tMin = gl_RayTminNV;
+	float tMax = gl_RayTmaxNV;
+
+	vec3 oc = origin - center;
+	float a = dot(direction, direction);
+	float b = dot(oc, direction);
+	float c = dot(oc, oc) - radius * radius;
+	float discriminant = b * b - a * c;
+
+	if (discriminant >= 0) {
+		float t1 = (-b - sqrt(discriminant)) / a;
+		float t2 = (-b + sqrt(discriminant)) / a;
+
+		if ((tMin <= t1 && t1 < tMax) || (tMin <= t2 && t2 < tMax))
+		{
+			hitAttribute = position;
+			reportIntersectionNV((tMin <= t1 && t1 < tMax) ? t1 : t2, 0);
+		}
+	}
+}
+
+@proc-chit lambert
+hitAttributeNV vec4 hitAttribute;
+layout(location = 0) rayPayloadInNV PayLoad payload;
+
+void main() {
+	vec4 albedo = storage.storageData.albedos[gl_InstanceCustomIndexNV];
+	vec3 center = hitAttribute.xyz;
+	float radius = hitAttribute.w;
+	vec3 hitPoint = gl_WorldRayOriginNV + gl_WorldRayDirectionNV * gl_HitTNV;
+
+	vec3 normal = (hitPoint - center) / radius;
+
+	payload.attenuation = albedo;
+	int sobolTextureId = int(ubo.sobolId.x + 0.5);
+	payload.scatterDirection = vec4(normal + randomInUnitSphereSalton(payload.sobol, textures[sobolTextureId]), gl_HitTNV);
+}
+
+@proc-chit metal
+
+hitAttributeNV vec4 hitAttribute;
+layout(location = 0) rayPayloadInNV PayLoad payload;
+
+void main() {
+	vec4 albedo = storage.storageData.albedos[gl_InstanceCustomIndexNV];
+
+	vec3 center = hitAttribute.xyz;
+	float radius = hitAttribute.w;
+	vec3 hitPoint = gl_WorldRayOriginNV + gl_WorldRayDirectionNV * gl_HitTNV;
+	vec3 normal = (hitPoint - center) / radius;
+
+	vec3 reflected = reflect(gl_WorldRayDirectionNV, normal);
+	vec2 rnd = vec2(rndFloat(payload.seed), rndFloat(payload.seed));
+
+	payload.attenuation = albedo;
+	int sobolTextureId = int(ubo.sobolId.x + 0.5);
+	payload.scatterDirection = vec4(normal + randomInUnitSphereSalton(payload.sobol, textures[sobolTextureId])*albedo.w, gl_HitTNV);
+	payload.attenuation.w = dot(reflected, normal) > 0? 1: -1;
+}
+
+@proc-chit dielectrics
+
+bool refract(vec3 v, vec3 n, float ni_over_nt, out vec3 refracted) {
+	vec3 uv = normalize(v);
+	float dt = dot(uv, n);
+	float discriminant = 1.0 - ni_over_nt * ni_over_nt * (1 - dt*dt);
+	if(discriminant > 0) {
+		refracted = ni_over_nt*(uv - n*dt)- n*sqrt(discriminant);
+		return true;
+	}
+	else
+		return false;
+}
+
+float schlick(float cosine, float ref_idx) {
+	float r0 = (1-ref_idx) / (1+ref_idx);
+	r0 = r0*r0;
+	return r0 + (1-r0) * pow((1- cosine), 5);
+}
+
+hitAttributeNV vec4 hitAttribute;
+layout(location = 0) rayPayloadInNV PayLoad payload;
+
+void main() {
+	vec4 albedo = storage.storageData.albedos[gl_InstanceCustomIndexNV];
+
+	vec3 center = hitAttribute.xyz;
+	float radius = hitAttribute.w;
+	vec3 hitPoint = gl_WorldRayOriginNV + gl_WorldRayDirectionNV * gl_HitTNV;
+	vec3 normal = (hitPoint - center) / radius;
+
+	float ref_idx = albedo.w;
+	vec3 outwardNormal;
+	vec3 reflected = reflect(gl_WorldRayDirectionNV, normal);
+	float ni_over_nt;
+	vec3 refracted;
+	float reflect_prob;
+	float cosine;
+	if(dot(gl_WorldRayDirectionNV, normal) > 0) {
+		outwardNormal = -normal;
+		ni_over_nt = ref_idx;
+		cosine = ref_idx * dot(gl_WorldRayDirectionNV, normal) / length(gl_WorldRayDirectionNV);
+	} else {
+		outwardNormal = normal;
+		ni_over_nt = 1 / ref_idx;
+		cosine = -dot(gl_WorldRayDirectionNV, normal) / length(gl_WorldRayDirectionNV);
+	}
+	if(refract(gl_WorldRayDirectionNV, outwardNormal, ni_over_nt, refracted)) {
+		reflect_prob = schlick(cosine, ref_idx);
+	} else {
+		payload.scatterDirection = vec4(reflected, gl_HitTNV);
+		reflect_prob = 1;
+	}
+
+	if(rndFloat(payload.seed) < reflect_prob) {
+		payload.scatterDirection = vec4(reflected, gl_HitTNV);
+	} else {
+		payload.scatterDirection = vec4(refracted, gl_HitTNV);
+	}
+	payload.attenuation = vec4(1);
+}

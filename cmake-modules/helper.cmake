@@ -25,11 +25,6 @@ function(mg_cc_library)
         target_include_directories(${NAME} SYSTEM PRIVATE ${MG_LIB_DEPS_DIR})
         target_compile_definitions(${NAME} PRIVATE ${MG_LIB_DEFS})
         
-		set_target_properties(${NAME} PROPERTIES
-				CXX_STANDARD 17
-		)
-
-
        # if(${MG_LIB_TYPE} STREQUAL "SHARED")
        #     if(IS_WINDOWS)
        #         install(TARGETS ${NAME} RUNTIME DESTINATION ${RAYCARE_EXE_PATH})
@@ -55,9 +50,6 @@ function(mg_cc_executable)
         "NAME;" # list of names of mono-valued arguments
         "SRCS;COPTS;DEPS;DEPS_DIR;DEFS" # list of names of multi-valued arguments (output variables are lists)
         ${ARGN} # arguments of the function to parse, here we take the all original ones
-    )
-    set_target_properties(${NAME} PROPERTIES
-       CXX_STANDARD 17
     )
 
     set(NAME ${MG_CC_NAME})

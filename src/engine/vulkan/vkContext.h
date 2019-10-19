@@ -31,6 +31,8 @@ struct VulkanContext {
   struct {
     VkPipelineLayout pipelineLayout;
     VkPipelineLayout pipelineLayoutStorage;
+    VkPipelineLayout pipelineLayoutRayTracing;
+
   } pipelineLayouts;
 
   VkCommandPool commandPool;
@@ -40,6 +42,9 @@ struct VulkanContext {
     VkDescriptorSetLayout textures;
     VkDescriptorSetLayout textures3D;
     VkDescriptorSetLayout storage;
+    VkDescriptorSetLayout storageImage;
+    VkDescriptorSetLayout accelerationStructure;
+
   } descriptorSetLayout;
 
   VkPipelineCache pipelineCache;
@@ -81,5 +86,18 @@ extern VulkanContext vkContext;
 
 bool initVulkan(GLFWwindow *window);
 void destroyVulkan();
+
+namespace nv {
+extern PFN_vkCreateAccelerationStructureNV vkCreateAccelerationStructureNV;
+extern PFN_vkDestroyAccelerationStructureNV vkDestroyAccelerationStructureNV;
+extern PFN_vkBindAccelerationStructureMemoryNV vkBindAccelerationStructureMemoryNV;
+extern PFN_vkGetAccelerationStructureHandleNV vkGetAccelerationStructureHandleNV;
+extern PFN_vkGetAccelerationStructureMemoryRequirementsNV vkGetAccelerationStructureMemoryRequirementsNV;
+extern PFN_vkCmdBuildAccelerationStructureNV vkCmdBuildAccelerationStructureNV;
+extern PFN_vkCreateRayTracingPipelinesNV vkCreateRayTracingPipelinesNV;
+extern PFN_vkGetRayTracingShaderGroupHandlesNV vkGetRayTracingShaderGroupHandlesNV;
+extern PFN_vkCmdTraceRaysNV vkCmdTraceRaysNV;
+
+} // namespace nv
 
 } // namespace mg

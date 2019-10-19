@@ -8,7 +8,6 @@ namespace mg {
 
 struct FrameData {
   uint32_t width, height;
-  bool resize;
 
   struct {
     glm::vec2 xy, prevXY;
@@ -29,8 +28,6 @@ void destroyWindow();
 bool startFrame();
 void endFrame();
 FrameData getFrameData();
-float getScreenWidth();
-float getScreenHeight();
 float getTime();
 
 } // namespace mg

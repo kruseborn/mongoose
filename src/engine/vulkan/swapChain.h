@@ -18,6 +18,8 @@ struct SwapChain {
   void resize();
   void destroy();
 
+  void (*resizeCallack)(void) = nullptr;
+
 private:
   void createImages();
   void createImageViews();

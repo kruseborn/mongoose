@@ -53,12 +53,10 @@ void destroyWindow() {
   mg::destroyVulkan();
 }
 
-bool startFrame() { return !glfwWindowShouldClose(window); }
+bool startFrame() { glfwPollEvents(); return !glfwWindowShouldClose(window); }
 float getTime()  { return float(glfwGetTime()); }
 void endFrame() { glfwPollEvents(); }
 
-float getScreenWidth() { return vkContext.screen.width; }
-float getScreenHeight(){ return vkContext.screen.height; };
 
 FrameData getFrameData() {
   FrameData frameData = {};
@@ -68,30 +66,17 @@ FrameData getFrameData() {
   static uint64_t frames = 0;
   frames++;
 
-  currentTime = getCurrentTimeUs();
+currentTime = getCurrentTimeUs();
   const auto newDt = (currentTime - prevTime) / 100000.0f;
-  frameData.dt = frameData.dt * 0.99 + 0.01 * newDt;
+  frameData.dt = frameData.dt * 0.99f + 0.01f * newDt;
   prevTime = getCurrentTimeUs();
   const auto newFps = frames / ((currentTime - startTime) / 1000000.0);
   if (frameData.fps == 0)
-    frameData.fps = newFps;
-  frameData.fps = frameData.fps * 0.9 + 0.1 * newFps;
-
-  int32_t width, height;
-  glfwGetWindowSize(window, &width, &height);
-  
-  frameData.width = width;
-  frameData.height = height;
-  if (width != vkContext.screen.width || height != vkContext.screen.height) {
-    frameData.resize = true;
-
-    vkContext.screen.width = width;
-    vkContext.screen.height = height;
-    resizeWindow();
-  }
+    frameData.fps = uint32_t(newFps);
+  frameData.fps = uint32_t(frameData.fps * 0.1 + 0.9 * newFps);
 
   frameData.mouse.prevXY = prevXY;
-  frameData.mouse.xy = cursorPosition(float(width), float(height));
+  frameData.mouse.xy = cursorPosition(vkContext.screen.width, vkContext.screen.height);
 
   prevXY = frameData.mouse.xy;
 
@@ -112,7 +97,6 @@ FrameData getFrameData() {
   frameData.keys.left = glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS;
   frameData.keys.right = glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS;
   frameData.keys.space = glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS;
-
 
   return frameData;
 }
