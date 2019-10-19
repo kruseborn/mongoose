@@ -22,6 +22,12 @@
 #### Deferred rendering with SSAO(unzip rungholt.zip before running)
 <img src="images/rungholt.png" width="512">
 
+#### RTX, Ray Tracing in a weekend + Sobol Sequence and blue noise for quasi monte carlo
+<img src="images/raytracing.png" width="512">
+
+#### Compute shader, N-Body simulation with tone mapping
+<img src="images/nbody.png" width="512">
+
 #### Memory allocator visualization using dear IMGUI
 <img src="images/mongoose.png" width="512">
 
@@ -38,7 +44,6 @@
     No heap allocation during each frame
 <img src="images/space.png" width="512">
 
-#### Compute shader, N-Body simulation with tone mapping
-<img src="images/nbody.png" width="512">
+
 
 ##### *http://github.com/kruseborn/shader-compiler
