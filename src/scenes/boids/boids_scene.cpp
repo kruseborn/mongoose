@@ -1,5 +1,6 @@
 #include "boids_scene.h"
 
+#include "boids.h"
 #include "mg/camera.h"
 #include "mg/meshUtils.h"
 #include "mg/mgSystem.h"
@@ -8,19 +9,24 @@
 #include "vulkan/singleRenderpass.h"
 #include <glm/gtc/matrix_transform.hpp>
 
-static mg::Camera camera;
-static mg::SingleRenderPass singleRenderPass;
-static mg::MeshId meshId;
+struct World {
+  mg::Camera camera;
+  mg::SingleRenderPass singleRenderPass;
+  mg::MeshId meshId;
+  bds::Boids boids;
+};
+
+static World world{};
 
 static void resizeCallback() {
-  mg::resizeSingleRenderPass(&singleRenderPass);
+  mg::resizeSingleRenderPass(&world.singleRenderPass);
   mg::mgSystem.textureContainer.setupDescriptorSets();
 }
 
 void initScene() {
-  mg::initSingleRenderPass(&singleRenderPass);
+  mg::initSingleRenderPass(&world.singleRenderPass);
 
-  camera = mg::create3DCamera(glm::vec3{0.0f, 0.0f, -5.0f}, glm::vec3{0.0f, 0.0f, 0.0f},
+  world.camera = mg::create3DCamera(glm::vec3{0.0f, 0.0f, -5.0f}, glm::vec3{0.0f, 0.0f, 0.0f},
                               glm::vec3{0.0f, 1.0f, 0.0f});
 
   const auto cube = mg::createVolumeCube({-0.5f, -0.5f, -0.5f}, {1, 1, 1});
@@ -32,15 +38,17 @@ void initScene() {
                                        .indicesSizeInBytes = mg::sizeofArrayInBytes(cube.indices),
                                        .nrOfIndices = mg::countof(cube.indices)};
 
-  meshId = mg::mgSystem.meshContainer.createMesh(createMeshInfo);
+  world.meshId = mg::mgSystem.meshContainer.createMesh(createMeshInfo);
 
   mg::mgSystem.textureContainer.setupDescriptorSets();
   mg::vkContext.swapChain->resizeCallack = resizeCallback;
+
+  world.boids = bds::create();
 }
 
 void destroyScene() {
   mg::waitForDeviceIdle();
-  destroySingleRenderPass(&singleRenderPass);
+  destroySingleRenderPass(&world.singleRenderPass);
 }
 
 void updateScene(const mg::FrameData &frameData) {
@@ -48,30 +56,29 @@ void updateScene(const mg::FrameData &frameData) {
     mg::mgSystem.pipelineContainer.resetPipelineContainer();
   }
   if (frameData.mouse.left)
-    mg::handleTools(frameData, &camera);
-  mg::setCameraTransformation(&camera);
+    mg::handleTools(frameData, &world.camera);
+  mg::setCameraTransformation(&world.camera);
+
+  bds::update(world.boids, frameData);
 }
 
 void renderScene(const mg::FrameData &frameData) {
   mg::beginRendering();
   mg::setFullscreenViewport();
 
-  mg::beginSingleRenderPass(singleRenderPass);
+  mg::beginSingleRenderPass(world.singleRenderPass);
   {
     mg::RenderContext renderContext = {};
-    renderContext.renderPass = singleRenderPass.vkRenderPass;
+    renderContext.renderPass = world.singleRenderPass.vkRenderPass;
 
     renderContext.projection = glm::perspective(
-        glm::radians(camera.fov), mg::vkContext.screen.width / float(mg::vkContext.screen.height),
+        glm::radians(world.camera.fov), mg::vkContext.screen.width / float(mg::vkContext.screen.height),
         0.1f, 1000.f);
-    renderContext.view = glm::lookAt(camera.position, camera.aim, camera.up);
+    renderContext.view = glm::lookAt(world.camera.position, world.camera.aim, world.camera.up);
 
-    renderContext.renderPass = singleRenderPass.vkRenderPass;
+    renderContext.renderPass = world.singleRenderPass.vkRenderPass;
 
-    static float rotAngle = 0;
-    rotAngle += frameData.dt * 20.0f;
-    glm::mat4 rotation = glm::rotate(glm::mat4(1), rotAngle, {1, 1, 0});
-    renderCube(renderContext, meshId, rotation, {1, 0, 0, 1});
+    bds::render(world.boids, frameData, renderContext, world.meshId);
   }
   mg::endSingleRenderPass();
 

@@ -2,7 +2,9 @@ mg_cc_executable(
     NAME
         boids
     SRCS
-        boids_scene.cpp
+        boids.h
+	boids.cpp
+	boids_scene.cpp
         boids_scene.h
         boids_main.cpp
     COPTS
