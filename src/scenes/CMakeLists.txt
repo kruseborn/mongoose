@@ -4,4 +4,5 @@ add_subdirectory(volume-rendering)
 add_subdirectory(space-invaders)
 add_subdirectory(n-body)
 add_subdirectory(nv-ray)
+add_subdirectory(boids)
 

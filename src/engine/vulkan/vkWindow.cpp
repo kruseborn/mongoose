@@ -291,12 +291,12 @@ static void createLogicalDevice() {
   enabledFeatures.shaderClipDistance = VK_TRUE;
   enabledFeatures.shaderCullDistance = VK_TRUE;
 
-  const char *deviceExtensions[6] = {VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME,
+  const char *deviceExtensions[] = {VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME,
                                      VK_KHR_MAINTENANCE3_EXTENSION_NAME,
                                      VK_KHR_MAINTENANCE1_EXTENSION_NAME,
                                      VK_KHR_SWAPCHAIN_EXTENSION_NAME,
                                      VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME,
-                                     VK_NV_RAY_TRACING_EXTENSION_NAME};
+                                     /*VK_NV_RAY_TRACING_EXTENSION_NAME*/};
 
   deviceCreateInfo.enabledExtensionCount = mg::countof(deviceExtensions);
   deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions;

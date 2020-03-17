@@ -431,6 +431,32 @@ constexpr struct {
 constexpr const char *shader = "solid";
 } //solid
 
+namespace solidColor {
+struct Ubo {
+  glm::mat4 mvp;
+  glm::vec4 color;
+};
+namespace InputAssembler {
+  static VertexInputState vertexInputState[1] = {
+    { VK_FORMAT_R32G32B32_SFLOAT, 0, 0, 0, 12 },
+  };
+  struct VertexInputData {
+    glm::vec3 in_position;
+  };
+};
+union DescriptorSets {
+  struct {
+    VkDescriptorSet ubo;
+  };
+  VkDescriptorSet values[1];
+};
+constexpr struct {
+  const char *solidColor_frag = "solidColor.frag.spv";
+  const char *solidColor_vert = "solidColor.vert.spv";
+} files = {};
+constexpr const char *shader = "solidColor";
+} //solidColor
+
 namespace ssao {
 struct Ubo {
   glm::mat4 projection;
