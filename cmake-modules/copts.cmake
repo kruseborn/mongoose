@@ -14,7 +14,7 @@ list(APPEND MSVC_FLAGS
     "/D_CRT_SECURE_NO_WARNINGS"
     "/D_SCL_SECURE_NO_WARNINGS"
     "/D_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS"
-	  "/std:c++latest"
+	"/std:c++latest"
 )
 
 macro(fix_default_compiler_settings_)

@@ -1,0 +1,20 @@
+mg_cc_executable(
+    NAME
+        cube
+    SRCS
+        cube_scene.cpp
+        cube_scene.h
+        cube_main.cpp
+    COPTS
+        ${CPP_FLAGS}
+    DEPS
+        glm
+        mg-engine
+        ${VULKAN_LIB}
+        ${PLATFORM_LIB}
+    DEPS_DIR
+        "$ENV{VULKAN_SDK}/include"
+    DEFS
+        GLM_FORCE_DEPTH_ZERO_TO_ONE
+        GLM_FORCE_LEFT_HANDED
+)
