@@ -3,8 +3,8 @@ mg_cc_executable(
         boids
     SRCS
         boids.h
-	boids.cpp
-	boids_scene.cpp
+	    boids.cpp
+	    boids_scene.cpp
         boids_scene.h
         boids_main.cpp
     COPTS

@@ -2,21 +2,20 @@
 #include "mg/window.h"
 #include <random>
 
-namespace constants {
+namespace {
+static const int numBoids = 100;
+
 static const float width = 100.f;
 static const float height = 100.f;
 
-static const int numBoids = 130;
-
-static const float perception = 15.f;
+static const float fieldOfView = 15.f;
 static const float maxSpeed = 0.1f;
 static const float maxForce = 0.001f;
-
-} // namespace constants
+} // namespace
 
 static void applyMaxForce(glm::vec3 &vec) {
-  if (glm::length(vec) > constants::maxForce)
-    vec = glm::normalize(vec) * constants::maxForce;
+  if (glm::length(vec) > maxForce)
+    vec = glm::normalize(vec) * maxForce;
 }
 
 static glm::vec3 separation(size_t self, const std::vector<size_t> &neighbors, bds::Boids &boids) {
@@ -26,7 +25,7 @@ static glm::vec3 separation(size_t self, const std::vector<size_t> &neighbors, b
 
   for (auto i : neighbors) {
     float distance = glm::distance(boids.positions[i], boids.positions[self]);
-    if (distance < constants::perception * 0.7) {
+    if (distance < fieldOfView * 0.7) {
       average += (boids.positions[self] - boids.positions[i]) / distance;
       count++;
     }
@@ -35,7 +34,7 @@ static glm::vec3 separation(size_t self, const std::vector<size_t> &neighbors, b
   if (count > 0) {
     average /= count;
     if (glm::length(average) != 0.f)
-      average = glm::normalize(average) * constants::maxSpeed;
+      average = glm::normalize(average) * maxSpeed;
     offset = average - boids.velocities[self];
     applyMaxForce(offset);
   }
@@ -55,7 +54,7 @@ static glm::vec3 cohesion(size_t self, const std::vector<size_t> &neighbors, bds
     glm::vec3 desired = centerOfMass - boids.positions[self];
 
     if (glm::length(desired) != 0.f)
-      desired = glm::normalize(desired) * constants::maxSpeed;
+      desired = glm::normalize(desired) * maxSpeed;
 
     offset = desired - boids.velocities[self];
     applyMaxForce(offset);
@@ -69,12 +68,12 @@ static glm::vec3 alignment(size_t self, const std::vector<size_t> &neighbors, bd
   glm::vec3 average{};
 
   for (auto i : neighbors)
-    average += boids.velocities[i];
+    average += boids.velocities[i]; 
 
   if (neighbors.size() > 0) {
     average /= float(neighbors.size());
     if (glm::length(average) != 0.f)
-      average = glm::normalize(average) * constants::maxSpeed;
+      average = glm::normalize(average) * maxSpeed;
     
     offset = average - boids.velocities[self];
     applyMaxForce(offset);
@@ -94,15 +93,15 @@ void applyBehaviour(size_t index, const std::vector<size_t> &neighbors, bds::Boi
 }
 
 void updatePositions(bds::Boids &boids, float dt) {
-  for (size_t i = 0; i < constants::numBoids; ++i) {
+  for (size_t i = 0; i < numBoids; ++i) {
     glm::vec3 &position = boids.positions[i];
     glm::vec3 &velocity = boids.velocities[i];
     glm::vec3 &acceleration = boids.offsets[i];
 
     velocity += acceleration * dt * 2000.f;
 
-    if (glm::length(velocity) > constants::maxSpeed)
-      velocity = glm::normalize(velocity) * constants::maxSpeed;
+    if (glm::length(velocity) > maxSpeed)
+      velocity = glm::normalize(velocity) * maxSpeed;
 
     position += velocity * dt * 2000.f;
     acceleration = {};
@@ -110,15 +109,15 @@ void updatePositions(bds::Boids &boids, float dt) {
 }
 
 void moveInside(glm::vec3 &position) {
-  for (size_t i = 0; i < constants::numBoids; ++i) {
-    if (position.x > constants::width)
-      position.x = -constants::width;
-    if (position.x < -constants::width)
-      position.x = constants::width;
-    if (position.y > constants::height)
-      position.y = -constants::height;
-    if (position.y < -constants::height)
-      position.y = constants::height;
+  for (size_t i = 0; i < numBoids; ++i) {
+    if (position.x > width)
+      position.x = -width;
+    if (position.x < -width)
+      position.x = width;
+    if (position.y > height)
+      position.y = -height;
+    if (position.y < -height)
+      position.y = height;
   }
 }
 
@@ -127,7 +126,7 @@ Boids create() {
   Boids boids{};
   std::mt19937 gen(1337);
 
-  for (size_t i = 0; i < constants::numBoids; ++i) {
+  for (size_t i = 0; i < numBoids; ++i) {
     std::uniform_real_distribution<float> distPos(0.f, 100.f);
     std::uniform_real_distribution<float> distVel(0.f, 20.f);
 
@@ -148,19 +147,20 @@ Boids create() {
 
 void update(Boids &boids, const mg::FrameData &frameData, BoidsTime *boidsTime) {
   std::vector<size_t> neighbors;
-  neighbors.reserve(constants::numBoids);
-
+  neighbors.reserve(numBoids);
+  
   auto applyBehaviourStart = mg::timer::now();
 
-  for (size_t i = 0; i < constants::numBoids; ++i) {
-    for (size_t j = 0; j < constants::numBoids; ++j) {
-      if (i != j && glm::distance(boids.positions[i], boids.positions[j]) < constants::perception)
+  for (size_t i = 0; i < numBoids; ++i) {
+    for (size_t j = 0; j < numBoids; ++j) {
+      if (i != j && glm::distance(boids.positions[i], boids.positions[j]) < fieldOfView)
         neighbors.push_back(j);
     }
 
     applyBehaviour(i, neighbors, boids);
     neighbors.clear();
   }
+
   auto applyBehaviourEnd= mg::timer::now();
   boidsTime->applyBehaviourTime += uint32_t(mg::timer::durationInUs(applyBehaviourStart, applyBehaviourEnd));
 
@@ -170,7 +170,7 @@ void update(Boids &boids, const mg::FrameData &frameData, BoidsTime *boidsTime) 
   boidsTime->updatePositionTime += uint32_t(mg::timer::durationInUs(updatePositionTimeStart, updatePositionTimeEnd));
 
   auto moveTimeStart = mg::timer::now();
-  for (size_t i = 0; i < constants::numBoids; ++i)
+  for (size_t i = 0; i < numBoids; ++i)
     moveInside(boids.positions[i]);
   auto moveTimeEnd= mg::timer::now();
   boidsTime->moveInside += uint32_t(mg::timer::durationInUs(moveTimeStart, moveTimeEnd));
@@ -178,7 +178,7 @@ void update(Boids &boids, const mg::FrameData &frameData, BoidsTime *boidsTime) 
 
 void render(Boids &boids, const mg::FrameData &frameData, mg::RenderContext renderContext, mg::MeshId cubeId) {
   std::vector<glm::mat4> transforms;
-  for (size_t i = 0; i < constants::numBoids; ++i) {
+  for (size_t i = 0; i < numBoids; ++i) {
     glm::mat4 rotation = glm::rotate(glm::mat4(1), 0.f, {1, 1, 0});
     glm::mat4 translation = glm::translate(glm::mat4(1), boids.positions[i]);
     transforms.push_back(translation * rotation);
