@@ -15,7 +15,7 @@ struct Text {
   std::string text;
   glm::vec2 position;
   glm::vec4 color = {1, 1, 1, 1};
-  mg::FONT_TYPE fontType = FONT_TYPE::MICRO_SS_11;
+  mg::FONT_TYPE fontType = FONT_TYPE::MICRO_SS_14;
   TEXT_ALIGNMENT textAlignment = TEXT_ALIGNMENT::LEFT;
   VIEW_ALIGNMENT viewAlignment = VIEW_ALIGNMENT::TOP_LEFT;
 };

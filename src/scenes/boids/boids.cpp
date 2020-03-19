@@ -12,10 +12,6 @@ static const float perception = 15.f;
 static const float maxSpeed = 0.1f;
 static const float maxForce = 0.001f;
 
-static const float wSeparation = 1.f;
-static const float wCohesion = 1.f;
-static const float wAlignment = 1.f;
-
 } // namespace constants
 
 static void applyMaxForce(glm::vec3 &vec) {
@@ -76,7 +72,7 @@ static glm::vec3 alignment(size_t self, const std::vector<size_t> &neighbors, bd
     average += boids.velocities[i];
 
   if (neighbors.size() > 0) {
-    average /= (float)neighbors.size();
+    average /= float(neighbors.size());
     if (glm::length(average) != 0.f)
       average = glm::normalize(average) * constants::maxSpeed;
     
@@ -123,10 +119,6 @@ void moveInside(glm::vec3 &position) {
       position.y = -constants::height;
     if (position.y < -constants::height)
       position.y = constants::height;
-    if (position.z < -constants::height)
-      position.z = constants::height;
-    if (position.z < -constants::height)
-      position.z = constants::height;
   }
 }
 
@@ -140,7 +132,7 @@ Boids create() {
     std::uniform_real_distribution<float> distVel(0.f, 20.f);
 
     float posX = distPos(gen) * (i % 2 == 0 ? -1.f : 1.f);
-    float posY = distPos(gen) * (i % 3 == 0 ? -1.f : 1.f);
+    float posY = distPos(gen) * (i % 2 == 0 ? -1.f : 1.f);
 
     float velocityX = (distVel(gen) - 0.25f) * 0.01f;
     float velocityY = (distVel(gen) - 0.25f) * 0.01f;
@@ -154,25 +146,34 @@ Boids create() {
   return boids;
 }
 
-void update(Boids &boids, const mg::FrameData &frameData) {
+void update(Boids &boids, const mg::FrameData &frameData, BoidsTime *boidsTime) {
   std::vector<size_t> neighbors;
   neighbors.reserve(constants::numBoids);
 
-  for (size_t i = 0; i < constants::numBoids; ++i) {
-    neighbors.clear();
+  auto applyBehaviourStart = mg::timer::now();
 
+  for (size_t i = 0; i < constants::numBoids; ++i) {
     for (size_t j = 0; j < constants::numBoids; ++j) {
       if (i != j && glm::distance(boids.positions[i], boids.positions[j]) < constants::perception)
         neighbors.push_back(j);
     }
 
     applyBehaviour(i, neighbors, boids);
+    neighbors.clear();
   }
+  auto applyBehaviourEnd= mg::timer::now();
+  boidsTime->applyBehaviourTime += uint32_t(mg::timer::durationInUs(applyBehaviourStart, applyBehaviourEnd));
 
+  auto updatePositionTimeStart = mg::timer::now();
   updatePositions(boids, frameData.dt);
+  auto updatePositionTimeEnd = mg::timer::now();
+  boidsTime->updatePositionTime += uint32_t(mg::timer::durationInUs(updatePositionTimeStart, updatePositionTimeEnd));
 
+  auto moveTimeStart = mg::timer::now();
   for (size_t i = 0; i < constants::numBoids; ++i)
     moveInside(boids.positions[i]);
+  auto moveTimeEnd= mg::timer::now();
+  boidsTime->moveInside += uint32_t(mg::timer::durationInUs(moveTimeStart, moveTimeEnd));
 }
 
 void render(Boids &boids, const mg::FrameData &frameData, mg::RenderContext renderContext, mg::MeshId cubeId) {

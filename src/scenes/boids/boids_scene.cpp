@@ -4,6 +4,7 @@
 #include "mg/camera.h"
 #include "mg/meshUtils.h"
 #include "mg/mgSystem.h"
+#include "mg/texts.h"
 #include "mg/window.h"
 #include "rendering/rendering.h"
 #include "vulkan/singleRenderpass.h"
@@ -17,6 +18,7 @@ struct World {
 };
 
 static World world{};
+static BoidsTime boidsTime = {};
 
 static void resizeCallback() {
   mg::resizeSingleRenderPass(&world.singleRenderPass);
@@ -26,9 +28,7 @@ static void resizeCallback() {
 void initScene() {
   mg::initSingleRenderPass(&world.singleRenderPass);
 
-  world.camera = mg::create3DCamera(glm::vec3{0.0f, 0.0f, -260.0f}, glm::vec3{0.0f, 0.0f, 0.0f},
-                              glm::vec3{0.0f, 1.0f, 0.0f});
-
+  world.camera = mg::create3DCamera(glm::vec3{0.0f, 0.0f, -260.0f}, glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f});
   const auto cube = mg::createVolumeCube({-0.5f, -0.5f, -0.5f}, {1, 1, 1});
 
   mg::CreateMeshInfo createMeshInfo = {.id = "box",
@@ -59,10 +59,42 @@ void updateScene(const mg::FrameData &frameData) {
     mg::handleTools(frameData, &world.camera);
   mg::setCameraTransformation(&world.camera);
 
-  bds::update(world.boids, frameData);
+  boidsTime.count++;
+  bds::update(world.boids, frameData, &boidsTime);
+  if (boidsTime.count > 1000) {
+    boidsTime.count = 0;
+    boidsTime.textPos = boidsTime.updatePositionTime / 1000.0f;
+    boidsTime.textApply = boidsTime.applyBehaviourTime / 1000.0f;
+    boidsTime.textMoveInside = boidsTime.moveInside / 1000.0f;
+
+    boidsTime.updatePositionTime = 0;
+    boidsTime.applyBehaviourTime = 0;
+    boidsTime.moveInside = 0;
+  }
 }
 
 void renderScene(const mg::FrameData &frameData) {
+  mg::Texts texts = {};
+  char fps[50];
+  char pos[50];
+  char beh[50];
+  char mov[50];
+
+  snprintf(fps, sizeof(fps), "Fps: %u", uint32_t(frameData.fps));
+  snprintf(pos, sizeof(pos), "Update Position: %.3f us", boidsTime.textPos);
+  snprintf(beh, sizeof(beh), "Apply Behaviour: %.3f us", boidsTime.textApply);
+  snprintf(mov, sizeof(mov), "Move Inside: %.3f us", boidsTime.textMoveInside);
+
+  mg::Text text1 = {fps};
+  mg::Text text2 = {pos};
+  mg::Text text3 = {beh};
+  mg::Text text4 = {mov};
+
+  mg::pushText(&texts, text1);
+  mg::pushText(&texts, text2);
+  mg::pushText(&texts, text3);
+  mg::pushText(&texts, text4);
+
   mg::beginRendering();
   mg::setFullscreenViewport();
 
@@ -70,17 +102,15 @@ void renderScene(const mg::FrameData &frameData) {
   {
     mg::RenderContext renderContext = {};
     renderContext.renderPass = world.singleRenderPass.vkRenderPass;
-
-    renderContext.projection = glm::perspective(
-        glm::radians(world.camera.fov), mg::vkContext.screen.width / float(mg::vkContext.screen.height),
-        0.1f, 1000.f);
+    renderContext.projection = glm::perspective(glm::radians(world.camera.fov),
+                                                mg::vkContext.screen.width / float(mg::vkContext.screen.height), 0.1f, 1000.f);
     renderContext.view = glm::lookAt(world.camera.position, world.camera.aim, world.camera.up);
-
     renderContext.renderPass = world.singleRenderPass.vkRenderPass;
 
     bds::render(world.boids, frameData, renderContext, world.meshId);
+    mg::validateTexts(texts);
+    mg::renderText(renderContext, texts);
   }
   mg::endSingleRenderPass();
-
   mg::endRendering();
 }
