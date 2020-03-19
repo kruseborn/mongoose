@@ -2,7 +2,7 @@
 #include "boids_scene.h"
 
 int main() {
-  mg::initWindow(2048, 1600);
+  mg::initWindow(scene::windowWidth, scene::windowHeight);
   initScene();
   while (mg::startFrame()) {
     auto frameData = mg::getFrameData();

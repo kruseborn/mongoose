@@ -242,8 +242,9 @@ void renderBoxWithDepthTexture(mg::RenderContext &renderContext, const glm::vec4
   vkCmdDrawIndexed(mg::vkContext.commandBuffer, mg::countof(indicesInputData), 1, 0, 0, 0);
 }
 
-void renderCube(const mg::RenderContext &renderContext, mg::MeshId cubeId, glm::mat4 model,
-                glm::vec4 color) {
+void renderCubes(const mg::RenderContext &renderContext, mg::MeshId cubeId, const std::vector<glm::mat4>& models,
+                const std::vector<glm::vec4>& colors) {
+
   using namespace mg::shaders::solidColor;
 
   mg::PipelineStateDesc pipelineStateDesc = {};
@@ -264,9 +265,8 @@ void renderCube(const mg::RenderContext &renderContext, mg::MeshId cubeId, glm::
   VkDescriptorSet uboSet;
   Ubo *ubo = (Ubo *)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer,
                                                                      &uniformOffset, &uboSet);
-
-  ubo->mvp = renderContext.projection * renderContext.view * model;
-  ubo->color = color;
+  ubo->temp = {}; 
+  const auto vp = renderContext.projection * renderContext.view;
 
   DescriptorSets descriptorSets = {.ubo = uboSet};
 
@@ -283,8 +283,17 @@ void renderCube(const mg::RenderContext &renderContext, mg::MeshId cubeId, glm::
   vkCmdBindVertexBuffers(mg::vkContext.commandBuffer, 0, 1, &mesh.buffer, &offset);
   vkCmdBindIndexBuffer(mg::vkContext.commandBuffer, mesh.buffer, mesh.indicesOffset,
                        VK_INDEX_TYPE_UINT32);
+  struct Pc {
+    glm::mat4 mvp;
+    glm::vec4 color;
+  };
+  for (int i = 0; i < models.size(); ++i) {
+    Pc pc = {.mvp = vp * models[i], .color = colors[i]};
+    vkCmdPushConstants(mg::vkContext.commandBuffer, pipeline.layout, VK_SHADER_STAGE_ALL, 0,
+                       sizeof(pc), (void *)&pc);
 
-  vkCmdDrawIndexed(mg::vkContext.commandBuffer, mesh.indexCount, 1, 0, 0, 0);
+    vkCmdDrawIndexed(mg::vkContext.commandBuffer, mesh.indexCount, 1, 0, 0, 0);
+  }
 }
 
 } // namespace mg

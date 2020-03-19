@@ -433,6 +433,9 @@ constexpr const char *shader = "solid";
 
 namespace solidColor {
 struct Ubo {
+  glm::vec4 temp;
+};
+struct Model {
   glm::mat4 mvp;
   glm::vec4 color;
 };

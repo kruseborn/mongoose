@@ -20,8 +20,8 @@ void renderSolidBoxes(const mg::RenderContext &renderContext, const float *xPosi
 void renderBoxWithTexture(mg::RenderContext &renderContext, const glm::vec4 &position, TextureId textureId);
 void renderBoxWithDepthTexture(mg::RenderContext &renderContext, const glm::vec4 &position, TextureId textureId);
 void renderText(const mg::RenderContext &renderContext, const mg::Texts &texts);
-void renderCube(const mg::RenderContext &renderContext, mg::MeshId cubeId, glm::mat4 model,
-                glm::vec4 color);
+void renderCubes(const mg::RenderContext &renderContext, mg::MeshId cubeId, const std::vector<glm::mat4>& models,
+                const std::vector<glm::vec4>& colors);
 
 
 } // namespace
