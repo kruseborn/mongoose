@@ -1,6 +1,7 @@
 #include "boids_scene.h"
 
 #include "boids.h"
+#include "boids_simd.h"
 #include "mg/camera.h"
 #include "mg/meshUtils.h"
 #include "mg/mgSystem.h"
@@ -15,6 +16,7 @@ struct World {
   mg::SingleRenderPass singleRenderPass;
   mg::MeshId meshId;
   bds::Boids boids;
+  bds_simd::Boids boids_simd;
 };
 
 static World world{};
@@ -43,6 +45,7 @@ void initScene() {
   mg::mgSystem.textureContainer.setupDescriptorSets();
   mg::vkContext.swapChain->resizeCallack = resizeCallback;
 
+  world.boids_simd = bds_simd::create();
   world.boids = bds::create();
 }
 
@@ -60,7 +63,9 @@ void updateScene(const mg::FrameData &frameData) {
   mg::setCameraTransformation(&world.camera);
 
   boidsTime.count++;
-  bds::update(world.boids, frameData, &boidsTime);
+  if (frameData.dt != 0.f)
+  bds_simd::update(world.boids_simd, frameData, &boidsTime);
+    //bds::update(world.boids, frameData, &boidsTime);
   if (boidsTime.count > 1000) {
     boidsTime.count = 0;
     boidsTime.textPos = boidsTime.updatePositionTime / 1000.0f;
@@ -107,7 +112,8 @@ void renderScene(const mg::FrameData &frameData) {
     renderContext.view = glm::lookAt(world.camera.position, world.camera.aim, world.camera.up);
     renderContext.renderPass = world.singleRenderPass.vkRenderPass;
 
-    bds::render(world.boids, frameData, renderContext, world.meshId);
+    //bds::render(world.boids, frameData, renderContext, world.meshId);
+    bds_simd::render(world.boids_simd, frameData, renderContext, world.meshId);
     mg::validateTexts(texts);
     mg::renderText(renderContext, texts);
   }

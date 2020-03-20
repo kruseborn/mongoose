@@ -7,6 +7,10 @@ mg_cc_executable(
 	    boids_scene.cpp
         boids_scene.h
         boids_main.cpp
+        boids_simd.h
+	    boids_simd.cpp
+        utils.h
+        v8f.h
     COPTS
         ${CPP_FLAGS}
     DEPS

@@ -68,13 +68,13 @@ static glm::vec3 alignment(size_t self, const std::vector<size_t> &neighbors, bd
   glm::vec3 average{};
 
   for (auto i : neighbors)
-    average += boids.velocities[i]; 
+    average += boids.velocities[i];
 
   if (neighbors.size() > 0) {
     average /= float(neighbors.size());
     if (glm::length(average) != 0.f)
       average = glm::normalize(average) * maxSpeed;
-    
+
     offset = average - boids.velocities[self];
     applyMaxForce(offset);
   }
@@ -82,7 +82,7 @@ static glm::vec3 alignment(size_t self, const std::vector<size_t> &neighbors, bd
   return offset;
 }
 
-void applyBehaviour(size_t index, const std::vector<size_t> &neighbors, bds::Boids &boids) {
+static void applyBehaviour(size_t index, const std::vector<size_t> &neighbors, bds::Boids &boids) {
   glm::vec3 sep = separation(index, neighbors, boids);
   glm::vec3 coh = cohesion(index, neighbors, boids);
   glm::vec3 ali = alignment(index, neighbors, boids);
@@ -92,7 +92,7 @@ void applyBehaviour(size_t index, const std::vector<size_t> &neighbors, bds::Boi
   boids.offsets[index] += ali;
 }
 
-void updatePositions(bds::Boids &boids, float dt) {
+static void updatePositions(bds::Boids &boids, float dt) {
   for (size_t i = 0; i < numBoids; ++i) {
     glm::vec3 &position = boids.positions[i];
     glm::vec3 &velocity = boids.velocities[i];
@@ -108,15 +108,15 @@ void updatePositions(bds::Boids &boids, float dt) {
   }
 }
 
-void moveInside(glm::vec3 &position) {
+static void moveInside(glm::vec3 &position) {
   for (size_t i = 0; i < numBoids; ++i) {
     if (position.x > width)
       position.x = -width;
-    if (position.x < -width)
+    else if (position.x < -width)
       position.x = width;
-    if (position.y > height)
+    else if (position.y > height)
       position.y = -height;
-    if (position.y < -height)
+    else if (position.y < -height)
       position.y = height;
   }
 }
@@ -146,10 +146,10 @@ Boids create() {
 }
 
 void update(Boids &boids, const mg::FrameData &frameData, BoidsTime *boidsTime) {
+  auto applyBehaviourStart = mg::timer::now();
+
   std::vector<size_t> neighbors;
   neighbors.reserve(numBoids);
-  
-  auto applyBehaviourStart = mg::timer::now();
 
   for (size_t i = 0; i < numBoids; ++i) {
     for (size_t j = 0; j < numBoids; ++j) {
@@ -161,7 +161,7 @@ void update(Boids &boids, const mg::FrameData &frameData, BoidsTime *boidsTime) 
     neighbors.clear();
   }
 
-  auto applyBehaviourEnd= mg::timer::now();
+  auto applyBehaviourEnd = mg::timer::now();
   boidsTime->applyBehaviourTime += uint32_t(mg::timer::durationInUs(applyBehaviourStart, applyBehaviourEnd));
 
   auto updatePositionTimeStart = mg::timer::now();
@@ -172,7 +172,7 @@ void update(Boids &boids, const mg::FrameData &frameData, BoidsTime *boidsTime) 
   auto moveTimeStart = mg::timer::now();
   for (size_t i = 0; i < numBoids; ++i)
     moveInside(boids.positions[i]);
-  auto moveTimeEnd= mg::timer::now();
+  auto moveTimeEnd = mg::timer::now();
   boidsTime->moveInside += uint32_t(mg::timer::durationInUs(moveTimeStart, moveTimeEnd));
 }
 
