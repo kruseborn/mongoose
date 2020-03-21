@@ -11,7 +11,7 @@
 // or equal to VkPhysicalDeviceLimits::maxUniformBufferRange'
 // https://www.khronos.org/registry/vulkan/specs/1.0/html/vkspec.html#VUID-VkWriteDescriptorSet-descriptorType-00332
 static constexpr uint32_t uniformBufferSizeInBytes = 1u << 16; // 64 kb
-static constexpr uint32_t storageBufferSizeInBytes = 1u << 18; // 2 meg
+static constexpr uint32_t storageBufferSizeInBytes = 1u << 25; // 2 meg
 static constexpr uint32_t vertexBufferSizeInBytes = 1u << 25;  // 32 meg
 static constexpr uint32_t stagingBufferSizeInBytes = 1u << 27; // 128 meg
 

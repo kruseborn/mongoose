@@ -1,0 +1,22 @@
+mg_cc_executable(
+    NAME
+        fluid
+    SRCS
+        fluid_scene.cpp
+        fluid_scene.h
+        fluid_main.cpp
+        navier_stroke.h
+        navier_stroke.cpp
+    COPTS
+        ${CPP_FLAGS}
+    DEPS
+        glm
+        mg-engine
+        ${VULKAN_LIB}
+        ${PLATFORM_LIB}
+    DEPS_DIR
+        "$ENV{VULKAN_SDK}/include"
+    DEFS
+        GLM_FORCE_DEPTH_ZERO_TO_ONE
+        GLM_FORCE_LEFT_HANDED
+)

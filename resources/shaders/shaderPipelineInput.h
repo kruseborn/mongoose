@@ -96,6 +96,29 @@ constexpr struct {
 constexpr const char *shader = "final";
 } //final
 
+namespace fluid {
+struct Ubo {
+  glm::uvec4 screenSize;
+};
+struct Storage {
+  struct StorageData {
+    float color;
+  };
+  StorageData* storageData = nullptr;
+};
+union DescriptorSets {
+  struct {
+    VkDescriptorSet ubo;
+  };
+  VkDescriptorSet values[1];
+};
+constexpr struct {
+  const char *fluid_frag = "fluid.frag.spv";
+  const char *fluid_vert = "fluid.vert.spv";
+} files = {};
+constexpr const char *shader = "fluid";
+} //fluid
+
 namespace fontRendering {
 struct Ubo {
   glm::mat4 projection;
