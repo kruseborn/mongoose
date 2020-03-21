@@ -21,6 +21,7 @@ struct World {
 
 static World world{};
 static BoidsTime boidsTime = {};
+static bool useSimd = true;
 
 static void resizeCallback() {
   mg::resizeSingleRenderPass(&world.singleRenderPass);
@@ -63,10 +64,20 @@ void updateScene(const mg::FrameData &frameData) {
   mg::setCameraTransformation(&world.camera);
 
   boidsTime.count++;
-  if (frameData.dt != 0.f)
-  bds_simd::update(world.boids_simd, frameData, &boidsTime);
-    //bds::update(world.boids, frameData, &boidsTime);
-  if (boidsTime.count > 100) {
+  if (frameData.dt != 0.f) {
+    static float keyPressed = 0.0f;
+    keyPressed += frameData.dt;
+    if (frameData.keys.m && keyPressed >= 0.1f) {
+      keyPressed = 0.0f;
+      useSimd = !useSimd;    
+    }
+    if (useSimd)
+      bds_simd::update(world.boids_simd, frameData, &boidsTime);
+    else
+      bds::update(world.boids, frameData, &boidsTime);
+ 
+  }
+   if (boidsTime.count > 100) {
     boidsTime.count = 0;
     boidsTime.textPos = boidsTime.updatePositionTime / 100.0f;
     boidsTime.textApply = boidsTime.applyBehaviourTime / 100.0f;
@@ -84,21 +95,33 @@ void renderScene(const mg::FrameData &frameData) {
   char pos[50];
   char beh[50];
   char mov[50];
+  char mode[50];
+  char instruction[50];
 
   snprintf(fps, sizeof(fps), "Fps: %u", uint32_t(frameData.fps));
   snprintf(pos, sizeof(pos), "Update Position: %.3f us", boidsTime.textPos);
   snprintf(beh, sizeof(beh), "Apply Behaviour: %.3f us", boidsTime.textApply);
   snprintf(mov, sizeof(mov), "Move Inside: %.3f us", boidsTime.textMoveInside);
+  const char *vectorized = "Vectorized";
+  const char *nonvectorized = "Nonvectorized";
+  snprintf(mode, sizeof(mode), "Using: %s", useSimd ? vectorized : nonvectorized);
+  snprintf(instruction, sizeof(instruction), "Press m to switch mode");
 
+  mg::Text textEmpty = {};
   mg::Text text1 = {fps};
   mg::Text text2 = {pos};
   mg::Text text3 = {beh};
   mg::Text text4 = {mov};
+  mg::Text text5 = {mode};
+  mg::Text text6 = {instruction};
 
   mg::pushText(&texts, text1);
   mg::pushText(&texts, text2);
   mg::pushText(&texts, text3);
   mg::pushText(&texts, text4);
+  mg::pushText(&texts, text5);
+  mg::pushText(&texts, textEmpty);
+  mg::pushText(&texts, text6);
 
   mg::beginRendering();
   mg::setFullscreenViewport();
@@ -112,8 +135,11 @@ void renderScene(const mg::FrameData &frameData) {
     renderContext.view = glm::lookAt(world.camera.position, world.camera.aim, world.camera.up);
     renderContext.renderPass = world.singleRenderPass.vkRenderPass;
 
-    //bds::render(world.boids, frameData, renderContext, world.meshId);
-    bds_simd::render(world.boids_simd, frameData, renderContext, world.meshId);
+    if(useSimd)
+      bds_simd::render(world.boids_simd, frameData, renderContext, world.meshId);
+    else
+      bds::render(world.boids, frameData, renderContext, world.meshId);
+      
     mg::validateTexts(texts);
     mg::renderText(renderContext, texts);
   }

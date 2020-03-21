@@ -3,14 +3,14 @@
 #include <random>
 
 namespace {
-static const int numBoids = 100;
+static constexpr int numBoids = 1008;
 
-static const float width = 100.f;
-static const float height = 100.f;
+static constexpr float width = 100.f;
+static constexpr float height = 100.f;
 
-static const float fieldOfView = 15.f;
-static const float maxSpeed = 0.1f;
-static const float maxForce = 0.001f;
+static constexpr float fieldOfView = 15.f;
+static constexpr float maxSpeed = 0.1f;
+static constexpr float maxForce = 0.001f;
 } // namespace
 
 static void applyMaxForce(glm::vec3 &vec) {
