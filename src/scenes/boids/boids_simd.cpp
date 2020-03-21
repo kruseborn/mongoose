@@ -67,36 +67,38 @@ static void alignment(size_t self, const std::vector<size_t> &neighbors, bds_sim
 static void cap(v8f &vx, v8f &vy, const v8f &max) {
   v8f len = length(vx, vy);
   v8f mask = len > max;
+  len = max / len;
 
-  vx = if_select(mask, vx * max / len, vx);
-  vy = if_select(mask, vy * max / len, vy);
+  vx = select(mask, vx * len, vx);
+  vy = select(mask, vy * len, vy);
 }
 
-static void applyMaxSpeed(v8f &vx, v8f &vy, const v8f &mask, const v8f& zeros, const v8f& max) {
-  v8f sepLength = length(vx, vy);
-  v8f sepMask = mask && sepLength != zeros;
-  
-  vx = if_select(sepMask, vx * max / sepLength, zeros);
-  vy = if_select(sepMask, vy * max / sepLength, zeros);
+static void applyMaxSpeed(v8f &vx, v8f &vy, v8f mask) {
+  v8f len = length(vx, vy);
+  mask = mask && len != zeros;
+  len = maxSpeeds / len;
+
+  vx = select(mask, vx * len, vx);
+  vy = select(mask, vy * len, vy);
 }
 
-static void separations(bds_simd::Boids &boids, float* counts) {
+static void separations(bds_simd::Boids &boids, float *counts) {
   size_t vi = 0;
 
   for (size_t i = 0; i < bds_simd::vsize; i++, vi += numFloats) {
     v8f counts(&counts[vi]);
-    v8f hasNeighbors = counts > 0.f;
+    v8f hasNeighbors = counts > zeros;
 
     v8f sepx(&boids._sepx[vi]);
     v8f sepy(&boids._sepy[vi]);
 
-    sepx = if_select(hasNeighbors, sepx / counts, zeros);
-    sepy = if_select(hasNeighbors, sepy / counts, zeros);
+    sepx = select(hasNeighbors, sepx / counts, zeros);
+    sepy = select(hasNeighbors, sepy / counts, zeros);
 
-    applyMaxSpeed(sepx, sepy, hasNeighbors, zeros, maxSpeeds);
+    applyMaxSpeed(sepx, sepy, hasNeighbors);
 
-    sepx = if_select(hasNeighbors, sepx - &boids._vx[vi], zeros);
-    sepy = if_select(hasNeighbors, sepy - &boids._vy[vi], zeros);
+    sepx = if_sub(hasNeighbors, sepx, &boids._vx[vi]);
+    sepy = if_sub(hasNeighbors, sepy, &boids._vy[vi]);
 
     cap(sepx, sepy, maxForces);
 
@@ -115,14 +117,14 @@ static void cohesions(bds_simd::Boids &boids, float *counts) {
     v8f cohx(&boids._cohx[vi]);
     v8f cohy(&boids._cohy[vi]);
 
-    cohx = if_select(hasNeighbors, cohx / counts - &boids._px[vi], zeros);
-    cohy = if_select(hasNeighbors, cohy / counts - &boids._py[vi], zeros);
+    cohx = select(hasNeighbors, cohx / counts - &boids._px[vi], zeros);
+    cohy = select(hasNeighbors, cohy / counts - &boids._py[vi], zeros);
 
-    applyMaxSpeed(cohx, cohy, hasNeighbors, zeros, maxSpeeds);
-    
-    cohx = if_select(hasNeighbors, cohx - &boids._vx[vi], zeros);
-    cohy = if_select(hasNeighbors, cohy - &boids._vy[vi], zeros);
-    
+    applyMaxSpeed(cohx, cohy, hasNeighbors);
+
+    cohx = if_sub(hasNeighbors, cohx, &boids._vx[vi]);
+    cohy = if_sub(hasNeighbors, cohy, &boids._vy[vi]);
+
     cap(cohx, cohy, maxForces);
 
     cohx += &boids._offx[vi];
@@ -138,19 +140,19 @@ static void alignments(bds_simd::Boids &boids, float *counts) {
 
   for (size_t i = 0; i < bds_simd::vsize; i++, vi += numFloats) {
     v8f counts(&counts[vi]);
-    v8f hasNeighbors = counts > 0.f;
+    v8f hasNeighbors = counts > zeros;
 
     v8f alix(&boids._alix[vi]);
     v8f aliy(&boids._aliy[vi]);
 
-    alix = if_select(hasNeighbors, alix / counts, zeros);
-    aliy = if_select(hasNeighbors, aliy / counts, zeros);
+    alix = select(hasNeighbors, alix / counts, zeros);
+    aliy = select(hasNeighbors, aliy / counts, zeros);
 
-    applyMaxSpeed(alix, aliy, hasNeighbors, zeros, maxSpeeds);
+    applyMaxSpeed(alix, aliy, hasNeighbors);
 
-    alix = if_select(hasNeighbors, alix - &boids._vx[vi], zeros);
-    aliy = if_select(hasNeighbors, aliy - &boids._vy[vi], zeros);
-    
+    alix = if_sub(hasNeighbors, alix, &boids._vx[vi]);
+    aliy = if_sub(hasNeighbors, aliy, &boids._vy[vi]);
+
     cap(alix, aliy, maxForces);
 
     alix += &boids._offx[vi];
@@ -201,7 +203,7 @@ static void applyBehaviours(bds_simd::Boids &boids) {
 
   for (size_t i = 0; i < bds_simd::numBoids; i++) {
     size_t vi = 0;
-    neighbors.clear();   
+    neighbors.clear();
 
     v8f px(boids._px[i]);
     v8f py(boids._py[i]);
@@ -241,10 +243,10 @@ static void moveInside(bds_simd::Boids &boids) {
     v8f x(&boids._px[vi]);
     v8f y(&boids._py[vi]);
 
-    x = if_select(x > wMax, wMin, x);
-    x = if_select(x < wMin, wMax, x);
-    y = if_select(y > hMax, hMin, y);
-    y = if_select(y < hMin, hMax, y);
+    x = select(x > wMax, wMin, x);
+    x = select(x < wMin, wMax, x);
+    y = select(y > hMax, hMin, y);
+    y = select(y < hMin, hMax, y);
 
     x.store(&boids._px[vi]);
     y.store(&boids._py[vi]);

@@ -3,7 +3,7 @@
 #include <random>
 
 namespace {
-static constexpr int numBoids = 1008;
+static constexpr int numBoids = 1024;
 
 static constexpr float width = 100.f;
 static constexpr float height = 100.f;
