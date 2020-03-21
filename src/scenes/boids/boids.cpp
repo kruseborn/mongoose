@@ -153,7 +153,8 @@ void update(Boids &boids, const mg::FrameData &frameData, BoidsTime *boidsTime) 
 
   for (size_t i = 0; i < numBoids; ++i) {
     for (size_t j = 0; j < numBoids; ++j) {
-      if (i != j && glm::distance(boids.positions[i], boids.positions[j]) < fieldOfView)
+      auto dist = glm::distance(boids.positions[i], boids.positions[j]);
+      if (i != j && dist < fieldOfView)
         neighbors.push_back(j);
     }
 

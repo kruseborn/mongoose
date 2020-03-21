@@ -12,18 +12,30 @@ struct FrameData;
 
 namespace bds_simd {
 static constexpr uint32_t alignment = 32;
-static constexpr uint32_t numBoids = 100;
+static constexpr uint32_t numBoids = 1024;
 static constexpr uint32_t numFloats = 8;
+static constexpr uint32_t vsize = bds_simd::numBoids / numFloats;
 
 struct Boids {
   std::vector<glm::vec4> colors;
 
-  alignas(alignment) float positionsX[numBoids]{0};
-  alignas(alignment) float positionsY[numBoids]{0};
-  alignas(alignment) float velocitiesX[numBoids]{0};
-  alignas(alignment) float velocitiesY[numBoids]{0};
-  alignas(alignment) float offsetsX[numBoids]{0};
-  alignas(alignment) float offsetsY[numBoids]{0};
+  alignas(alignment) float _px[numBoids]{0};
+  alignas(alignment) float _py[numBoids]{0};
+ 
+  alignas(alignment) float _vx[numBoids]{0};
+  alignas(alignment) float _vy[numBoids]{0};
+  
+  alignas(alignment) float _offx[numBoids]{0};
+  alignas(alignment) float _offy[numBoids]{0};
+
+  alignas(alignment) float _sepx[numBoids]{0};
+  alignas(alignment) float _sepy[numBoids]{0};
+
+  alignas(alignment) float _cohx[numBoids]{0};
+  alignas(alignment) float _cohy[numBoids]{0};
+  
+  alignas(alignment) float _alix[numBoids]{0};
+  alignas(alignment) float _aliy[numBoids]{0};
 };
 
 Boids create();

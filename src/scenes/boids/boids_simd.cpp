@@ -4,197 +4,250 @@
 #include <random>
 
 namespace {
-static const float width = 100.f;
-static const float height = 100.f;
+static constexpr float width = 100.f;
+static constexpr float height = 100.f;
 
-static const float fieldOfView = 15.f;
-static const float maxSpeed = 0.1f;
-static const float maxForce = 0.001f;
+static constexpr float fieldOfView = 15.f;
+static constexpr float maxSpeed = 0.1f;
+static constexpr float maxForce = 0.001f;
 
 static constexpr uint32_t numFloats = 8;
+
+static const v8f maxSpeeds = v8f(maxSpeed);
+static const v8f maxForces = v8f(maxForce);
+static const v8f zeros = v8f(0.f);
 } // namespace
 
-static void applyMaxForce(glm::vec3 &vec) {
-  if (glm::length(vec) > maxForce)
-    vec = glm::normalize(vec) * maxForce;
-}
-
-static glm::vec3 separation(size_t self, const std::vector<size_t> &neighbors, bds_simd::Boids &boids) {
-  glm::vec3 offset{};
-  glm::vec3 average{};
+static float separation(size_t self, const std::vector<size_t> &neighbors, bds_simd::Boids &boids) {
+  float x{}, y{};
   int count = 0;
 
-  glm::vec3 positionSelf{boids.positionsX[self], boids.positionsY[self], 0.f};
-
   for (auto i : neighbors) {
-    glm::vec3 positionOther{boids.positionsX[i], boids.positionsY[i], 0.f};
-    float distance = glm::distance(positionOther, positionSelf);
+    float dx = boids._px[self] - boids._px[i];
+    float dy = boids._py[self] - boids._py[i];
+    float distance = sqrt(dx * dx + dy * dy);
 
     if (distance < fieldOfView * 0.7) {
-      average += (positionSelf - positionOther) / distance;
+      x += dx / distance;
+      y += dy / distance;
       count++;
     }
   }
 
-  if (count > 0) {
-    average /= count;
-    if (glm::length(average) != 0.f)
-      average = glm::normalize(average) * maxSpeed;
-    offset = average - glm::vec3{boids.velocitiesX[self], boids.velocitiesY[self], 0.f};
-    applyMaxForce(offset);
+  boids._sepx[self] = x;
+  boids._sepy[self] = y;
+
+  return (float)count;
+}
+
+static void cohesion(size_t self, const std::vector<size_t> &neighbors, bds_simd::Boids &boids) {
+  float x{}, y{};
+
+  for (auto i : neighbors) {
+    x += boids._px[i];
+    y += boids._py[i];
   }
 
-  return offset;
+  boids._cohx[self] = x;
+  boids._cohy[self] = y;
 }
 
-static glm::vec3 cohesion(size_t self, const std::vector<size_t> &neighbors, bds_simd::Boids &boids) {
-  glm::vec3 offset{};
-  glm::vec3 centerOfMass{};
+static void alignment(size_t self, const std::vector<size_t> &neighbors, bds_simd::Boids &boids) {
+  float x{}, y{};
 
-  for (auto i : neighbors)
-    centerOfMass += glm::vec3{boids.positionsX[i], boids.positionsY[i], 0.f};
-
-  if (neighbors.size() > 0) {
-    centerOfMass /= neighbors.size();
-    glm::vec3 desired = centerOfMass - glm::vec3{boids.positionsX[self], boids.positionsY[self], 0.f};
-
-    if (glm::length(desired) != 0.f)
-      desired = glm::normalize(desired) * maxSpeed;
-
-    offset = desired - glm::vec3{boids.velocitiesX[self], boids.velocitiesY[self], 0.f};
-    applyMaxForce(offset);
+  for (auto i : neighbors) {
+    x += boids._vx[i];
+    y += boids._vy[i];
   }
 
-  return offset;
+  boids._alix[self] = x;
+  boids._aliy[self] = y;
 }
 
-static glm::vec3 alignment(size_t self, const std::vector<size_t> &neighbors, bds_simd::Boids &boids) {
-  glm::vec3 offset{};
-  glm::vec3 average{};
+static void cap(v8f &vx, v8f &vy, const v8f &max) {
+  v8f len = length(vx, vy);
+  v8f mask = len > max;
 
-  for (auto i : neighbors)
-    average += glm::vec3{boids.velocitiesX[i], boids.velocitiesY[i], 0.f};
+  vx = if_select(mask, vx * max / len, vx);
+  vy = if_select(mask, vy * max / len, vy);
+}
 
-  if (neighbors.size() > 0) {
-    average /= float(neighbors.size());
-    if (glm::length(average) != 0.f)
-      average = glm::normalize(average) * maxSpeed;
+static void applyMaxSpeed(v8f &vx, v8f &vy, const v8f &mask, const v8f& zeros, const v8f& max) {
+  v8f sepLength = length(vx, vy);
+  v8f sepMask = mask && sepLength != zeros;
+  
+  vx = if_select(sepMask, vx * max / sepLength, zeros);
+  vy = if_select(sepMask, vy * max / sepLength, zeros);
+}
 
-    offset = average - glm::vec3{boids.velocitiesX[self], boids.velocitiesY[self], 0.f};
-    applyMaxForce(offset);
+static void separations(bds_simd::Boids &boids, float* counts) {
+  size_t vi = 0;
+
+  for (size_t i = 0; i < bds_simd::vsize; i++, vi += numFloats) {
+    v8f counts(&counts[vi]);
+    v8f hasNeighbors = counts > 0.f;
+
+    v8f sepx(&boids._sepx[vi]);
+    v8f sepy(&boids._sepy[vi]);
+
+    sepx = if_select(hasNeighbors, sepx / counts, zeros);
+    sepy = if_select(hasNeighbors, sepy / counts, zeros);
+
+    applyMaxSpeed(sepx, sepy, hasNeighbors, zeros, maxSpeeds);
+
+    sepx = if_select(hasNeighbors, sepx - &boids._vx[vi], zeros);
+    sepy = if_select(hasNeighbors, sepy - &boids._vy[vi], zeros);
+
+    cap(sepx, sepy, maxForces);
+
+    sepx.store(&boids._offx[vi]);
+    sepy.store(&boids._offy[vi]);
   }
-
-  return offset;
 }
 
-static void applyBehaviour(size_t index, const std::vector<size_t> &neighbors, bds_simd::Boids &boids) {
-  glm::vec3 sep = separation(index, neighbors, boids);
-  glm::vec3 coh = cohesion(index, neighbors, boids);
-  glm::vec3 ali = alignment(index, neighbors, boids);
+static void cohesions(bds_simd::Boids &boids, float *counts) {
+  size_t vi = 0;
 
-  boids.offsetsX[index] = sep.x + coh.x + ali.x;
-  boids.offsetsY[index] = sep.y + coh.y + ali.y;
+  for (size_t i = 0; i < bds_simd::vsize; i++, vi += numFloats) {
+    v8f counts(&counts[vi]);
+    v8f hasNeighbors = counts > zeros;
+
+    v8f cohx(&boids._cohx[vi]);
+    v8f cohy(&boids._cohy[vi]);
+
+    cohx = if_select(hasNeighbors, cohx / counts - &boids._px[vi], zeros);
+    cohy = if_select(hasNeighbors, cohy / counts - &boids._py[vi], zeros);
+
+    applyMaxSpeed(cohx, cohy, hasNeighbors, zeros, maxSpeeds);
+    
+    cohx = if_select(hasNeighbors, cohx - &boids._vx[vi], zeros);
+    cohy = if_select(hasNeighbors, cohy - &boids._vy[vi], zeros);
+    
+    cap(cohx, cohy, maxForces);
+
+    cohx += &boids._offx[vi];
+    cohy += &boids._offy[vi];
+
+    cohx.store(&boids._offx[vi]);
+    cohy.store(&boids._offy[vi]);
+  }
 }
 
-const uint32_t vsize = bds_simd::numBoids / numFloats + 1;
+static void alignments(bds_simd::Boids &boids, float *counts) {
+  size_t vi = 0;
+
+  for (size_t i = 0; i < bds_simd::vsize; i++, vi += numFloats) {
+    v8f counts(&counts[vi]);
+    v8f hasNeighbors = counts > 0.f;
+
+    v8f alix(&boids._alix[vi]);
+    v8f aliy(&boids._aliy[vi]);
+
+    alix = if_select(hasNeighbors, alix / counts, zeros);
+    aliy = if_select(hasNeighbors, aliy / counts, zeros);
+
+    applyMaxSpeed(alix, aliy, hasNeighbors, zeros, maxSpeeds);
+
+    alix = if_select(hasNeighbors, alix - &boids._vx[vi], zeros);
+    aliy = if_select(hasNeighbors, aliy - &boids._vy[vi], zeros);
+    
+    cap(alix, aliy, maxForces);
+
+    alix += &boids._offx[vi];
+    aliy += &boids._offy[vi];
+
+    alix.store(&boids._offx[vi]);
+    aliy.store(&boids._offy[vi]);
+  }
+}
 
 static void updatePositions(bds_simd::Boids &boids, float dt) {
   v8f vmul(dt * 2000.f);
   size_t vi = 0;
 
-  for (size_t i = 0; i < vsize; i++, vi += numFloats) {
-    v8f px(&boids.positionsX[vi]);
-    v8f py(&boids.positionsY[vi]);
-    v8f vx(&boids.velocitiesX[vi]);
-    v8f vy(&boids.velocitiesY[vi]);
-    v8f ox(&boids.offsetsX[vi]);
-    v8f oy(&boids.offsetsY[vi]);
+  for (size_t i = 0; i < bds_simd::vsize; i++, vi += numFloats) {
+    v8f vx(&boids._vx[vi]);
+    v8f vy(&boids._vy[vi]);
 
-    vx += ox * vmul;
-    vy += oy * vmul;
+    vx += &boids._offx[vi] * vmul;
+    vy += &boids._offy[vi] * vmul;
 
-    // Cap at maxSpeed
-    v8f len = length(vx, vy);
+    cap(vx, vy, maxSpeeds);
 
-    v8f max(maxSpeed);
-    v8f vxMax = vx * max / len;
-    v8f vyMax = vy * max / len;
-
-    v8f mask = len > max;
-
-    vx = if_select(mask, vxMax, vx);
-    vy = if_select(mask, vyMax, vy);
-
-    px += vx * vmul;
-    py += vy * vmul;
-
-    vx.store(&boids.velocitiesX[vi]);
-    vy.store(&boids.velocitiesY[vi]);
-
-    px.store(&boids.positionsX[vi]);
-    py.store(&boids.positionsY[vi]);
+    vx.store(&boids._vx[vi]);
+    vy.store(&boids._vy[vi]);
   }
 
-  std::memset(&boids.offsetsX, 0, bds_simd::numBoids * sizeof(float));
-  std::memset(&boids.offsetsY, 0, bds_simd::numBoids * sizeof(float));
+  vi = 0;
+  for (size_t i = 0; i < bds_simd::vsize; i++, vi += numFloats) {
+    v8f px(&boids._px[vi]);
+    v8f py(&boids._py[vi]);
+
+    px += &boids._vx[vi] * vmul;
+    py += &boids._vy[vi] * vmul;
+
+    px.store(&boids._px[vi]);
+    py.store(&boids._py[vi]);
+  }
 }
 
-static void applyBehaviours(bds_simd::Boids& boids) {
+static void applyBehaviours(bds_simd::Boids &boids) {
   std::vector<size_t> neighbors;
   neighbors.reserve(bds_simd::numBoids);
-  float distances[8];
+
+  alignas(bds_simd::alignment) float distances[8];
+  alignas(bds_simd::alignment) float counts[bds_simd::numBoids]{0};
+  alignas(bds_simd::alignment) float sepCounts[bds_simd::numBoids]{0};
 
   for (size_t i = 0; i < bds_simd::numBoids; i++) {
     size_t vi = 0;
+    neighbors.clear();   
 
-    v8f pxa(boids.positionsX[i]);
-    v8f pya(boids.positionsY[i]);
+    v8f px(boids._px[i]);
+    v8f py(boids._py[i]);
 
-    for (size_t j = 0; j < vsize; j++, vi += numFloats) {
-      v8f pxb(&boids.positionsX[vi]);
-      v8f pyb(&boids.positionsY[vi]);
-
-      v8f distance = length(pxa - pxb, pya - pyb);
-      distance.store(&distances[0]);
+    for (size_t j = 0; j < bds_simd::vsize; j++, vi += numFloats) {
+      v8f dist = sqDist(&boids._px[vi] - px, &boids._py[vi] - py);
+      dist.store(&distances[0]);
 
       for (int k = 0; k < 8; ++k) {
-        if (i != vi + k && distances[k] < fieldOfView)
+        if (i != vi + k && distances[k] < fieldOfView * fieldOfView)
           neighbors.push_back(vi + k);
       }
     }
 
-    if (neighbors.empty())
-      continue;
-
-    applyBehaviour(i, neighbors, boids);
-    neighbors.clear();
+    if (!neighbors.empty()) {
+      counts[i] = (float)neighbors.size();
+      sepCounts[i] = separation(i, neighbors, boids);
+      cohesion(i, neighbors, boids);
+      alignment(i, neighbors, boids);
+    }
   }
+
+  separations(boids, &sepCounts[0]);
+  cohesions(boids, &counts[0]);
+  alignments(boids, &counts[0]);
 }
 
 static void moveInside(bds_simd::Boids &boids) {
   size_t vi = 0;
-  
+
   v8f wMin(-width);
   v8f wMax(width);
   v8f hMin(-height);
   v8f hMax(height);
 
-  for (size_t j = 0; j < vsize; j++, vi += numFloats) {
-    v8f x(&boids.positionsX[vi]);
-    v8f y(&boids.positionsY[vi]);
+  for (size_t j = 0; j < bds_simd::vsize; j++, vi += numFloats) {
+    v8f x(&boids._px[vi]);
+    v8f y(&boids._py[vi]);
 
-    v8f maskXMaxOutside = x > wMax;
-    v8f maskXMinOutside = x < wMin;
-    v8f maskYMaxOutside = y > hMax;
-    v8f maskYMinOutside = y < hMin;
+    x = if_select(x > wMax, wMin, x);
+    x = if_select(x < wMin, wMax, x);
+    y = if_select(y > hMax, hMin, y);
+    y = if_select(y < hMin, hMax, y);
 
-    x = if_select(maskXMaxOutside, wMin, x);
-    x = if_select(maskXMinOutside, wMax, x);
-    y = if_select(maskYMaxOutside, hMin, y);
-    y = if_select(maskYMinOutside, hMax, y);
-
-    x.store(&boids.positionsX[vi]);
-    y.store(&boids.positionsY[vi]);
+    x.store(&boids._px[vi]);
+    y.store(&boids._py[vi]);
   }
 }
 
@@ -207,11 +260,11 @@ Boids create() {
     std::uniform_real_distribution<float> distPos(0.f, 100.f);
     std::uniform_real_distribution<float> distVel(0.f, 20.f);
 
-    boids.positionsX[i] = distPos(gen) * (i % 2 == 0 ? -1.f : 1.f);
-    boids.positionsY[i] = distPos(gen) * (i % 3 == 0 ? -1.f : 1.f);
+    boids._px[i] = distPos(gen) * (i % 2 == 0 ? -1.f : 1.f);
+    boids._py[i] = distPos(gen) * (i % 2 == 0 ? -1.f : 1.f);
 
-    boids.velocitiesX[i] = (distVel(gen) - 0.25f) * 0.01f;
-    boids.velocitiesY[i] = (distVel(gen) - 0.25f) * 0.01f;
+    boids._vx[i] = (distVel(gen) - 0.25f) * 0.01f;
+    boids._vy[i] = (distVel(gen) - 0.25f) * 0.01f;
 
     boids.colors.push_back(glm::vec4{1.f, 1.f, 1.f, 1.f});
   }
@@ -246,7 +299,7 @@ void render(Boids &boids, const mg::FrameData &frameData, mg::RenderContext rend
   std::vector<glm::mat4> transforms;
   for (size_t i = 0; i < bds_simd::numBoids; ++i) {
     glm::mat4 rotation = glm::rotate(glm::mat4(1), 0.f, {1, 1, 0});
-    glm::mat4 translation = glm::translate(glm::mat4(1), glm::vec3{boids.positionsX[i], boids.positionsY[i], 0.f});
+    glm::mat4 translation = glm::translate(glm::mat4(1), glm::vec3{boids._px[i], boids._py[i], 0.f});
     transforms.push_back(translation * rotation);
   }
 

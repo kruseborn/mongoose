@@ -66,11 +66,11 @@ void updateScene(const mg::FrameData &frameData) {
   if (frameData.dt != 0.f)
   bds_simd::update(world.boids_simd, frameData, &boidsTime);
     //bds::update(world.boids, frameData, &boidsTime);
-  if (boidsTime.count > 1000) {
+  if (boidsTime.count > 100) {
     boidsTime.count = 0;
-    boidsTime.textPos = boidsTime.updatePositionTime / 1000.0f;
-    boidsTime.textApply = boidsTime.applyBehaviourTime / 1000.0f;
-    boidsTime.textMoveInside = boidsTime.moveInside / 1000.0f;
+    boidsTime.textPos = boidsTime.updatePositionTime / 100.0f;
+    boidsTime.textApply = boidsTime.applyBehaviourTime / 100.0f;
+    boidsTime.textMoveInside = boidsTime.moveInside / 100.0f;
 
     boidsTime.updatePositionTime = 0;
     boidsTime.applyBehaviourTime = 0;
