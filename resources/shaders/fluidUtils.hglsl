@@ -1,0 +1,28 @@
+
+uint IX(uint x, uint y) {
+	return x + y * (ubo.N + 2);
+}
+
+void set_bnd(int N, int b, float *x) {
+  for (uint i = 1; i <= N; i++) {
+    x[IX(0, i)] = b == 1 ? -x[IX(1, i)] : x[IX(1, i)];
+    x[IX(N + 1, i)] = b == 1 ? -x[IX(N, i)] : x[IX(N, i)];
+    x[IX(i, 0)] = b == 2 ? -x[IX(i, 1)] : x[IX(i, 1)];
+    x[IX(i, N + 1)] = b == 2 ? -x[IX(i, N)] : x[IX(i, N)];
+  }
+  x[IX(0, 0)] = 0.5f * (x[IX(1, 0)] + x[IX(0, 1)]);
+  x[IX(0, N + 1)] = 0.5f * (x[IX(1, N + 1)] + x[IX(0, N)]);
+  x[IX(N + 1, 0)] = 0.5f * (x[IX(N, 0)] + x[IX(N + 1, 1)]);
+  x[IX(N + 1, N + 1)] = 0.5f * (x[IX(N, N + 1)] + x[IX(N + 1, N)]);
+}
+
+velocity[id] = (id.x == 0) ? float2(-velocity[id + uint2(1,0)].x, velocity[id].y) : velocity[id];
+    velocity[id] = (id.x == w-1) ? float2(-velocity[uint2(w-2, id.y)].x, velocity[id].y) : velocity[id];
+    velocity[id] = (id.y == 0) ? float2(velocity[id].x, -velocity[id + uint2(0,1)].y) : velocity[id];
+    velocity[id] = (id.y == h-1) ? float2(velocity[id].x, -velocity[uint2(id.x, h-2)].y) : velocity[id];
+
+    velocity[id] = (id.x == 0 && id.y == 0) ? 0.5 * (velocity[uint2(1,0)] + velocity[uint2(0,1)]) : velocity[id];
+    velocity[id] = (id.x == 0 && id.y == h-1) ? 0.5 * (velocity[uint2(1,h-1)] + velocity[uint2(0,h-2)]) : velocity[id];
+    velocity[id] = (id.x == w-1 && id.y == 0) ? 0.5 * (velocity[uint2(w-2,0)] + velocity[uint2(w-1,1)]) : velocity[id];
+    velocity[id] = (id.x == w-1 && id.y == h-1) ? 0.5 * (velocity[uint2(w-2,h-1)] + velocity[uint2(w-1,h-2)]) : velocity[id];
+}

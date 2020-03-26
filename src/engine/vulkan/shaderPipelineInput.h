@@ -14,6 +14,39 @@ struct VertexInputState {
   uint32_t location, offset, binding, size;
 };
 
+namespace advec {
+struct Ubo {
+  uint32_t N;
+  float dt;
+};
+struct Density {
+  float* d = nullptr;
+};
+struct PrevDensity {
+  float* d = nullptr;
+};
+struct Velocity {
+  float* u = nullptr;
+};
+struct Velocity2 {
+  float* v = nullptr;
+};
+union DescriptorSets {
+  struct {
+    VkDescriptorSet ubo;
+    VkDescriptorSet uu;
+    VkDescriptorSet vv;
+    VkDescriptorSet d;
+    VkDescriptorSet d0;
+  };
+  VkDescriptorSet values[5];
+};
+constexpr struct {
+  const char *advec_comp = "advec.comp.spv";
+} files = {};
+constexpr const char *shader = "advec";
+} //advec
+
 namespace denoise {
 struct Ubo {
   glm::mat4 mvp;
@@ -65,6 +98,33 @@ constexpr struct {
 } files = {};
 constexpr const char *shader = "depth";
 } //depth
+
+namespace diffuse {
+struct Ubo {
+  uint32_t N;
+  uint32_t b;
+  float dt;
+  float diff;
+};
+struct Velocity {
+  float* x = nullptr;
+};
+struct Velocity2 {
+  float* x = nullptr;
+};
+union DescriptorSets {
+  struct {
+    VkDescriptorSet ubo;
+    VkDescriptorSet x;
+    VkDescriptorSet x0;
+  };
+  VkDescriptorSet values[3];
+};
+constexpr struct {
+  const char *diffuse_comp = "diffuse.comp.spv";
+} files = {};
+constexpr const char *shader = "diffuse";
+} //diffuse
 
 namespace final {
 struct Ubo {
@@ -337,6 +397,70 @@ constexpr struct {
 constexpr const char *shader = "particle";
 } //particle
 
+namespace postProject {
+struct Ubo {
+  uint32_t N;
+};
+struct Div {
+  float* x = nullptr;
+};
+struct P {
+  float* x = nullptr;
+};
+struct U {
+  float* x = nullptr;
+};
+struct V {
+  float* x = nullptr;
+};
+union DescriptorSets {
+  struct {
+    VkDescriptorSet ubo;
+    VkDescriptorSet u;
+    VkDescriptorSet v;
+    VkDescriptorSet p;
+    VkDescriptorSet div;
+  };
+  VkDescriptorSet values[5];
+};
+constexpr struct {
+  const char *postProject_comp = "postProject.comp.spv";
+} files = {};
+constexpr const char *shader = "postProject";
+} //postProject
+
+namespace preProject {
+struct Ubo {
+  uint32_t N;
+};
+struct Div {
+  float* x = nullptr;
+};
+struct P {
+  float* x = nullptr;
+};
+struct U {
+  float* x = nullptr;
+};
+struct V {
+  float* x = nullptr;
+};
+union DescriptorSets {
+  struct {
+    VkDescriptorSet ubo;
+    VkDescriptorSet u;
+    VkDescriptorSet v;
+    VkDescriptorSet p;
+    VkDescriptorSet div;
+  };
+  VkDescriptorSet values[5];
+};
+constexpr struct {
+  const char *preProject_comp = "preProject.comp.spv";
+} files = {};
+constexpr const char *shader = "preProject";
+} //preProject
+
 namespace procedural {
 struct Ubo {
   glm::mat4 viewInverse;
@@ -373,6 +497,38 @@ constexpr struct {
 } files = {};
 constexpr const char *shader = "procedural";
 } //procedural
+
+namespace project {
+struct Ubo {
+  uint32_t N;
+};
+struct Div {
+  float* x = nullptr;
+};
+struct P {
+  float* x = nullptr;
+};
+struct U {
+  float* x = nullptr;
+};
+struct V {
+  float* x = nullptr;
+};
+union DescriptorSets {
+  struct {
+    VkDescriptorSet ubo;
+    VkDescriptorSet u;
+    VkDescriptorSet v;
+    VkDescriptorSet p;
+    VkDescriptorSet div;
+  };
+  VkDescriptorSet values[5];
+};
+constexpr struct {
+  const char *project_comp = "project.comp.spv";
+} files = {};
+constexpr const char *shader = "project";
+} //project
 
 namespace simulate_positions {
 struct Ubo {

@@ -7,6 +7,8 @@ mg_cc_executable(
         fluid_main.cpp
         navier_stroke.h
         navier_stroke.cpp
+        navier_stroke_compute.h
+        navier_stroke_compute.cpp
     COPTS
         ${CPP_FLAGS}
     DEPS
