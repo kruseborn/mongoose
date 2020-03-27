@@ -77,9 +77,9 @@ FrameData getFrameData() {
   prevTime = getCurrentTimeUs();
 
   frameData.fps = fps;
-  if (totalDelta >= 100000) {
+  if (totalDelta >= 1000000) {
     fps = frames;
-    totalDelta -= 100000;
+    totalDelta -= 1000000;
     frames = 0;
   }
 

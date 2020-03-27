@@ -2,7 +2,7 @@
 #include "mg/window.h"
 
 int main() {
-  mg::initWindow(128, 128);
+  mg::initWindow(1024, 1024);
   initScene();
   while (mg::startFrame()) {
     auto frameData = mg::getFrameData();

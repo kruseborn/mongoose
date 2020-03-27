@@ -17,7 +17,7 @@ layout(set = 4, binding = 0) buffer Div { float x[]; }
 div;
 
 #define localGroupSize 256
-layout(local_size_x = 1) in;
+layout(local_size_x = localGroupSize) in;
 
 uint IX(uint x, uint y) { return x + y * (ubo.N + 2); }
 
@@ -49,19 +49,24 @@ void main() {
   const uint N = ubo.N;
   const float h = 1.0 / ubo.N;
 
+  const uint size = (N + 2) * (N + 2);
   uint index = gl_GlobalInvocationID.x;
+  while (index < size) {
+    uint i = index % (N + 2);
+    uint j = index / (N + 2);
+    index += gl_NumWorkGroups.x * localGroupSize;
+    if (i < 1 || j < 1 || i > N || j > N)
+      continue;
 
-  uint i = index % (N + 2);
-  uint j = index / (N + 2);
-  if (i < 1 || j < 1 || i > N || j > N)
-    return;
+    u.x[IX(i, j)] -= 0.5 * (p.x[IX(i + 1, j)] - p.x[IX(i - 1, j)]) / h;
+    v.x[IX(i, j)] -= 0.5 * (p.x[IX(i, j + 1)] - p.x[IX(i, j - 1)]) / h;
 
-  u.x[IX(i, j)] -= 0.5 * (p.x[IX(i + 1, j)] - p.x[IX(i - 1, j)]) / h;
-  v.x[IX(i, j)] -= 0.5 * (p.x[IX(i, j + 1)] - p.x[IX(i, j - 1)]) / h;
+    memoryBarrierShared();
+    barrier();
 
-  memoryBarrierShared();
-  barrier();
-
-  set_bnd_u(N, 2, i);
-  set_bnd_v(N, 1, i);
+    set_bnd_u(N, 2, i);
+    set_bnd_v(N, 1, i);
+    memoryBarrierShared();
+    barrier();
+  }
 }

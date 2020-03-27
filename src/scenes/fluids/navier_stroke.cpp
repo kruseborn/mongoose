@@ -11,58 +11,7 @@
 
 namespace mg {
 
-void fullBarrier() {
-  VkMemoryBarrier memoryBarrier = {};
-  memoryBarrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
-  memoryBarrier.srcAccessMask =
-      VK_ACCESS_INDIRECT_COMMAND_READ_BIT | VK_ACCESS_INDEX_READ_BIT | VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT |
-      VK_ACCESS_UNIFORM_READ_BIT | VK_ACCESS_INPUT_ATTACHMENT_READ_BIT | VK_ACCESS_SHADER_READ_BIT |
-      VK_ACCESS_SHADER_WRITE_BIT | VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT |
-      VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT |
-      VK_ACCESS_TRANSFER_READ_BIT | VK_ACCESS_TRANSFER_WRITE_BIT | VK_ACCESS_HOST_READ_BIT | VK_ACCESS_HOST_WRITE_BIT;
-
-  memoryBarrier.dstAccessMask =
-      VK_ACCESS_INDIRECT_COMMAND_READ_BIT | VK_ACCESS_INDEX_READ_BIT | VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT |
-      VK_ACCESS_UNIFORM_READ_BIT | VK_ACCESS_INPUT_ATTACHMENT_READ_BIT | VK_ACCESS_SHADER_READ_BIT |
-      VK_ACCESS_SHADER_WRITE_BIT | VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT |
-      VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT |
-      VK_ACCESS_TRANSFER_READ_BIT | VK_ACCESS_TRANSFER_WRITE_BIT | VK_ACCESS_HOST_READ_BIT | VK_ACCESS_HOST_WRITE_BIT;
-
-  vkCmdPipelineBarrier(mg::vkContext.commandBuffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-                       VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 1, &memoryBarrier, 0, nullptr, 0, nullptr);
-}
-
-void endAndBegin() {
-  return;
-  fullBarrier();
-  return;
-  // create and reset fence
-  VkFence fence;
-  VkFenceCreateInfo vkFenceCreateInfo = {};
-  vkFenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-  vkFenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-  checkResult(vkCreateFence(vkContext.device, &vkFenceCreateInfo, nullptr, &fence));
-  checkResult(vkResetFences(vkContext.device, 1, &fence));
-
-  vkEndCommandBuffer(mg::vkContext.commandBuffer);
-
-  VkSubmitInfo submitInfo = {};
-  submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-  submitInfo.commandBufferCount = 1;
-  submitInfo.pCommandBuffers = &mg::vkContext.commandBuffer;
-
-  // fences are GPU to CPU syncs, CPU waits for GPU to finish it's current work on the queue for a
-  // specific command buffer
-  checkResult(vkQueueSubmit(vkContext.queue, 1, &submitInfo, fence));
-  checkResult(vkWaitForFences(vkContext.device, 1, &fence, VK_TRUE, UINT64_MAX));
-
-  VkCommandBufferBeginInfo vkCommandBufferBeginInfo = {};
-  vkCommandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-  vkCommandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-  checkResult(vkBeginCommandBuffer(vkContext.commandBuffer, &vkCommandBufferBeginInfo));
-}
-
-static constexpr uint32_t size = (128 + 2) * (128 + 2);
+static constexpr uint32_t size = (1024 + 2) * (1024 + 2);
 FluidTimes fluidTimes = {};
 
 Storages createStorages(size_t N) {
@@ -117,7 +66,7 @@ void diffuseCompute(int N, int b, mg::StorageId x, mg::StorageId x0, float diff,
                           mg::countof(descriptorSets.values), descriptorSets.values, mg::countof(dynamicOffsets),
                           dynamicOffsets);
 
-  vkCmdDispatch(mg::vkContext.commandBuffer, size, 1, 1);
+  vkCmdDispatch(mg::vkContext.commandBuffer, size/256, 1, 1);
 
   // setup a memory barrier, device memory has to be finished with writing when reading occurs on
   // the host
@@ -161,7 +110,7 @@ void advectCompute(int N, int b, mg::StorageId d, mg::StorageId d0, mg::StorageI
                           mg::countof(descriptorSets.values), descriptorSets.values, mg::countof(dynamicOffsets),
                           dynamicOffsets);
 
-  vkCmdDispatch(vkContext.commandBuffer, size, 1, 1);
+  vkCmdDispatch(vkContext.commandBuffer, size/256, 1, 1);
 
   VkMemoryBarrier memoryBarrier = {};
   memoryBarrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
@@ -201,7 +150,7 @@ void preProjectCompute(int N, mg::StorageId u, mg::StorageId v, mg::StorageId p,
                           mg::countof(descriptorSets.values), descriptorSets.values, mg::countof(dynamicOffsets),
                           dynamicOffsets);
 
-  vkCmdDispatch(vkContext.commandBuffer, size, 1, 1);
+  vkCmdDispatch(vkContext.commandBuffer, size/256, 1, 1);
 
   VkMemoryBarrier memoryBarrier = {};
   memoryBarrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
@@ -240,7 +189,7 @@ void projectCompute(int N, mg::StorageId u, mg::StorageId v, mg::StorageId p, mg
                           mg::countof(descriptorSets.values), descriptorSets.values, mg::countof(dynamicOffsets),
                           dynamicOffsets);
 
-  vkCmdDispatch(vkContext.commandBuffer, size, 1, 1);
+  vkCmdDispatch(vkContext.commandBuffer, size/256, 1, 1);
 
   VkMemoryBarrier memoryBarrier = {};
   memoryBarrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
@@ -280,7 +229,7 @@ void postProjectCompute(int N, mg::StorageId u, mg::StorageId v, mg::StorageId p
                           mg::countof(descriptorSets.values), descriptorSets.values, mg::countof(dynamicOffsets),
                           dynamicOffsets);
 
-  vkCmdDispatch(vkContext.commandBuffer, size, 1, 1);
+  vkCmdDispatch(vkContext.commandBuffer, size/256, 1, 1);
 
   VkMemoryBarrier memoryBarrier = {};
   memoryBarrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
@@ -293,22 +242,16 @@ void postProjectCompute(int N, mg::StorageId u, mg::StorageId v, mg::StorageId p
 
 void project_C(int N, mg::StorageId u, mg::StorageId v, mg::StorageId p, mg::StorageId div) {
   preProjectCompute(N, u, v, p, div);
-  endAndBegin();
   projectCompute(N, u, v, p, div);
-  endAndBegin();
   postProjectCompute(N, u, v, p, div);
-  endAndBegin();
 }
 
 void vel_step_c(int N, mg::StorageId u, mg::StorageId v, mg::StorageId u0, mg::StorageId v0, mg::StorageId d,
                 mg::StorageId s, float visc, float dt) {
   {
     auto start = mg::timer::now();
-    endAndBegin();
     diffuseCompute(N, 1, u0, u, visc, dt);
-    endAndBegin();
     diffuseCompute(N, 2, v0, v, visc, dt);
-    endAndBegin();
     auto end = mg::timer::now();
     fluidTimes.diffuseSum += uint32_t(mg::timer::durationInMs(start, end));
   }
@@ -316,7 +259,6 @@ void vel_step_c(int N, mg::StorageId u, mg::StorageId v, mg::StorageId u0, mg::S
   {
     auto start = mg::timer::now();
     project_C(N, u0, v0, u, v);
-    endAndBegin();
     auto end = mg::timer::now();
     fluidTimes.projectSum += uint32_t(mg::timer::durationInMs(start, end));
   }
@@ -325,20 +267,15 @@ void vel_step_c(int N, mg::StorageId u, mg::StorageId v, mg::StorageId u0, mg::S
     auto start = mg::timer::now();
 
     advectCompute(N, 1, u, u0, u0, v0, dt);
-    endAndBegin();
     advectCompute(N, 2, v, v0, u0, v0, dt);
-    endAndBegin();
 
     auto end = mg::timer::now();
     fluidTimes.advecSum += uint32_t(mg::timer::durationInMs(start, end));
   }
 
   project_C(N, u, v, u0, v0);
-  endAndBegin();
   diffuseCompute(N, 0, s, d, 0, dt);
-  endAndBegin();
   advectCompute(N, 0, d, s, u, v, dt);
-  endAndBegin();
 
   VkMemoryBarrier memoryBarrier = {};
   memoryBarrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
@@ -400,11 +337,9 @@ static void get_from_UI_C(int N, mg::StorageId d, mg::StorageId u, mg::StorageId
 
 void simulateNavierStroke(const Storages &storages, const mg::FrameData &frameData) {
   float dt = 0.1f;
-  uint32_t N = 128;
-  endAndBegin();
+  uint32_t N = 1024;
 
   get_from_UI_C(N, storages.d, storages.u, storages.v, frameData);
-  endAndBegin();
   vel_step_c(N, storages.u, storages.v, storages.u0, storages.v0, storages.d, storages.s, 0, dt);
   
 }

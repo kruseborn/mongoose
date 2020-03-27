@@ -27,7 +27,7 @@ void initScene() {
   camera = mg::create3DCamera(glm::vec3{0.0f, 0.0f, -5.0f}, glm::vec3{0.0f, 0.0f, 0.0f},
                               glm::vec3{0.0f, 1.0f, 0.0f});
 
-  storages = mg::createStorages(128);
+  storages = mg::createStorages(1024);
   mg::mgSystem.textureContainer.setupDescriptorSets();
   mg::vkContext.swapChain->resizeCallack = resizeCallback;
 }
