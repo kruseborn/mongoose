@@ -14,28 +14,60 @@ struct VertexInputState {
   uint32_t location, offset, binding, size;
 };
 
-namespace advec {
+namespace addSource {
 struct Ubo {
+  glm::vec2 delta;
+  int32_t i;
+  int32_t j;
   uint32_t N;
-  float dt;
 };
-struct Density {
-  float* d = nullptr;
+struct D {
+  float* x = nullptr;
 };
-struct PrevDensity {
-  float* d = nullptr;
+struct U {
+  float* x = nullptr;
 };
-struct Velocity {
-  float* u = nullptr;
-};
-struct Velocity2 {
-  float* v = nullptr;
+struct V {
+  float* x = nullptr;
 };
 union DescriptorSets {
   struct {
     VkDescriptorSet ubo;
-    VkDescriptorSet uu;
-    VkDescriptorSet vv;
+    VkDescriptorSet u;
+    VkDescriptorSet v;
+    VkDescriptorSet d;
+  };
+  VkDescriptorSet values[4];
+};
+constexpr struct {
+  const char *addSource_comp = "addSource.comp.spv";
+} files = {};
+constexpr const char *shader = "addSource";
+} //addSource
+
+namespace advec {
+struct Ubo {
+  uint32_t N;
+  uint32_t b;
+  float dt;
+};
+struct D {
+  float* x = nullptr;
+};
+struct D0 {
+  float* x = nullptr;
+};
+struct U {
+  float* x = nullptr;
+};
+struct V {
+  float* x = nullptr;
+};
+union DescriptorSets {
+  struct {
+    VkDescriptorSet ubo;
+    VkDescriptorSet u;
+    VkDescriptorSet v;
     VkDescriptorSet d;
     VkDescriptorSet d0;
   };
@@ -106,10 +138,10 @@ struct Ubo {
   float dt;
   float diff;
 };
-struct Velocity {
+struct X {
   float* x = nullptr;
 };
-struct Velocity2 {
+struct X0 {
   float* x = nullptr;
 };
 union DescriptorSets {
@@ -160,6 +192,27 @@ namespace fluid {
 struct Ubo {
   glm::uvec4 screenSize;
 };
+struct D {
+  float* x = nullptr;
+};
+union DescriptorSets {
+  struct {
+    VkDescriptorSet ubo;
+    VkDescriptorSet d;
+  };
+  VkDescriptorSet values[2];
+};
+constexpr struct {
+  const char *fluid_frag = "fluid.frag.spv";
+  const char *fluid_vert = "fluid.vert.spv";
+} files = {};
+constexpr const char *shader = "fluid";
+} //fluid
+
+namespace fluid2 {
+struct Ubo {
+  glm::uvec4 screenSize;
+};
 struct Storage {
   struct StorageData {
     float color;
@@ -173,11 +226,11 @@ union DescriptorSets {
   VkDescriptorSet values[1];
 };
 constexpr struct {
-  const char *fluid_frag = "fluid.frag.spv";
-  const char *fluid_vert = "fluid.vert.spv";
+  const char *fluid2_frag = "fluid2.frag.spv";
+  const char *fluid2_vert = "fluid2.vert.spv";
 } files = {};
-constexpr const char *shader = "fluid";
-} //fluid
+constexpr const char *shader = "fluid2";
+} //fluid2
 
 namespace fontRendering {
 struct Ubo {

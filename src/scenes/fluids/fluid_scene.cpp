@@ -6,6 +6,7 @@
 #include "mg/texts.h"
 #include "mg/window.h"
 #include "navier_stroke.h"
+#include "navier_stroke_cpu.h"
 #include "rendering/rendering.h"
 #include "vulkan/singleRenderpass.h"
 #include <glm/gtc/matrix_transform.hpp>
@@ -13,6 +14,7 @@
 static mg::Camera camera;
 static mg::SingleRenderPass singleRenderPass;
 static mg::MeshId meshId;
+static mg::Storages storages;
 
 static void resizeCallback() {
   mg::resizeSingleRenderPass(&singleRenderPass);
@@ -25,24 +27,14 @@ void initScene() {
   camera = mg::create3DCamera(glm::vec3{0.0f, 0.0f, -5.0f}, glm::vec3{0.0f, 0.0f, 0.0f},
                               glm::vec3{0.0f, 1.0f, 0.0f});
 
-  const auto cube = mg::createVolumeCube({-0.5f, -0.5f, -0.5f}, {1, 1, 1});
-
-  mg::CreateMeshInfo createMeshInfo = {
-      .id = "box",
-      .vertices = (uint8_t *)cube.vertices,
-      .indices = (uint8_t *)cube.indices,
-      .verticesSizeInBytes = mg::sizeofArrayInBytes(cube.vertices),
-      .indicesSizeInBytes = mg::sizeofArrayInBytes(cube.indices),
-      .nrOfIndices = mg::countof(cube.indices)};
-
-  meshId = mg::mgSystem.meshContainer.createMesh(createMeshInfo);
-
+  storages = mg::createStorages(128);
   mg::mgSystem.textureContainer.setupDescriptorSets();
   mg::vkContext.swapChain->resizeCallack = resizeCallback;
 }
 
 void destroyScene() {
   mg::waitForDeviceIdle();
+  mg::destroyStorages(&storages);
   destroySingleRenderPass(&singleRenderPass);
 }
 
@@ -54,7 +46,6 @@ void updateScene(const mg::FrameData &frameData) {
     mg::handleTools(frameData, &camera);
   mg::setCameraTransformation(&camera);
 
-  mg::simulateNavierStroke(frameData);
 
   mg::fluidTimes.count++;
   if (mg::fluidTimes.count > 100) {
@@ -94,12 +85,16 @@ void renderScene(const mg::FrameData &frameData) {
   mg::beginRendering();
   mg::setFullscreenViewport();
 
+  mg::simulateNavierStroke(storages, frameData);
+  //mg::simulateNavierStroke2(frameData);
+
   mg::beginSingleRenderPass(singleRenderPass);
   {
     mg::RenderContext renderContext = {};
     renderContext.renderPass = singleRenderPass.vkRenderPass;
 
-    mg::renderNavierStroke(renderContext);
+    //mg::renderNavierStroke2(renderContext);
+    mg::renderNavierStroke(renderContext, storages);
     mg::validateTexts(texts);
     mg::renderText(renderContext, texts);
   }

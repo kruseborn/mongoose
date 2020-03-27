@@ -1,66 +1,62 @@
 #version 450
 #extension GL_ARB_shading_language_420pack : enable
 
-layout (set = 0, binding = 0) uniform Ubo {
-	uint N;
-   uint b;
-	float dt;
-   float diff;
-   
-} ubo;
+layout(set = 0, binding = 0) uniform Ubo {
+  uint N;
+  uint b;
+  float dt;
+  float diff;
+}
+ubo;
 
-layout(set = 1, binding = 0) buffer Velocity {
-   float x[];
-} x;
+layout(set = 1, binding = 0) buffer X { float x[]; }
+x;
 
-layout(set = 2, binding = 0) buffer Velocity2 {
-   float x[];
-} x0;
+layout(set = 2, binding = 0) buffer X0 { float x[]; }
+x0;
 
 #define localGroupSize 256
-layout (local_size_x = 1) in;
+layout(local_size_x = 1) in;
 
-uint IX(uint x, uint y) {
-	return x + y * (ubo.N + 2);
-}
+uint IX(uint x, uint y) { return x + y * (ubo.N + 2); }
 
-void set_bnd(uint N, uint b) {
-  for (uint i = 1; i <= N; i++) {
-    x.x[IX(0, i)] = b == 1 ? -x.x[IX(1, i)] : x.x[IX(1, i)];
-    x.x[IX(N + 1, i)] = b == 1 ? -x.x[IX(N, i)] : x.x[IX(N, i)];
-    x.x[IX(i, 0)] = b == 2 ? -x.x[IX(i, 1)] : x.x[IX(i, 1)];
-    x.x[IX(i, N + 1)] = b == 2 ? -x.x[IX(i, N)] : x.x[IX(i, N)];
-  }
-  x.x[IX(0, 0)] = 0.5f * (x.x[IX(1, 0)] + x.x[IX(0, 1)]);
-  x.x[IX(0, N + 1)] = 0.5f * (x.x[IX(1, N + 1)] + x.x[IX(0, N)]);
-  x.x[IX(N + 1, 0)] = 0.5f * (x.x[IX(N, 0)] + x.x[IX(N + 1, 1)]);
-  x.x[IX(N + 1, N + 1)] = 0.5f * (x.x[IX(N, N + 1)] + x.x[IX(N + 1, N)]);
+void set_bnd(uint N, uint b, uint i) {
+  x.x[IX(0, i)] = b == 1 ? -x.x[IX(1, i)] : x.x[IX(1, i)];
+  x.x[IX(N + 1, i)] = b == 1 ? -x.x[IX(N, i)] : x.x[IX(N, i)];
+  x.x[IX(i, 0)] = b == 2 ? -x.x[IX(i, 1)] : x.x[IX(i, 1)];
+  x.x[IX(i, N + 1)] = b == 2 ? -x.x[IX(i, N)] : x.x[IX(i, N)];
+
+  x.x[IX(0, 0)] = 0.5 * (x.x[IX(1, 0)] + x.x[IX(0, 1)]);
+  x.x[IX(0, N + 1)] = 0.5 * (x.x[IX(1, N + 1)] + x.x[IX(0, N)]);
+  x.x[IX(N + 1, 0)] = 0.5 * (x.x[IX(N, 0)] + x.x[IX(N + 1, 1)]);
+  x.x[IX(N + 1, N + 1)] = 0.5 * (x.x[IX(N, N + 1)] + x.x[IX(N + 1, N)]);
 }
 
 void main() {
-	const uint N = ubo.N;
-   const uint b = ubo.b;
+  const uint N = ubo.N;
+  const uint b = ubo.b;
 
-	const float dt = ubo.dt;
-	const uint size = (N + 2) * (N+2);
-	float dt0 = dt * N;
+  const float dt = ubo.dt;
+  const uint size = (N + 2) * (N + 2);
+  float dt0 = dt * N;
 
-	uint index = gl_GlobalInvocationID.x;
-	
-      uint i = index % (N+2);
-      uint j = index / (N+2);
-      if(i >= N || j >= N)
-         return;
+  uint index = gl_GlobalInvocationID.x;
 
-      float a = dt * ubo.diff * N * N;
-      for (uint iterations = 0; iterations < 5; iterations++) {
-            x.x[IX(i, j)] =
-               (x0.x[IX(i, j)] + a * (x.x[IX(i - 1, j)] + x.x[IX(i + 1, j)] + x.x[IX(i, j - 1)] + x.x[IX(i, j + 1)])) / (1 + 4 * a);
-            memoryBarrierShared();
-	         barrier();
-      }
+  uint i = index % (N + 2);
+  uint j = index / (N + 2);
+  if (i >= N || j >= N)
+    return;
 
-      memoryBarrierShared();
-	   barrier();
-      set_bnd(N, b);
+  float a = dt * ubo.diff * N * N;
+  for (uint iterations = 0; iterations < 5; iterations++) {
+    x.x[IX(i, j)] =
+        (x0.x[IX(i, j)] + a * (x.x[IX(i - 1, j)] + x.x[IX(i + 1, j)] + x.x[IX(i, j - 1)] + x.x[IX(i, j + 1)])) /
+        (1 + 4 * a);
+    memoryBarrierShared();
+    barrier();
+  }
+
+  memoryBarrierShared();
+  barrier();
+  set_bnd(N, b, i);
 }
