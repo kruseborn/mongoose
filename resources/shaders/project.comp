@@ -46,17 +46,11 @@ void main() {
     if (i < 1 || j < 1 || i > N || j > N)
       continue;
 
-    for (uint k = 0; k < 20; k++) {
+    for (uint k = 0; k < 5; k++) {
       p.x[IX(i, j)] =
           (div.x[IX(i, j)] + p.x[IX(i - 1, j)] + p.x[IX(i + 1, j)] + p.x[IX(i, j - 1)] + p.x[IX(i, j + 1)]) / 4;
 
-      memoryBarrierShared();
-      barrier();
-
       set_bnd_p(N, 0, i);
-
-      memoryBarrierShared();
-      barrier();
     }
   }
 }

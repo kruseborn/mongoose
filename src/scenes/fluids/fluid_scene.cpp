@@ -68,9 +68,9 @@ void renderScene(const mg::FrameData &frameData) {
   char mov[50];
 
   snprintf(fps, sizeof(fps), "Fps: %u", uint32_t(frameData.fps));
-  snprintf(pos, sizeof(pos), "Diffuse: %.3f us", mg::fluidTimes.diffuse);
-  snprintf(beh, sizeof(beh), "Project: %.3f us", mg::fluidTimes.project);
-  snprintf(mov, sizeof(mov), "Advec: %.3f us", mg::fluidTimes.advec);
+  snprintf(pos, sizeof(pos), "Diffuse cpu: %.3f us", mg::fluidTimes.diffuse);
+  snprintf(beh, sizeof(beh), "Project cpu: %.3f us", mg::fluidTimes.project);
+  snprintf(mov, sizeof(mov), "Advec cpu: %.3f us", mg::fluidTimes.advec);
 
   mg::Text text1 = {fps};
   mg::Text text2 = {pos};

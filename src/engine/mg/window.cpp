@@ -34,7 +34,6 @@ void initWindow(uint32_t width, uint32_t height) {
   mgAssertDesc(glfwInit(), "could not init glfw");
   glfwSetErrorCallback(glfwErrorCallback);
   glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-  glfwWindowHint(GLFW_DECORATED, false);
   mgAssertDesc(glfwVulkanSupported(), "gltw vulkan not supported");
   window = glfwCreateWindow(width, height, "Live long and prosper", nullptr, nullptr);
   if (!window) {
