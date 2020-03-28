@@ -35,30 +35,26 @@ void set_bnd(uint N, uint b, uint i) {
 void main() {
   const uint N = ubo.N;
   const uint b = ubo.b;
-
   const float dt = ubo.dt;
-  float dt0 = dt * N;
-
+  const float dt0 = dt * N;
   const uint size = (N + 2) * (N + 2);
+
   uint index = gl_GlobalInvocationID.x;
   while (index < size) {
-    uint i = index % (N + 2);
-    uint j = index / (N + 2);
+    const uint i = index % (N + 2);
+    const uint j = index / (N + 2);
     index += gl_NumWorkGroups.x * localGroupSize;
     if (i >= N || j >= N)
       continue;
 
-    float a = dt * ubo.diff * N * N;
+    const float a = dt * ubo.diff * N * N;
+    const float aDiv = (1 + 4 * a);
     for (uint iterations = 0; iterations < 5; iterations++) {
       x.x[IX(i, j)] =
-          (x0.x[IX(i, j)] + a * (x.x[IX(i - 1, j)] + x.x[IX(i + 1, j)] + x.x[IX(i, j - 1)] + x.x[IX(i, j + 1)])) /
-          (1 + 4 * a);
+          (x0.x[IX(i, j)] + a * (x.x[IX(i - 1, j)] + x.x[IX(i + 1, j)] + x.x[IX(i, j - 1)] + x.x[IX(i, j + 1)])) / aDiv;
       memoryBarrierShared();
       barrier();
     }
-
-    memoryBarrierShared();
-    barrier();
     set_bnd(N, b, i);
     memoryBarrierShared();
     barrier();

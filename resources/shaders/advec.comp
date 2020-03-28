@@ -42,7 +42,7 @@ void main() {
   const uint b = ubo.b;
 
   const float dt = ubo.dt;
-  float dt0 = dt * N;
+  const float dt0 = dt * N;
 
   const uint size = (N + 2) * (N + 2);
   uint index = gl_GlobalInvocationID.x;
@@ -72,8 +72,6 @@ void main() {
     d.x[IX(i, j)] =
         s0 * (t0 * d0.x[IX(i0, j0)] + t1 * d0.x[IX(i0, j1)]) + s1 * (t0 * d0.x[IX(i1, j0)] + t1 * d0.x[IX(i1, j1)]);
 
-    memoryBarrierShared();
-    barrier();
     set_bnd(N, b, i);
     memoryBarrierShared();
     barrier();

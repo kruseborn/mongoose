@@ -51,6 +51,8 @@ void main() {
           (div.x[IX(i, j)] + p.x[IX(i - 1, j)] + p.x[IX(i + 1, j)] + p.x[IX(i, j - 1)] + p.x[IX(i, j + 1)]) / 4;
 
       set_bnd_p(N, 0, i);
+      memoryBarrierShared();
+      barrier();
     }
   }
 }

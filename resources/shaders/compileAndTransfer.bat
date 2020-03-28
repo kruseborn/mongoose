@@ -1,5 +1,5 @@
 @echo Compiling shaders...
-CALL shaders.bat %1
+CALL shaders.bat %1 %2
 
 @echo Copying shaderPipelineInput...
 @echo off

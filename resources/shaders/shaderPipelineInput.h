@@ -158,6 +158,33 @@ constexpr struct {
 constexpr const char *shader = "diffuse";
 } //diffuse
 
+namespace diffuse2D {
+struct Ubo {
+  uint32_t N;
+  uint32_t b;
+  float dt;
+  float diff;
+};
+struct X {
+  glm::vec2* x = nullptr;
+};
+struct X0 {
+  glm::vec2* x = nullptr;
+};
+union DescriptorSets {
+  struct {
+    VkDescriptorSet ubo;
+    VkDescriptorSet x;
+    VkDescriptorSet x0;
+  };
+  VkDescriptorSet values[3];
+};
+constexpr struct {
+  const char *diffuse2D_comp = "diffuse2D.comp.spv";
+} files = {};
+constexpr const char *shader = "diffuse2D";
+} //diffuse2D
+
 namespace final {
 struct Ubo {
   struct Light {

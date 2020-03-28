@@ -61,9 +61,6 @@ void main() {
     u.x[IX(i, j)] -= 0.5 * (p.x[IX(i + 1, j)] - p.x[IX(i - 1, j)]) / h;
     v.x[IX(i, j)] -= 0.5 * (p.x[IX(i, j + 1)] - p.x[IX(i, j - 1)]) / h;
 
-    memoryBarrierShared();
-    barrier();
-
     set_bnd_u(N, 2, i);
     set_bnd_v(N, 1, i);
     memoryBarrierShared();
