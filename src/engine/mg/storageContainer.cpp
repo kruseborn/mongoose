@@ -113,6 +113,7 @@ StorageId StorageContainer::_createStorage(void *data, uint32_t sizeInBytes, VkB
 StorageId StorageContainer::createStorage(void *data, uint32_t sizeInBytes) {
   auto storageId = _createStorage(data, sizeInBytes,
                                   VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT |
+                                      VK_BUFFER_USAGE_TRANSFER_SRC_BIT |
                                       VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
                                   VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
   return storageId;
@@ -265,6 +266,8 @@ void StorageContainer::removeStorage(StorageId storageId) {
   vkDestroyBuffer(mg::vkContext.device, _idToStorage[storageId.index].storage.buffer, nullptr);
   vkDestroyImageView(mg::vkContext.device, _idToStorage[storageId.index].storage.imageView, nullptr);
   vkDestroyImage(mg::vkContext.device, _idToStorage[storageId.index].storage.image, nullptr);
+  vkFreeDescriptorSets(mg::vkContext.device, mg::vkContext.descriptorPool, 1,
+                       &_idToStorage[storageId.index].storage.descriptorSet);
   _idToStorage[storageId.index] = {};
   _generations[storageId.index]++;
   _freeIndices.push_back(storageId.index);

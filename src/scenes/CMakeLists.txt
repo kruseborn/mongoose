@@ -5,4 +5,5 @@ add_subdirectory(space-invaders)
 add_subdirectory(n-body)
 add_subdirectory(nv-ray)
 add_subdirectory(cube)
+add_subdirectory(fluids)
 

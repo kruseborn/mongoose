@@ -43,6 +43,11 @@ static ImageInfo createImageInfoFromType(mg::TEXTURE_TYPE type) {
                                   VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_STORAGE_BIT;
     imageInfo.vkImageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     break;
+  case mg::TEXTURE_TYPE::IMAGE_STORAGE:
+    imageInfo.vkImageType = VK_IMAGE_TYPE_2D;
+    imageInfo.vkImageViewType = VK_IMAGE_VIEW_TYPE_2D;
+    imageInfo.vkImageUsageFlags = VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+    imageInfo.vkImageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
   case mg::TEXTURE_TYPE::DEPTH:
     imageInfo.vkImageType = VK_IMAGE_TYPE_2D;
     imageInfo.vkImageViewType = VK_IMAGE_VIEW_TYPE_2D;
@@ -57,13 +62,14 @@ static ImageInfo createImageInfoFromType(mg::TEXTURE_TYPE type) {
   return imageInfo;
 }
 
-static void createDeviceTexture(const mg::CreateTextureInfo &textureInfo, const ImageInfo &imageInfo, mg::_TextureData *texture) {
+static void createDeviceTexture(const mg::CreateTextureInfo &textureInfo, const ImageInfo &imageInfo,
+                                mg::_TextureData *texture) {
   // staging memory
   VkCommandBuffer copyCommandBuffer;
   VkBuffer stagingBuffer;
   VkDeviceSize stagingOffset;
-  void *stagingMemory = mg::mgSystem.linearHeapAllocator.allocateStaging(textureInfo.sizeInBytes, 16, &copyCommandBuffer,
-                                                                         &stagingBuffer, &stagingOffset);
+  void *stagingMemory = mg::mgSystem.linearHeapAllocator.allocateStaging(
+      textureInfo.sizeInBytes, 16, &copyCommandBuffer, &stagingBuffer, &stagingOffset);
   memcpy(stagingMemory, textureInfo.data, textureInfo.sizeInBytes);
 
   // https://github.com/KhronosGroup/Vulkan-Docs/wiki/Synchronization-Examples
@@ -79,8 +85,8 @@ static void createDeviceTexture(const mg::CreateTextureInfo &textureInfo, const 
   preCopyMemoryBarrier.image = texture->image;
   preCopyMemoryBarrier.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
 
-  vkCmdPipelineBarrier(copyCommandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0,
-                       nullptr, 1, &preCopyMemoryBarrier);
+  vkCmdPipelineBarrier(copyCommandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0,
+                       nullptr, 0, nullptr, 1, &preCopyMemoryBarrier);
 
   VkBufferImageCopy vkBufferImageCopy = {};
   vkBufferImageCopy.bufferOffset = stagingOffset;
@@ -104,8 +110,8 @@ static void createDeviceTexture(const mg::CreateTextureInfo &textureInfo, const 
   postCopyMemoryBarrier.image = texture->image;
   postCopyMemoryBarrier.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
 
-  vkCmdPipelineBarrier(copyCommandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, nullptr, 0,
-                       nullptr, 1, &postCopyMemoryBarrier);
+  vkCmdPipelineBarrier(copyCommandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0,
+                       nullptr, 0, nullptr, 1, &postCopyMemoryBarrier);
 
   VkImageViewCreateInfo vkImageViewCreateInfo = {};
   vkImageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -130,6 +136,17 @@ static void createAttachmentTexture(const mg::CreateTextureInfo &textureInfo, co
   checkResult(vkCreateImageView(mg::vkContext.device, &vkImageViewCreateInfo, nullptr, &texture->imageView));
 }
 
+static void createImageStorage(const mg::CreateTextureInfo &textureInfo, const ImageInfo &imageInfo,
+                               mg::_TextureData *texture) {
+
+  VkImageViewCreateInfo vkImageViewCreateInfo = {};
+  vkImageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+  vkImageViewCreateInfo.image = texture->image;
+  vkImageViewCreateInfo.viewType = imageInfo.vkImageViewType;
+  vkImageViewCreateInfo.format = textureInfo.format;
+  vkImageViewCreateInfo.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
+  checkResult(vkCreateImageView(vkContext.device, &vkImageViewCreateInfo, nullptr, &texture->imageView));
+}
 static void createDepthTexture(const mg::CreateTextureInfo &textureInfo, mg::_TextureData *texture) {
   VkImageViewCreateInfo vkImageViewCreateInfo = {};
   vkImageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -168,9 +185,7 @@ void TextureContainer::createTextureContainer() {
   }
 }
 
-TextureContainer::~TextureContainer() {
-  mgAssert(_idToTexture.empty());
-}
+TextureContainer::~TextureContainer() { mgAssert(_idToTexture.empty()); }
 
 void TextureContainer::destroyTextureContainer() {
   for (uint32_t i = 0; i < _idToTexture.size(); i++) {
@@ -209,13 +224,14 @@ TextureId TextureContainer::createTexture(const CreateTextureInfo &textureInfo) 
 
   VkMemoryRequirements vkMemoryRequirements;
   vkGetImageMemoryRequirements(mg::vkContext.device, texture.image, &vkMemoryRequirements);
-  const auto memoryIndex = findMemoryTypeIndex(mg::vkContext.physicalDeviceMemoryProperties, vkMemoryRequirements.memoryTypeBits,
-                                               VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+  const auto memoryIndex =
+      findMemoryTypeIndex(mg::vkContext.physicalDeviceMemoryProperties, vkMemoryRequirements.memoryTypeBits,
+                          VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
   texture.heapAllocation = mg::mgSystem.textureDeviceMemoryAllocator.allocateDeviceOnlyMemory(
       memoryIndex, vkMemoryRequirements.size, vkMemoryRequirements.alignment);
-  checkResult(
-      vkBindImageMemory(mg::vkContext.device, texture.image, texture.heapAllocation.deviceMemory, texture.heapAllocation.offset));
+  checkResult(vkBindImageMemory(mg::vkContext.device, texture.image, texture.heapAllocation.deviceMemory,
+                                texture.heapAllocation.offset));
 
   switch (textureInfo.type) {
   case TEXTURE_TYPE::TEXTURE_1D:
@@ -226,6 +242,8 @@ TextureId TextureContainer::createTexture(const CreateTextureInfo &textureInfo) 
   case TEXTURE_TYPE::ATTACHMENT:
     createAttachmentTexture(textureInfo, imageInfo, &texture);
     break;
+  case TEXTURE_TYPE::IMAGE_STORAGE:
+    createImageStorage(textureInfo, imageInfo, &texture);
   case TEXTURE_TYPE::DEPTH:
     createDepthTexture(textureInfo, &texture);
     break;
@@ -328,7 +346,7 @@ void TextureContainer::setupDescriptorSets() {
         continue;
       if (_idToTexture[i].imageType != VK_IMAGE_TYPE_2D)
         continue;
-      
+
       descriptorImageInfos[currentIndex].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
       descriptorImageInfos[currentIndex].imageView = _idToTexture[i].imageView;
       _idToDescriptorIndex2D[i] = currentIndex;

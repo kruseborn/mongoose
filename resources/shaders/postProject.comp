@@ -1,0 +1,69 @@
+#version 450
+#extension GL_ARB_shading_language_420pack : enable
+
+layout(set = 0, binding = 0) uniform Ubo { uint N; }
+ubo;
+
+layout(set = 1, binding = 0) buffer U { float x[]; }
+u;
+
+layout(set = 2, binding = 0) buffer V { float x[]; }
+v;
+
+layout(set = 3, binding = 0) buffer P { float x[]; }
+p;
+
+layout(set = 4, binding = 0) buffer Div { float x[]; }
+div;
+
+#define localGroupSize 256
+layout(local_size_x = localGroupSize) in;
+
+uint IX(uint x, uint y) { return x + y * (ubo.N + 2); }
+
+void set_bnd_u(uint N, uint b, uint i) {
+  u.x[IX(0, i)] = b == 1 ? -u.x[IX(1, i)] : u.x[IX(1, i)];
+  u.x[IX(N + 1, i)] = b == 1 ? -u.x[IX(N, i)] : u.x[IX(N, i)];
+  u.x[IX(i, 0)] = b == 2 ? -u.x[IX(i, 1)] : u.x[IX(i, 1)];
+  u.x[IX(i, N + 1)] = b == 2 ? -u.x[IX(i, N)] : u.x[IX(i, N)];
+
+  u.x[IX(0, 0)] = 0.5 * (u.x[IX(1, 0)] + u.x[IX(0, 1)]);
+  u.x[IX(0, N + 1)] = 0.5 * (u.x[IX(1, N + 1)] + u.x[IX(0, N)]);
+  u.x[IX(N + 1, 0)] = 0.5 * (u.x[IX(N, 0)] + u.x[IX(N + 1, 1)]);
+  u.x[IX(N + 1, N + 1)] = 0.5 * (u.x[IX(N, N + 1)] + u.x[IX(N + 1, N)]);
+}
+
+void set_bnd_v(uint N, uint b, uint i) {
+  v.x[IX(0, i)] = b == 1 ? -v.x[IX(1, i)] : v.x[IX(1, i)];
+  v.x[IX(N + 1, i)] = b == 1 ? -v.x[IX(N, i)] : v.x[IX(N, i)];
+  v.x[IX(i, 0)] = b == 2 ? -v.x[IX(i, 1)] : v.x[IX(i, 1)];
+  v.x[IX(i, N + 1)] = b == 2 ? -v.x[IX(i, N)] : v.x[IX(i, N)];
+
+  v.x[IX(0, 0)] = 0.5 * (v.x[IX(1, 0)] + v.x[IX(0, 1)]);
+  v.x[IX(0, N + 1)] = 0.5 * (v.x[IX(1, N + 1)] + v.x[IX(0, N)]);
+  v.x[IX(N + 1, 0)] = 0.5 * (v.x[IX(N, 0)] + v.x[IX(N + 1, 1)]);
+  v.x[IX(N + 1, N + 1)] = 0.5 * (v.x[IX(N, N + 1)] + v.x[IX(N + 1, N)]);
+}
+
+void main() {
+  const uint N = ubo.N;
+  const float h = 1.0 / ubo.N;
+
+  const uint size = (N + 2) * (N + 2);
+  uint index = gl_GlobalInvocationID.x;
+  while (index < size) {
+    uint i = index % (N + 2);
+    uint j = index / (N + 2);
+    index += gl_NumWorkGroups.x * localGroupSize;
+    if (i < 1 || j < 1 || i > N || j > N)
+      continue;
+
+    u.x[IX(i, j)] -= 0.5 * (p.x[IX(i + 1, j)] - p.x[IX(i - 1, j)]) / h;
+    v.x[IX(i, j)] -= 0.5 * (p.x[IX(i, j + 1)] - p.x[IX(i, j - 1)]) / h;
+
+    set_bnd_u(N, 2, i);
+    set_bnd_v(N, 1, i);
+    memoryBarrierShared();
+    barrier();
+  }
+}

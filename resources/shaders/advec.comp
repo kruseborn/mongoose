@@ -1,0 +1,80 @@
+#version 450
+#extension GL_ARB_shading_language_420pack : enable
+
+layout(set = 0, binding = 0) uniform Ubo {
+  uint N;
+  uint b;
+  float dt;
+}
+ubo;
+
+layout(set = 1, binding = 0) buffer U { float x[]; }
+u;
+
+layout(set = 2, binding = 0) buffer V { float x[]; }
+v;
+
+layout(set = 3, binding = 0) buffer D { float x[]; }
+d;
+
+layout(set = 4, binding = 0) buffer D0 { float x[]; }
+d0;
+
+#define localGroupSize 256
+layout(local_size_x = localGroupSize) in;
+
+uint IX(uint x, uint y) { return x + y * (ubo.N + 2); }
+
+void set_bnd(uint N, uint b, uint i) {
+  d.x[IX(0, i)] = b == 1 ? -d.x[IX(1, i)] : d.x[IX(1, i)];
+  d.x[IX(N + 1, i)] = b == 1 ? -d.x[IX(N, i)] : d.x[IX(N, i)];
+  d.x[IX(i, 0)] = b == 2 ? -d.x[IX(i, 1)] : d.x[IX(i, 1)];
+  d.x[IX(i, N + 1)] = b == 2 ? -d.x[IX(i, N)] : d.x[IX(i, N)];
+
+  d.x[IX(0, 0)] = 0.5f * (d.x[IX(1, 0)] + d.x[IX(0, 1)]);
+  d.x[IX(0, N + 1)] = 0.5f * (d.x[IX(1, N + 1)] + d.x[IX(0, N)]);
+  d.x[IX(N + 1, 0)] = 0.5f * (d.x[IX(N, 0)] + d.x[IX(N + 1, 1)]);
+  d.x[IX(N + 1, N + 1)] = 0.5f * (d.x[IX(N, N + 1)] + d.x[IX(N + 1, N)]);
+}
+
+void main() {
+  const uint N = ubo.N;
+  const uint b = ubo.b;
+
+  const float dt = ubo.dt;
+  const float dt0 = dt * N;
+
+  const uint size = (N + 2) * (N + 2);
+  uint index = gl_GlobalInvocationID.x;
+  while (index < size) {
+    uint i = index % (N + 2);
+    uint j = index / (N + 2);
+    if (i < 1 || j < 1 || i > N || j > N) {
+      index += gl_NumWorkGroups.x * localGroupSize;
+      continue;
+    }
+
+    float prevX = i - dt0 * u.x[index];
+    float prevY = j - dt0 * v.x[index];
+    prevX = max(prevX, 0.5);
+    prevX = min(prevX, float(N) + 0.5);
+    prevY = max(prevY, 0.5);
+    prevY = min(prevY, float(N) + 0.5);
+    uint i0 = uint(prevX);
+    uint i1 = i0 + 1;
+    uint j0 = uint(prevY);
+    uint j1 = j0 + 1;
+
+    float s1 = prevX - i0;
+    float s0 = 1 - s1;
+    float t1 = prevY - j0;
+    float t0 = 1 - t1;
+    d.x[IX(i, j)] =
+        s0 * (t0 * d0.x[IX(i0, j0)] + t1 * d0.x[IX(i0, j1)]) + s1 * (t0 * d0.x[IX(i1, j0)] + t1 * d0.x[IX(i1, j1)]);
+
+    set_bnd(N, b, i);
+    memoryBarrierShared();
+    barrier();
+    index += gl_NumWorkGroups.x * localGroupSize;
+  }
+}

@@ -13,7 +13,7 @@ struct TextureId {
   uint32_t generation;
 };
 
-enum class TEXTURE_TYPE { TEXTURE_1D, TEXTURE_2D, TEXTURE_3D, ATTACHMENT, DEPTH };
+enum class TEXTURE_TYPE { TEXTURE_1D, TEXTURE_2D, TEXTURE_3D, ATTACHMENT, IMAGE_STORAGE, DEPTH };
 
 struct _TextureData {
   VkImage image;

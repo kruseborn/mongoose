@@ -14,6 +14,7 @@
 namespace mg {
 
 static glm::vec2 prevXY = {};
+static uint32_t fps = 0;
 static GLFWwindow *window = nullptr;
 static void glfwErrorCallback(int error, const char *description) { printf("Error: %s\n", description); }
 
@@ -48,32 +49,38 @@ void initWindow(uint32_t width, uint32_t height) {
   mg::createMgSystem(&mgSystem);
 }
 
-void destroyWindow() { 
-  mg::destroyMgSystem(&mgSystem); 
+void destroyWindow() {
+  mg::destroyMgSystem(&mgSystem);
   mg::destroyVulkan();
 }
 
-bool startFrame() { glfwPollEvents(); return !glfwWindowShouldClose(window); }
-float getTime()  { return float(glfwGetTime()); }
+bool startFrame() {
+  glfwPollEvents();
+  return !glfwWindowShouldClose(window);
+}
+float getTime() { return float(glfwGetTime()); }
 void endFrame() { glfwPollEvents(); }
-
 
 FrameData getFrameData() {
   FrameData frameData = {};
-  static auto startTime = getCurrentTimeUs();
-  static auto currentTime = getCurrentTimeUs();
-  static auto prevTime = getCurrentTimeUs();
-  static uint64_t frames = 0;
+  static uint64_t currentTime = getCurrentTimeUs();
+  static uint64_t prevTime = getCurrentTimeUs();
+  static uint64_t totalDelta = 0;
+  static uint32_t frames = 0;
   frames++;
 
-currentTime = getCurrentTimeUs();
-  const auto newDt = (currentTime - prevTime) / 100000.0f;
-  frameData.dt = frameData.dt * 0.99f + 0.01f * newDt;
+  currentTime = getCurrentTimeUs();
+  const auto newDt = (currentTime - prevTime);
+  totalDelta += newDt;
+  frameData.dt = frameData.dt * 0.99f + 0.01f * (newDt / 100000.0f);
   prevTime = getCurrentTimeUs();
-  const auto newFps = frames / ((currentTime - startTime) / 1000000.0);
-  if (frameData.fps == 0)
-    frameData.fps = uint32_t(newFps);
-  frameData.fps = uint32_t(frameData.fps * 0.1 + 0.9 * newFps);
+
+  frameData.fps = fps;
+  if (totalDelta >= 1000000) {
+    fps = frames;
+    totalDelta -= 1000000;
+    frames = 0;
+  }
 
   frameData.mouse.prevXY = prevXY;
   frameData.mouse.xy = cursorPosition(vkContext.screen.width, vkContext.screen.height);
