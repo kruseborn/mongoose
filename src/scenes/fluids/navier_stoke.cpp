@@ -286,7 +286,7 @@ static void updateFromGui(int32_t N, mg::StorageId d, mg::StorageId u, mg::Stora
 
   VkMemoryBarrier memoryBarrier = {};
   memoryBarrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
-  memoryBarrier.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT | VK_ACCESS_SHADER_READ_BIT;
+  memoryBarrier.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
   memoryBarrier.dstAccessMask = VK_ACCESS_SHADER_WRITE_BIT | VK_ACCESS_SHADER_READ_BIT;
 
   vkCmdPipelineBarrier(mg::vkContext.commandBuffer, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,

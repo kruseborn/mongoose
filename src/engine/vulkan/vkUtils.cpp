@@ -86,7 +86,6 @@ void beginRendering() {
   vkCommandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
   vkCommandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
   checkResult(vkBeginCommandBuffer(vkContext.commandBuffer, &vkCommandBufferBeginInfo));
-
   
   setFullscreenViewport();
   acquireNextSwapChainImage();

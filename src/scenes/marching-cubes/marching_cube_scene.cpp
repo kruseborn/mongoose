@@ -1,11 +1,11 @@
-#include "fluid_scene.h"
+#include "marching_cube_scene.h"
 
+#include "march_cubes.h"
 #include "mg/camera.h"
 #include "mg/meshUtils.h"
 #include "mg/mgSystem.h"
 #include "mg/texts.h"
 #include "mg/window.h"
-#include "navier_stoke.h"
 #include "rendering/rendering.h"
 #include "vulkan/singleRenderpass.h"
 #include <glm/gtc/matrix_transform.hpp>
@@ -13,8 +13,6 @@
 static mg::Camera camera;
 static mg::SingleRenderPass singleRenderPass;
 static mg::MeshId meshId;
-static mg::Storages storages;
-static uint32_t N = 1024;
 
 static void resizeCallback() {
   mg::resizeSingleRenderPass(&singleRenderPass);
@@ -24,17 +22,17 @@ static void resizeCallback() {
 void initScene() {
   mg::initSingleRenderPass(&singleRenderPass);
 
-  camera = mg::create3DCamera(glm::vec3{0.0f, 0.0f, -5.0f}, glm::vec3{0.0f, 0.0f, 0.0f},
-                              glm::vec3{0.0f, 1.0f, 0.0f});
+  camera = mg::create3DCamera(glm::vec3{0.0f, 0.0f, -5.0f}, glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f});
 
-  storages = mg::createStorages(N);
+  mg::init();
+
   mg::mgSystem.textureContainer.setupDescriptorSets();
   mg::vkContext.swapChain->resizeCallack = resizeCallback;
 }
 
 void destroyScene() {
   mg::waitForDeviceIdle();
-  mg::destroyStorages(&storages);
+  mg::destroy();
   destroySingleRenderPass(&singleRenderPass);
 }
 
@@ -45,7 +43,6 @@ void updateScene(const mg::FrameData &frameData) {
   if (frameData.mouse.left)
     mg::handleTools(frameData, &camera);
   mg::setCameraTransformation(&camera);
-
 }
 
 void renderScene(const mg::FrameData &frameData) {
@@ -55,23 +52,35 @@ void renderScene(const mg::FrameData &frameData) {
 
   mg::Text text1 = {fps};
   mg::pushText(&texts, text1);
+  mg::waitForDeviceIdle();
 
 
   mg::beginRendering();
   mg::setFullscreenViewport();
 
-  mg::simulateNavierStoke(storages, frameData, N);
+  auto sb = mg::simulate();
 
   mg::beginSingleRenderPass(singleRenderPass);
   {
     mg::RenderContext renderContext = {};
     renderContext.renderPass = singleRenderPass.vkRenderPass;
 
-    mg::renderNavierStoke(renderContext, storages);
-    mg::validateTexts(texts);
+    renderContext.projection = glm::perspective(
+        glm::radians(camera.fov), mg::vkContext.screen.width / float(mg::vkContext.screen.height), 0.1f, 1000.f);
+    renderContext.view = glm::lookAt(camera.position, camera.aim, camera.up);
+
+    renderContext.renderPass = singleRenderPass.vkRenderPass;
+
+    static float rotAngle = 0;
+    rotAngle += frameData.dt * 20.0f;
+    glm::mat4 rotation = glm::rotate(glm::mat4(1), rotAngle, {1, 1, 0});
+    mg::renderMC(renderContext, sb);
+    //mg::render2(renderContext);
     mg::renderText(renderContext, texts);
   }
   mg::endSingleRenderPass();
 
   mg::endRendering();
+  mg::waitForDeviceIdle();
+  
 }

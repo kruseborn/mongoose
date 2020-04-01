@@ -6,4 +6,5 @@ add_subdirectory(n-body)
 add_subdirectory(nv-ray)
 add_subdirectory(cube)
 add_subdirectory(fluids)
+add_subdirectory(marching-cubes)
 

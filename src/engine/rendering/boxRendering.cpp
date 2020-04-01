@@ -300,43 +300,4 @@ void renderFluid(const mg::RenderContext &renderContext, mg::StorageId density) 
   vkCmdDraw(mg::vkContext.commandBuffer, 3, 1, 0, 0);
 }
 
-void renderFluid2(const mg::RenderContext &renderContext, float *density, size_t size) {
-  using namespace mg::shaders::fluid2;
-
-  mg::PipelineStateDesc pipelineStateDesc = {};
-  pipelineStateDesc.rasterization.vkRenderPass = renderContext.renderPass;
-  pipelineStateDesc.rasterization.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
-  pipelineStateDesc.rasterization.graphics.subpass = renderContext.subpass;
-
-  mg::CreatePipelineInfo createPipelineInfo = {};
-  createPipelineInfo.shaderName = shader;
-  const auto pipeline = mg::mgSystem.pipelineContainer.createPipeline(pipelineStateDesc, createPipelineInfo);
-
-  VkBuffer storageBuffer;
-  uint32_t storageOffset;
-  VkDescriptorSet storageSet;
-  Storage::StorageData *storage = (Storage::StorageData *)mg::mgSystem.linearHeapAllocator.allocateStorage(
-      sizeof(float) * size, &storageBuffer, &storageOffset, &storageSet);
-
-  memcpy(storage, density, sizeof(float) * size);
-
-  VkBuffer uniformBuffer;
-  uint32_t uniformOffset;
-  VkDescriptorSet uboSet;
-  Ubo *ubo =
-      (Ubo *)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
-
-  ubo->screenSize = glm::uvec4{vkContext.screen.width, vkContext.screen.height, 0, 0};
-
-  DescriptorSets descriptorSets = {.ubo = uboSet};
-
-  uint32_t dynamicOffsets[] = {uniformOffset, storageOffset};
-  vkCmdBindDescriptorSets(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.layout, 0,
-                          mg::countof(descriptorSets.values), descriptorSets.values, mg::countof(dynamicOffsets),
-                          dynamicOffsets);
-
-  vkCmdBindPipeline(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.pipeline);
-  vkCmdDraw(mg::vkContext.commandBuffer, 3, 1, 0, 0);
-}
-
 } // namespace mg

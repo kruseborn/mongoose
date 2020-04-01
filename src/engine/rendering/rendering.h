@@ -26,8 +26,5 @@ void renderText(const mg::RenderContext &renderContext, const mg::Texts &texts);
 void renderCube(const mg::RenderContext &renderContext, mg::MeshId cubeId,
                 glm::mat4 model, glm::vec4 color);
 void renderFluid(const mg::RenderContext &renderContext, mg::StorageId density);
-void renderFluid2(const mg::RenderContext &renderContext, float *density, size_t size);
-
-
 
 } // namespace mg

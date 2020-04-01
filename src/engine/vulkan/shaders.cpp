@@ -33,7 +33,7 @@ static ShaderType getShaderType(const std::string &fileName) {
   else if (fileName.find(".rint") != std::string::npos)
     return {VK_SHADER_STAGE_INTERSECTION_BIT_NV, true};
   else {
-    mgAssertDesc(false, "Shader typ is not supported");
+    mgAssertDesc(false, "Shader type is not supported");
     return {};
   }
 }

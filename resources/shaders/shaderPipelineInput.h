@@ -101,6 +101,28 @@ constexpr struct {
 constexpr const char *shader = "denoise";
 } //denoise
 
+namespace density {
+struct Ubo {
+  glm::vec4 corner;
+  glm::uvec4 N;
+  float cellSize;
+};
+struct Density {
+  float* x = nullptr;
+};
+union DescriptorSets {
+  struct {
+    VkDescriptorSet ubo;
+    VkDescriptorSet density;
+  };
+  VkDescriptorSet values[2];
+};
+constexpr struct {
+  const char *density_comp = "density.comp.spv";
+} files = {};
+constexpr const char *shader = "density";
+} //density
+
 namespace depth {
 struct Ubo {
   glm::mat4 mvp;
@@ -158,33 +180,6 @@ constexpr struct {
 constexpr const char *shader = "diffuse";
 } //diffuse
 
-namespace diffuse2D {
-struct Ubo {
-  uint32_t N;
-  uint32_t b;
-  float dt;
-  float diff;
-};
-struct X {
-  glm::vec2* x = nullptr;
-};
-struct X0 {
-  glm::vec2* x = nullptr;
-};
-union DescriptorSets {
-  struct {
-    VkDescriptorSet ubo;
-    VkDescriptorSet x;
-    VkDescriptorSet x0;
-  };
-  VkDescriptorSet values[3];
-};
-constexpr struct {
-  const char *diffuse2D_comp = "diffuse2D.comp.spv";
-} files = {};
-constexpr const char *shader = "diffuse2D";
-} //diffuse2D
-
 namespace final {
 struct Ubo {
   struct Light {
@@ -235,29 +230,6 @@ constexpr struct {
 } files = {};
 constexpr const char *shader = "fluid";
 } //fluid
-
-namespace fluid2 {
-struct Ubo {
-  glm::uvec4 screenSize;
-};
-struct Storage {
-  struct StorageData {
-    float color;
-  };
-  StorageData* storageData = nullptr;
-};
-union DescriptorSets {
-  struct {
-    VkDescriptorSet ubo;
-  };
-  VkDescriptorSet values[1];
-};
-constexpr struct {
-  const char *fluid2_frag = "fluid2.frag.spv";
-  const char *fluid2_vert = "fluid2.vert.spv";
-} files = {};
-constexpr const char *shader = "fluid2";
-} //fluid2
 
 namespace fontRendering {
 struct Ubo {
@@ -408,6 +380,49 @@ constexpr struct {
 } files = {};
 constexpr const char *shader = "imgui";
 } //imgui
+
+namespace marching_cubes {
+struct Ubo {
+  glm::vec4 corner;
+  glm::uvec4 N;
+  float cellSize;
+};
+struct A2iTriangleConnectionTable {
+  int32_t x[16];
+};
+struct AiCubeEdgeFlags {
+  int32_t x[256];
+};
+struct Density {
+  float* x = nullptr;
+};
+struct DrawIndirectCommand {
+  uint32_t vertexCount;
+  uint32_t instanceCount;
+  uint32_t firstVertex;
+  uint32_t firstInstance;
+};
+struct Mesh {
+  struct Triangle {
+    glm::vec4 v[6];
+  };
+  Triangle triangles[32768];
+};
+union DescriptorSets {
+  struct {
+    VkDescriptorSet ubo;
+    VkDescriptorSet density;
+    VkDescriptorSet a2iTriangleConnectionTable;
+    VkDescriptorSet aiCubeEdgeFlags;
+    VkDescriptorSet mesh;
+  };
+  VkDescriptorSet values[5];
+};
+constexpr struct {
+  const char *marching_cubes_comp = "marching_cubes.comp.spv";
+} files = {};
+constexpr const char *shader = "marching_cubes";
+} //marching_cubes
 
 namespace mrt {
 struct Ubo {
@@ -715,6 +730,34 @@ constexpr struct {
 } files = {};
 constexpr const char *shader = "solidColor";
 } //solidColor
+
+namespace solidColorAndNormal {
+struct Ubo {
+  glm::mat4 mvp;
+  glm::vec4 color;
+};
+namespace InputAssembler {
+  static VertexInputState vertexInputState[2] = {
+    { VK_FORMAT_R32G32B32A32_SFLOAT, 0, 0, 0, 16 },
+    { VK_FORMAT_R32G32B32A32_SFLOAT, 1, 16, 0, 16 },
+  };
+  struct VertexInputData {
+    glm::vec4 in_position;
+    glm::vec4 in_normal;
+  };
+};
+union DescriptorSets {
+  struct {
+    VkDescriptorSet ubo;
+  };
+  VkDescriptorSet values[1];
+};
+constexpr struct {
+  const char *solidColorAndNormal_frag = "solidColorAndNormal.frag.spv";
+  const char *solidColorAndNormal_vert = "solidColorAndNormal.vert.spv";
+} files = {};
+constexpr const char *shader = "solidColorAndNormal";
+} //solidColorAndNormal
 
 namespace ssao {
 struct Ubo {
