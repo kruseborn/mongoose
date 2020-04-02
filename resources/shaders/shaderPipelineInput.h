@@ -384,6 +384,7 @@ constexpr const char *shader = "imgui";
 namespace marching_cubes {
 struct Ubo {
   glm::vec4 corner;
+  glm::vec4 attributes;
   glm::uvec4 N;
   float cellSize;
 };
@@ -406,7 +407,7 @@ struct Mesh {
   struct Triangle {
     glm::vec4 v[6];
   };
-  Triangle triangles[32768];
+  Triangle triangles[1048576];
 };
 union DescriptorSets {
   struct {

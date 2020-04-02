@@ -22,7 +22,7 @@ static void resizeCallback() {
 void initScene() {
   mg::initSingleRenderPass(&singleRenderPass);
 
-  camera = mg::create3DCamera(glm::vec3{0.0f, 0.0f, -5.0f}, glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f});
+  camera = mg::create3DCamera(glm::vec3{0.0f, 15, -40.0f}, glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f});
 
   mg::init();
 
@@ -40,7 +40,7 @@ void updateScene(const mg::FrameData &frameData) {
   if (frameData.keys.r) {
     mg::mgSystem.pipelineContainer.resetPipelineContainer();
   }
-  if (frameData.mouse.left)
+  if (frameData.mouse.right)
     mg::handleTools(frameData, &camera);
   mg::setCameraTransformation(&camera);
 }
@@ -77,6 +77,8 @@ void renderScene(const mg::FrameData &frameData) {
     mg::renderMC(renderContext, sb);
     //mg::render2(renderContext);
     mg::renderText(renderContext, texts);
+    mg::mgSystem.imguiOverlay.draw(renderContext, frameData, mg::renderGUI);
+
   }
   mg::endSingleRenderPass();
 

@@ -1,6 +1,7 @@
 #pragma once
 #include "rendering/rendering.h"
 #include "mg/storageContainer.h"
+#include "mg/window.h"
 
 namespace mg {
 
@@ -19,5 +20,7 @@ Sb simulate();
 
 void renderMC(const RenderContext &renderContext, Sb sb);
 void render2(const RenderContext &renderContext);
+void renderGUI(const mg::FrameData &frameData);
+
 
 }

@@ -4,7 +4,17 @@
 #include "vulkan/pipelineContainer.h"
 #include <cinttypes>
 #include <glm/gtc/matrix_transform.hpp>
+#include <imgui.h>
+#include "mg/window.h"
 #include <vector>
+
+static int32_t NumOctaves = 9;
+static float Lacunarity = 2;
+static float Persistence = 0.5f;
+static float Noisescale = 0.760f;
+static float Noiseweight = 9.304f;
+static float Offset = 2.880f;
+static glm::vec3 dirt(0.12f, 0.09, 0.0);
 
 namespace mg {
 
@@ -389,8 +399,8 @@ static const glm::vec3 a2fVertexOffset[8] = {{0.0, 0.0, 0.0}, {1.0, 0.0, 0.0}, {
                                              {0.0, 0.0, 1.0}, {1.0, 0.0, 1.0}, {1.0, 1.0, 1.0}, {0.0, 1.0, 1.0}};
 
 static const uint32_t N = 100;
-static const float cellSize = 0.1f;
-static const glm::vec3 corner = {-5, -5, -5};
+static const float cellSize = 0.4f;
+static const glm::vec3 corner = {-20, -20, -20};
 
 static inline glm::vec3 toPos(uint64_t x, uint64_t y, uint64_t z) {
   glm::vec3 pos{float(x), float(y), float(z)};
@@ -598,9 +608,10 @@ static void triangulate(VkBuffer *drawIndirectBuffer, uint32_t *drawIndirectBuff
   VkDescriptorSet uboSet;
   Ubo *ubo =
       (Ubo *)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
-  ubo->N = glm::uvec4(N, N, N, N);
+  ubo->N = glm::uvec4(N, N, N, NumOctaves);
   ubo->cellSize = cellSize;
-  ubo->corner = glm::vec4(corner.x, corner.y, corner.z, 1.0);
+  ubo->corner = glm::vec4(corner.x, corner.y, corner.z, Offset);
+  ubo->attributes = {Lacunarity, Persistence, Noisescale, Noiseweight};
 
   DescriptorSets descriptorSets = {};
   descriptorSets.ubo = uboSet;
@@ -656,6 +667,7 @@ void renderMC(const RenderContext &renderContext, Sb sb) {
   using namespace mg::shaders::solidColorAndNormal;
 
   mg::PipelineStateDesc pipelineStateDesc = {};
+  pipelineStateDesc.rasterization.rasterization.cullMode = VK_CULL_MODE_NONE;
   pipelineStateDesc.rasterization.vkRenderPass = renderContext.renderPass;
   pipelineStateDesc.rasterization.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayoutStorage;
   pipelineStateDesc.rasterization.graphics.subpass = renderContext.subpass;
@@ -690,6 +702,38 @@ void renderMC(const RenderContext &renderContext, Sb sb) {
   vkCmdBindPipeline(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.pipeline);
   vkCmdDrawIndirect(mg::vkContext.commandBuffer, sb.drawIndirectBuffer, VkDeviceSize(sb.drawIndirectBufferOffset), 1,
                     0);
+
+}
+
+void renderGUI(const mg::FrameData &frameData) {
+  ImGuiIO &io = ImGui::GetIO();
+   
+  io.DisplaySize = {float(mg::vkContext.screen.width), float(mg::vkContext.screen.height)};
+  io.DeltaTime = 1.0f / 60.0f;
+
+  io.MousePos = ImVec2(frameData.mouse.xy.x * mg::vkContext.screen.width,
+                       (1.0f - frameData.mouse.xy.y) * mg::vkContext.screen.height);
+  io.MouseDown[0] = frameData.mouse.left;
+
+  ImGui::NewFrame();
+  enum class MenuIems { Allocations, Console };
+  static MenuIems menuIem = MenuIems::Allocations;
+
+  if (ImGui::Begin("Terrain", nullptr, {256.0f, 1024.0f}, -1.0f,
+                   ImGuiWindowFlags_AlwaysAutoResize)) {
+
+    ImGui::SliderInt("Num octaves", &NumOctaves, 1, 9, "%d");
+    ImGui::SliderFloatWithSteps("Lacunarity", &Lacunarity, 0.5, 3.0f, 0.01f, "%.5f");
+    ImGui::SliderFloatWithSteps("Persistence", &Persistence, 0.1f, 1.0f, 0.01f, "%.3f");
+    ImGui::SliderFloatWithSteps("Noise scale", &Noisescale, 0.0f, 2.0f, 0.01f, "%.3f");
+    ImGui::SliderFloatWithSteps("Noise weight", &Noiseweight, 1.0f, 10.0f, 0.001f, "%.3f");
+    ImGui::SliderFloatWithSteps("Offset", &Offset, 0.0f, 10.0f, 0.0001f, "%.3f");
+    ImGui::ColorPicker3("Dirt", &dirt.r);
+
+  }
+  ImGui::End();
+  ImGui::EndFrame();
+  ImGui::Render();
 }
 
 } // namespace mg

@@ -44,6 +44,5 @@ inline Texture getTexture(mg::TextureId id) { return mgSystem.textureContainer.g
 inline void removeTexture(mg::TextureId id) { mgSystem.textureContainer.removeTexture(id); }
 inline Mesh getMesh(mg::MeshId meshId) { return mgSystem.meshContainer.getMesh(meshId); }
 inline StorageData getStorage(mg::StorageId storageId) { return mgSystem.storageContainer.getStorage(storageId); }
-inline void addImguiLog(const char *str) { mgSystem.imguiOverlay.addLog(str); }
 
 } // namespace mg
