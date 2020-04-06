@@ -398,122 +398,119 @@ glm::vec3 getNormal(glm::vec3 pos) {
 static const glm::vec3 a2fVertexOffset[8] = {{0.0, 0.0, 0.0}, {1.0, 0.0, 0.0}, {1.0, 1.0, 0.0}, {0.0, 1.0, 0.0},
                                              {0.0, 0.0, 1.0}, {1.0, 0.0, 1.0}, {1.0, 1.0, 1.0}, {0.0, 1.0, 1.0}};
 
-static const uint32_t N = 100;
-static const float cellSize = 0.4f;
-static const glm::vec3 corner = {-20, -20, -20};
-
-static inline glm::vec3 toPos(uint64_t x, uint64_t y, uint64_t z) {
-  glm::vec3 pos{float(x), float(y), float(z)};
-
-  pos = pos * cellSize + corner;
-  return pos;
-}
-
-void render2(const RenderContext &renderContext) {
-  const uint64_t size = N;
-  std::vector<glm::vec4> vertices;
-
-  float density[size][size][size] = {};
-  for (uint64_t z = 0; z < size; z++) {
-    for (uint64_t y = 0; y < size; y++) {
-      for (uint64_t x = 0; x < size; x++) {
-        const auto pos = toPos(x, y, z);
-        density[z][y][x] = mapSphere(pos);
-      }
-    }
-  }
-
-  for (uint64_t z = 0; z < size; z++) {
-    for (uint64_t y = 0; y < size; y++) {
-      for (uint64_t x = 0; x < size; x++) {
-
-        float afCubeValue[8] = {};
-        glm::vec3 asEdgeVertex[12] = {};
-
-        uint32_t flagIndex = 0;
-        const auto pos = toPos(x, y, z);
-        for (uint32_t i = 0; i < 8; i++) {
-          auto cornerPos = pos + vertexOffset[i] * cellSize;
-          afCubeValue[i] = mapSphere(cornerPos);
-          if (afCubeValue[i] < 0.0f) {
-            flagIndex |= 1 << i;
-          }
-        }
-
-        // Find which edges are intersected by the surface
-        const int32_t edgeFlags = aiCubeEdgeFlags[flagIndex];
-        if (edgeFlags == 0)
-          continue;
-        // Find the point of intersection of the surface with each edge
-        // Then find the normal to the surface at those points
-        for (uint32_t i = 0; i < 12; i++) {
-          // if there is an intersection on this edge
-          if (edgeFlags & (1 << i)) {
-            float fOffset =
-                fGetOffset(afCubeValue[a2iEdgeConnection[i][0]], afCubeValue[a2iEdgeConnection[i][1]], 0.0f);
-
-            asEdgeVertex[i] =
-                pos + (a2fVertexOffset[a2iEdgeConnection[i][0]] + fOffset * a2fEdgeDirection[i]) * cellSize;
-          }
-        }
-        for (uint32_t i = 0; i < 5; i++) {
-          if (a2iTriangleConnectionTable[flagIndex][3 * i] < 0)
-            break;
-
-          for (uint32_t j = 0; j < 3; j++) {
-            auto vertexIndex = a2iTriangleConnectionTable[flagIndex][3 * i + j];
-            vertices.push_back(glm::vec4(asEdgeVertex[vertexIndex], 1.0f));
-            vertices.push_back(glm::vec4(getNormal(asEdgeVertex[vertexIndex]), 1.0f));
-          }
-        }
-      }
-    }
-  }
-
-  using namespace mg::shaders::solidColorAndNormal;
-  using VertexInputData = InputAssembler::VertexInputData;
-
-  mg::PipelineStateDesc pipelineStateDesc = {};
-  pipelineStateDesc.rasterization.vkRenderPass = renderContext.renderPass;
-  pipelineStateDesc.rasterization.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
-  pipelineStateDesc.rasterization.graphics.subpass = renderContext.subpass;
-
-  mg::CreatePipelineInfo createPipelineInfo = {};
-  createPipelineInfo.shaderName = shader;
-  createPipelineInfo.vertexInputState = InputAssembler::vertexInputState;
-  createPipelineInfo.vertexInputStateCount = mg::countof(InputAssembler::vertexInputState);
-
-  const auto pipeline = mg::mgSystem.pipelineContainer.createPipeline(pipelineStateDesc, createPipelineInfo);
-
-  auto sizeInBytes = mg::sizeofContainerInBytes(vertices);
-  VkBuffer vertexBuffer;
-  VkDeviceSize vertexBufferOffset;
-  VertexInputData *vertexInputData = (VertexInputData *)mg::mgSystem.linearHeapAllocator.allocateBuffer(
-      sizeInBytes, &vertexBuffer, &vertexBufferOffset);
-  memcpy(vertexInputData, vertices.data(), sizeInBytes);
-
-  VkBuffer uniformBuffer;
-  uint32_t uniformOffset;
-  VkDescriptorSet uboSet;
-  Ubo *ubo =
-      (Ubo *)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
-  ubo->mvp = renderContext.projection * renderContext.view;
-  ubo->color = {1, 0, 0, 1};
-
-  DescriptorSets descriptorSets = {};
-  descriptorSets.ubo = uboSet;
-
-  uint32_t offsets[] = {uniformOffset, 0};
-  vkCmdBindDescriptorSets(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.layout, 0,
-                          mg::countof(descriptorSets.values), descriptorSets.values, mg::countof(offsets), offsets);
-  vkCmdBindPipeline(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.pipeline);
-  vkCmdBindVertexBuffers(mg::vkContext.commandBuffer, 0, 1, &vertexBuffer, &vertexBufferOffset);
-  vkCmdDraw(mg::vkContext.commandBuffer, uint32_t(vertices.size()) / 2, 1, 0, 0);
-}
+//static inline glm::vec3 toPos(uint64_t x, uint64_t y, uint64_t z) {
+//  glm::vec3 pos{float(x), float(y), float(z)};
+//
+//  pos = pos * cellSize + corner;
+//  return pos;
+//}
+//
+//void render2(const RenderContext &renderContext) {
+//  const uint64_t size = N;
+//  std::vector<glm::vec4> vertices;
+//
+//  float density[size][size][size] = {};
+//  for (uint64_t z = 0; z < size; z++) {
+//    for (uint64_t y = 0; y < size; y++) {
+//      for (uint64_t x = 0; x < size; x++) {
+//        const auto pos = toPos(x, y, z);
+//        density[z][y][x] = mapSphere(pos);
+//      }
+//    }
+//  }
+//
+//  for (uint64_t z = 0; z < size; z++) {
+//    for (uint64_t y = 0; y < size; y++) {
+//      for (uint64_t x = 0; x < size; x++) {
+//
+//        float afCubeValue[8] = {};
+//        glm::vec3 asEdgeVertex[12] = {};
+//
+//        uint32_t flagIndex = 0;
+//        const auto pos = toPos(x, y, z);
+//        for (uint32_t i = 0; i < 8; i++) {
+//          auto cornerPos = pos + vertexOffset[i] * cellSize;
+//          afCubeValue[i] = mapSphere(cornerPos);
+//          if (afCubeValue[i] < 0.0f) {
+//            flagIndex |= 1 << i;
+//          }
+//        }
+//
+//        // Find which edges are intersected by the surface
+//        const int32_t edgeFlags = aiCubeEdgeFlags[flagIndex];
+//        if (edgeFlags == 0)
+//          continue;
+//        // Find the point of intersection of the surface with each edge
+//        // Then find the normal to the surface at those points
+//        for (uint32_t i = 0; i < 12; i++) {
+//          // if there is an intersection on this edge
+//          if (edgeFlags & (1 << i)) {
+//            float fOffset =
+//                fGetOffset(afCubeValue[a2iEdgeConnection[i][0]], afCubeValue[a2iEdgeConnection[i][1]], 0.0f);
+//
+//            asEdgeVertex[i] =
+//                pos + (a2fVertexOffset[a2iEdgeConnection[i][0]] + fOffset * a2fEdgeDirection[i]) * cellSize;
+//          }
+//        }
+//        for (uint32_t i = 0; i < 5; i++) {
+//          if (a2iTriangleConnectionTable[flagIndex][3 * i] < 0)
+//            break;
+//
+//          for (uint32_t j = 0; j < 3; j++) {
+//            auto vertexIndex = a2iTriangleConnectionTable[flagIndex][3 * i + j];
+//            vertices.push_back(glm::vec4(asEdgeVertex[vertexIndex], 1.0f));
+//            vertices.push_back(glm::vec4(getNormal(asEdgeVertex[vertexIndex]), 1.0f));
+//          }
+//        }
+//      }
+//    }
+//  }
+//
+//  using namespace mg::shaders::solidColorAndNormal;
+//  using VertexInputData = InputAssembler::VertexInputData;
+//
+//  mg::PipelineStateDesc pipelineStateDesc = {};
+//  pipelineStateDesc.rasterization.vkRenderPass = renderContext.renderPass;
+//  pipelineStateDesc.rasterization.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
+//  pipelineStateDesc.rasterization.graphics.subpass = renderContext.subpass;
+//
+//  mg::CreatePipelineInfo createPipelineInfo = {};
+//  createPipelineInfo.shaderName = shader;
+//  createPipelineInfo.vertexInputState = InputAssembler::vertexInputState;
+//  createPipelineInfo.vertexInputStateCount = mg::countof(InputAssembler::vertexInputState);
+//
+//  const auto pipeline = mg::mgSystem.pipelineContainer.createPipeline(pipelineStateDesc, createPipelineInfo);
+//
+//  auto sizeInBytes = mg::sizeofContainerInBytes(vertices);
+//  VkBuffer vertexBuffer;
+//  VkDeviceSize vertexBufferOffset;
+//  VertexInputData *vertexInputData = (VertexInputData *)mg::mgSystem.linearHeapAllocator.allocateBuffer(
+//      sizeInBytes, &vertexBuffer, &vertexBufferOffset);
+//  memcpy(vertexInputData, vertices.data(), sizeInBytes);
+//
+//  VkBuffer uniformBuffer;
+//  uint32_t uniformOffset;
+//  VkDescriptorSet uboSet;
+//  Ubo *ubo =
+//      (Ubo *)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
+//  ubo->mvp = renderContext.projection * renderContext.view;
+//  ubo->color = {1, 0, 0, 1};
+//
+//  DescriptorSets descriptorSets = {};
+//  descriptorSets.ubo = uboSet;
+//
+//  uint32_t offsets[] = {uniformOffset, 0};
+//  vkCmdBindDescriptorSets(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.layout, 0,
+//                          mg::countof(descriptorSets.values), descriptorSets.values, mg::countof(offsets), offsets);
+//  vkCmdBindPipeline(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.pipeline);
+//  vkCmdBindVertexBuffers(mg::vkContext.commandBuffer, 0, 1, &vertexBuffer, &vertexBufferOffset);
+//  vkCmdDraw(mg::vkContext.commandBuffer, uint32_t(vertices.size()) / 2, 1, 0, 0);
+//}
 
 MarchingCubesStorages createMarchingCubesStorages(size_t size) {
   auto s = sizeof(mg::shaders::marching_cubes::Mesh);
-  size_t sizeInBytes = sizeof(float) * size * size * size;
+  size_t sizeInBytes = sizeof(float) * size * size / 2 * size;
+
   return {.density = mg::mgSystem.storageContainer.createEmptyStorage(uint32_t(sizeInBytes)),
           .triangles = mg::mgSystem.storageContainer.createEmptyStorage(sizeof(mg::shaders::marching_cubes::Mesh)),
           .a2iTriangleConnectionTable = mg::mgSystem.storageContainer.createStorage((void *)a2iTriangleConnectionTable,
@@ -529,13 +526,9 @@ void destroyCreateMarchingCubesStorages(MarchingCubesStorages storages) {
   mg::mgSystem.storageContainer.removeStorage(storages.aiCubeEdgeFlags);
 }
 
-static MarchingCubesStorages marchingCubesStorages;
 
-void init() { marchingCubesStorages = createMarchingCubesStorages(N); }
 
-void destroy() { destroyCreateMarchingCubesStorages(marchingCubesStorages); }
-
-static void createDensity() {
+/*static void createDensity() {
   using namespace mg::shaders::density;
 
   mg::PipelineStateDesc pipelineStateDesc = {};
@@ -573,9 +566,10 @@ static void createDensity() {
 
   vkCmdPipelineBarrier(mg::vkContext.commandBuffer, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
                        VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, 0, 1, &memoryBarrier, 0, nullptr, 0, nullptr);
-}
+}*/
 
-static void triangulate(VkBuffer *drawIndirectBuffer, uint32_t *drawIndirectBufferOffset) {
+static void triangulate(MarchingCubesStorages storages, const Grid &grid, VkBuffer *drawIndirectBuffer,
+                        uint32_t *drawIndirectBufferOffset) {
   using namespace mg::shaders::marching_cubes;
 
   mg::PipelineStateDesc pipelineStateDesc = {};
@@ -608,19 +602,18 @@ static void triangulate(VkBuffer *drawIndirectBuffer, uint32_t *drawIndirectBuff
   VkDescriptorSet uboSet;
   Ubo *ubo =
       (Ubo *)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
-  ubo->N = glm::uvec4(N, N, N, NumOctaves);
-  ubo->cellSize = cellSize;
-  ubo->corner = glm::vec4(corner.x, corner.y, corner.z, Offset);
+  ubo->N = glm::uvec4(grid.N, grid.N/2, grid.N, NumOctaves);
+  ubo->cellSize = grid.cellSize;
+  ubo->corner = glm::vec4(grid.corner.x, grid.corner.y, grid.corner.z, Offset);
   ubo->attributes = {Lacunarity, Persistence, Noisescale, Noiseweight};
 
   DescriptorSets descriptorSets = {};
   descriptorSets.ubo = uboSet;
-  descriptorSets.density = mg::mgSystem.storageContainer.getStorage(marchingCubesStorages.density).descriptorSet;
-  descriptorSets.mesh = mg::mgSystem.storageContainer.getStorage(marchingCubesStorages.triangles).descriptorSet;
-  descriptorSets.aiCubeEdgeFlags =
-      mg::mgSystem.storageContainer.getStorage(marchingCubesStorages.aiCubeEdgeFlags).descriptorSet;
+  descriptorSets.density = mg::mgSystem.storageContainer.getStorage(storages.density).descriptorSet;
+  descriptorSets.mesh = mg::mgSystem.storageContainer.getStorage(storages.triangles).descriptorSet;
+  descriptorSets.aiCubeEdgeFlags = mg::mgSystem.storageContainer.getStorage(storages.aiCubeEdgeFlags).descriptorSet;
   descriptorSets.a2iTriangleConnectionTable =
-      mg::mgSystem.storageContainer.getStorage(marchingCubesStorages.a2iTriangleConnectionTable).descriptorSet;
+      mg::mgSystem.storageContainer.getStorage(storages.a2iTriangleConnectionTable).descriptorSet;
 
   vkCmdBindPipeline(vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline.pipeline);
 
@@ -629,8 +622,11 @@ static void triangulate(VkBuffer *drawIndirectBuffer, uint32_t *drawIndirectBuff
                           mg::countof(descriptorSets.values), descriptorSets.values, mg::countof(dynamicOffsets),
                           dynamicOffsets);
 
-  const auto size = N * N * N;
-  vkCmdDispatch(vkContext.commandBuffer, size/256, 1, 1);
+  const auto size = grid.N * grid.N/2 * grid.N;
+  if (size > 256 * 10)
+    vkCmdDispatch(vkContext.commandBuffer, size/256, 1, 1);
+  else
+    vkCmdDispatch(vkContext.commandBuffer, size, 1, 1);
 
   VkBufferMemoryBarrier bufferMemoryBarrier = {};
   bufferMemoryBarrier2.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
@@ -655,15 +651,14 @@ static void triangulate(VkBuffer *drawIndirectBuffer, uint32_t *drawIndirectBuff
                        VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, 0, 1, &memoryBarrier, 0, nullptr, 0, nullptr);
 }
 
-Sb simulate() {
+Sb simulate(MarchingCubesStorages storages, const Grid &grid) {
   VkBuffer drawIndirectBuffer;
   uint32_t drawIndirectBufferOffset;
-  triangulate(&drawIndirectBuffer, &drawIndirectBufferOffset);
-  fullPipe();
+  triangulate(storages, grid, &drawIndirectBuffer, &drawIndirectBufferOffset);
   return {drawIndirectBuffer, drawIndirectBufferOffset};
 }
 
-void renderMC(const RenderContext &renderContext, Sb sb) {
+void renderMC(const RenderContext &renderContext, Sb sb, MarchingCubesStorages storages, const Grid &grid) {
   using namespace mg::shaders::solidColorAndNormal;
 
   mg::PipelineStateDesc pipelineStateDesc = {};
@@ -695,7 +690,7 @@ void renderMC(const RenderContext &renderContext, Sb sb) {
                           mg::countof(descriptorSets.values), descriptorSets.values, mg::countof(dynamicOffsets),
                           dynamicOffsets);
 
-  auto triangleStorage = mg::mgSystem.storageContainer.getStorage(marchingCubesStorages.triangles);
+  auto triangleStorage = mg::mgSystem.storageContainer.getStorage(storages.triangles);
 
   VkDeviceSize offset = 0;
   vkCmdBindVertexBuffers(mg::vkContext.commandBuffer, 0, 1, &triangleStorage.buffer, &offset);

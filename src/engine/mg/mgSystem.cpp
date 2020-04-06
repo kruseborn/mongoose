@@ -20,7 +20,7 @@ static void createAllocators(MgSystem *system) {
   }
   {
     constexpr uint32_t mgTobytes = 1024 * 1024;
-    constexpr uint32_t heapSize = 1 * mgTobytes;
+    constexpr uint32_t heapSize = 256 * mgTobytes;
     CreateDeviceHeapAllocatorInfo textureAllocationInfo = {};
     textureAllocationInfo.heapSizes = { heapSize, heapSize, heapSize, heapSize };
     textureAllocationInfo.useDifferentHeapsForSmallAllocations = false;

@@ -13,13 +13,18 @@ struct Sb {
   uint32_t drawIndirectBufferOffset;
 };
 
-void init();
+struct Grid {
+  uint32_t N;
+  float cellSize;
+  glm::vec3 corner;
+};
 
-void destroy();
-Sb simulate();
+MarchingCubesStorages createMarchingCubesStorages(size_t size);
+void destroyCreateMarchingCubesStorages(MarchingCubesStorages storages);
 
-void renderMC(const RenderContext &renderContext, Sb sb);
-void render2(const RenderContext &renderContext);
+Sb simulate(MarchingCubesStorages storages, const Grid &grid);
+void renderMC(const RenderContext &renderContext, Sb sb, MarchingCubesStorages storages, const Grid &grid);
+
 void renderGUI(const mg::FrameData &frameData);
 
 

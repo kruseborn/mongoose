@@ -165,7 +165,7 @@ struct Triangle {
 };
 
 layout(set = 4, binding = 0) writeonly buffer Mesh {
-  Triangle triangles[1<<20];
+  Triangle triangles[100000];
 } mesh;
 
 const vec3 vertexOffset[8] = {{0.0, 0.0, 0.0}, {1.0, 0.0, 0.0}, {1.0, 1.0, 0.0}, {0.0, 1.0, 0.0},

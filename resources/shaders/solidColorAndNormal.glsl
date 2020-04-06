@@ -45,14 +45,6 @@ void main() {
 	else
 		mat = mix(water, grass, clamp(in_position.y - 3.5, 0, 1));
 
-	// if(in_position.y < 7.5)
-	// 		color = mix(vec3(0.5,0.3,0.1), vec3(0,1,0), 7.5 - in_position.y);
-
-	// if(in_position.y < 5.5)
-	// 	color = vec3(0,1,0);
-
-	// if(in_position.y < 3.9)
-	// 	color = vec3(0,0,1);
 	vec3 nor = in_normal.xyz;
 	vec3 ldir = normalize(vec3(100, 100, -30) - in_position.xyz);
 	float diff = clamp(dot(ldir, in_normal.xyz), 0, 1);
@@ -65,8 +57,8 @@ void main() {
 	float bou_dif = clamp(0.5 + 0.5 *dot(nor, vec3(0,-1,0)), 0, 1);
 
 	vec3 col = mat*vec3(4.0, 2.0, 1.0) * sun_dif;
-//	col += mat*vec3(0.5, 0.8, 0.9) * sky_dif;
-//	col += mat*vec3(0.5, 0.3, 0.0) * bou_dif;
+	col += mat*vec3(0.5, 0.8, 0.9) * sky_dif;
+	col += mat*vec3(0.5, 0.3, 0.0) * bou_dif;
 
 	col = pow(col, vec3(0.4545));
 	out_frag_color = vec4(col, 1.0);

@@ -407,7 +407,7 @@ struct Mesh {
   struct Triangle {
     glm::vec4 v[6];
   };
-  Triangle triangles[1048576];
+  Triangle triangles[100000];
 };
 union DescriptorSets {
   struct {

@@ -14,8 +14,8 @@ struct FrameData {
     bool left, middle, right;
   } mouse;
   struct {
-    bool r,n,m;
-    bool left, right, space;
+    bool r, n, m, w, a, s, d;
+    bool left, right, up, space;
   } keys;
   mg::Tool tool;
   float dt;
