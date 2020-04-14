@@ -13,6 +13,8 @@
 static mg::Camera camera;
 static mg::SingleRenderPass singleRenderPass;
 
+static mg::MeshId id;
+
 static const uint32_t N = 3;
 static mg::MarchingCubesStorages marchingCubesStorages[N][N];
 // clang-format off
@@ -43,7 +45,10 @@ void initScene() {
     }
   }
 
-  camera = mg::create3DCamera(glm::vec3{0.0f, 50, -60.0f}, glm::vec3{0.0f, 10.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f});
+  //camera = mg::create3DCamera(glm::vec3{0.0f, 50, -60.0f}, glm::vec3{0.0f, 10.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f});
+  camera = mg::create3DCamera(glm::vec3{0.0f, 0.0f, -15.0f}, glm::vec3{0.0f, 0, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f});
+
+  id = mg::dualContouring();
 
   mg::mgSystem.textureContainer.setupDescriptorSets();
   mg::vkContext.swapChain->resizeCallack = resizeCallback;
@@ -51,6 +56,8 @@ void initScene() {
 
 void destroyScene() {
   mg::waitForDeviceIdle();
+
+  mg::mgSystem.meshContainer.removeMesh(id);
   for (uint32_t z = 0; z < N; z++) {
     for (uint32_t x = 0; x < N; x++) {
       mg::destroyCreateMarchingCubesStorages(marchingCubesStorages[z][x]);
@@ -88,13 +95,13 @@ void renderScene(const mg::FrameData &frameData) {
   mg::beginRendering();
   mg::setFullscreenViewport();
 
-  mg::Sb sbs[N][N];
+  //mg::Sb sbs[N][N];
 
-  for (uint32_t z = 0; z < N; z++) {
-    for (uint32_t x = 0; x < N; x++) {
-      sbs[z][x] = mg::simulate(marchingCubesStorages[z][x], grids[z][x]);
-    }
-  }
+  //for (uint32_t z = 0; z < N; z++) {
+  //  for (uint32_t x = 0; x < N; x++) {
+  //    sbs[z][x] = mg::simulate(marchingCubesStorages[z][x], grids[z][x]);
+  //  }
+  //}
 
   mg::beginSingleRenderPass(singleRenderPass);
   {
@@ -103,52 +110,24 @@ void renderScene(const mg::FrameData &frameData) {
 
     renderContext.projection = glm::perspective(
         glm::radians(camera.fov), mg::vkContext.screen.width / float(mg::vkContext.screen.height), 0.1f, 1000.f);
-    LOG(camera.position.z);
     renderContext.view = glm::lookAt(camera.position, camera.aim, camera.up);
 
     renderContext.renderPass = singleRenderPass.vkRenderPass;
 
-    for (uint32_t z = 0; z < N; z++) {
-      for (uint32_t x = 0; x < N; x++) {
-        mg::renderMC(renderContext, sbs[z][x], marchingCubesStorages[z][x], grids[z][x]);
-      }
-    }
+    //for (uint32_t z = 0; z < N; z++) {
+    //  for (uint32_t x = 0; x < N; x++) {
+    //    mg::renderMC(renderContext, sbs[z][x], marchingCubesStorages[z][x], grids[z][x]);
+    //  }
+    //}
 
-    mg::renderText(renderContext, texts);
+    mg::renderMeshWithNormals(renderContext, id, glm::identity<glm::mat4>(), glm::vec4{1, 0, 0, 1});
 
-    mg::mgSystem.imguiOverlay.draw(renderContext, frameData, mg::renderGUI);
+    //mg::renderText(renderContext, texts);
+
+    //mg::mgSystem.imguiOverlay.draw(renderContext, frameData, mg::renderGUI);
   }
   mg::endSingleRenderPass();
 
   mg::endRendering();
   mg::waitForDeviceIdle();
-}
-
-void circleFunction(uint32_t x, uint32_t y, uint32_t z) {
-
-}
-
-void findBestVertex(uint32_t x, uint32_t y, uint32_t z) {
-
-  float v = [2][2][2] = {};
-  for (uint32_t z = 0; z < 2; z++) {
-    for (uint32_t y = 0; y < 2; y++) {
-      for (uint32_t x = 0; x < 2; x++) {
-        map()
-
-      }
-    }
-  }
-}
-
-void dualContouring() {
-  std::vector<glm::vec4> vertices;
-  std::vector<uint32_t> vertices;
-
-  for (uint32_t z = 0; z < N; z++) {
-    for (uint32_t y = 0; y < N; y++) {
-      for (uint32_t x = 0; x < N; x++) {
-      }
-    }
-  }
 }

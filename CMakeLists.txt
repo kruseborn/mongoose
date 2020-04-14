@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.12)
 
 project(Mongoose)
 
+include_directories("libs/eigen")
+
 SET(CMAKE_CONFIGURATION_TYPES "Debug;Release;RelWithDebInfo")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 if (NOT CMAKE_BUILD_TYPE MATCHES Debug)

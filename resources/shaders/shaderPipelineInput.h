@@ -425,6 +425,34 @@ constexpr struct {
 constexpr const char *shader = "marching_cubes";
 } //marching_cubes
 
+namespace meshNormals {
+struct Ubo {
+  glm::mat4 mvp;
+  glm::vec4 color;
+};
+namespace InputAssembler {
+  static VertexInputState vertexInputState[2] = {
+    { VK_FORMAT_R32G32B32_SFLOAT, 0, 0, 0, 12 },
+    { VK_FORMAT_R32G32B32_SFLOAT, 1, 12, 0, 12 },
+  };
+  struct VertexInputData {
+    glm::vec3 in_position;
+    glm::vec3 in_normal;
+  };
+};
+union DescriptorSets {
+  struct {
+    VkDescriptorSet ubo;
+  };
+  VkDescriptorSet values[1];
+};
+constexpr struct {
+  const char *meshNormals_frag = "meshNormals.frag.spv";
+  const char *meshNormals_vert = "meshNormals.vert.spv";
+} files = {};
+constexpr const char *shader = "meshNormals";
+} //meshNormals
+
 namespace mrt {
 struct Ubo {
   glm::mat4 projection;
@@ -732,34 +760,6 @@ constexpr struct {
 constexpr const char *shader = "solidColor";
 } //solidColor
 
-namespace solidColorAndNormal {
-struct Ubo {
-  glm::mat4 mvp;
-  glm::vec4 color;
-};
-namespace InputAssembler {
-  static VertexInputState vertexInputState[2] = {
-    { VK_FORMAT_R32G32B32A32_SFLOAT, 0, 0, 0, 16 },
-    { VK_FORMAT_R32G32B32A32_SFLOAT, 1, 16, 0, 16 },
-  };
-  struct VertexInputData {
-    glm::vec4 in_position;
-    glm::vec4 in_normal;
-  };
-};
-union DescriptorSets {
-  struct {
-    VkDescriptorSet ubo;
-  };
-  VkDescriptorSet values[1];
-};
-constexpr struct {
-  const char *solidColorAndNormal_frag = "solidColorAndNormal.frag.spv";
-  const char *solidColorAndNormal_vert = "solidColorAndNormal.vert.spv";
-} files = {};
-constexpr const char *shader = "solidColorAndNormal";
-} //solidColorAndNormal
-
 namespace ssao {
 struct Ubo {
   glm::mat4 projection;
@@ -805,6 +805,34 @@ constexpr struct {
 } files = {};
 constexpr const char *shader = "ssaoBlur";
 } //ssaoBlur
+
+namespace terrain {
+struct Ubo {
+  glm::mat4 mvp;
+  glm::vec4 color;
+};
+namespace InputAssembler {
+  static VertexInputState vertexInputState[2] = {
+    { VK_FORMAT_R32G32B32A32_SFLOAT, 0, 0, 0, 16 },
+    { VK_FORMAT_R32G32B32A32_SFLOAT, 1, 16, 0, 16 },
+  };
+  struct VertexInputData {
+    glm::vec4 in_position;
+    glm::vec4 in_normal;
+  };
+};
+union DescriptorSets {
+  struct {
+    VkDescriptorSet ubo;
+  };
+  VkDescriptorSet values[1];
+};
+constexpr struct {
+  const char *terrain_frag = "terrain.frag.spv";
+  const char *terrain_vert = "terrain.vert.spv";
+} files = {};
+constexpr const char *shader = "terrain";
+} //terrain
 
 namespace textureRendering {
 struct Ubo {

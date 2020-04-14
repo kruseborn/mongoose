@@ -26,6 +26,7 @@ Sb simulate(MarchingCubesStorages storages, const Grid &grid);
 void renderMC(const RenderContext &renderContext, Sb sb, MarchingCubesStorages storages, const Grid &grid);
 
 void renderGUI(const mg::FrameData &frameData);
+MeshId dualContouring();
 
 
 }

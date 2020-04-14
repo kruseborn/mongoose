@@ -84,7 +84,7 @@ void renderSolidBoxes(const mg::RenderContext &renderContext, const float *xPosi
   vkCmdBindVertexBuffers(mg::vkContext.commandBuffer, 0, 1, &vertexBuffer, &vertexBufferOffset);
   vkCmdBindIndexBuffer(mg::vkContext.commandBuffer, indexBuffer, indexBufferOffset, VK_INDEX_TYPE_UINT32);
   vkCmdDrawIndexed(mg::vkContext.commandBuffer, mg::countof(indicesInputData), count, 0, 0, 0);
-} // namespace mg
+} 
 
 static mg::Pipeline createTextureRenderingPipeline(const mg::RenderContext &renderContext) {
   using namespace mg::shaders::textureRendering;
@@ -227,7 +227,47 @@ void renderBoxWithDepthTexture(mg::RenderContext &renderContext, const glm::vec4
   vkCmdDrawIndexed(mg::vkContext.commandBuffer, mg::countof(indicesInputData), 1, 0, 0, 0);
 }
 
-void renderCube(const mg::RenderContext &renderContext, mg::MeshId cubeId, glm::mat4 model, glm::vec4 color) {
+void renderMeshWithNormals(const mg::RenderContext &renderContext, mg::MeshId id, glm::mat4 model, glm::vec4 color) {
+  using namespace mg::shaders::meshNormals;
+
+  mg::PipelineStateDesc pipelineStateDesc = {};
+  pipelineStateDesc.rasterization.vkRenderPass = renderContext.renderPass;
+  pipelineStateDesc.rasterization.vkPipelineLayout = mg::vkContext.pipelineLayouts.pipelineLayout;
+  pipelineStateDesc.rasterization.graphics.subpass = renderContext.subpass;
+
+  mg::CreatePipelineInfo createPipelineInfo = {};
+  createPipelineInfo.shaderName = shader;
+  createPipelineInfo.vertexInputState = InputAssembler::vertexInputState;
+  createPipelineInfo.vertexInputStateCount = mg::countof(InputAssembler::vertexInputState);
+
+  const auto pipeline = mg::mgSystem.pipelineContainer.createPipeline(pipelineStateDesc, createPipelineInfo);
+
+  VkBuffer uniformBuffer;
+  uint32_t uniformOffset;
+  VkDescriptorSet uboSet;
+  Ubo *ubo =
+      (Ubo *)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
+
+  ubo->mvp = renderContext.projection * renderContext.view * model;
+  ubo->color = color;
+
+  DescriptorSets descriptorSets = {.ubo = uboSet};
+
+  uint32_t dynamicOffsets[] = {uniformOffset, 0};
+  vkCmdBindDescriptorSets(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.layout, 0,
+                          mg::countof(descriptorSets.values), descriptorSets.values, mg::countof(dynamicOffsets),
+                          dynamicOffsets);
+
+  const auto mesh = mg::getMesh(id);
+  vkCmdBindPipeline(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.pipeline);
+
+  VkDeviceSize offset = 0;
+  vkCmdBindVertexBuffers(mg::vkContext.commandBuffer, 0, 1, &mesh.buffer, &offset);
+  vkCmdBindIndexBuffer(mg::vkContext.commandBuffer, mesh.buffer, mesh.indicesOffset, VK_INDEX_TYPE_UINT32);
+  vkCmdDrawIndexed(mg::vkContext.commandBuffer, mesh.indexCount, 1, 0, 0, 0);
+}
+
+void renderMesh(const mg::RenderContext &renderContext, mg::MeshId id, glm::mat4 model, glm::vec4 color) {
   using namespace mg::shaders::solidColor;
 
   mg::PipelineStateDesc pipelineStateDesc = {};
@@ -258,13 +298,12 @@ void renderCube(const mg::RenderContext &renderContext, mg::MeshId cubeId, glm::
                           mg::countof(descriptorSets.values), descriptorSets.values, mg::countof(dynamicOffsets),
                           dynamicOffsets);
 
-  const auto mesh = mg::getMesh(cubeId);
+  const auto mesh = mg::getMesh(id);
   vkCmdBindPipeline(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.pipeline);
 
   VkDeviceSize offset = 0;
   vkCmdBindVertexBuffers(mg::vkContext.commandBuffer, 0, 1, &mesh.buffer, &offset);
   vkCmdBindIndexBuffer(mg::vkContext.commandBuffer, mesh.buffer, mesh.indicesOffset, VK_INDEX_TYPE_UINT32);
-
   vkCmdDrawIndexed(mg::vkContext.commandBuffer, mesh.indexCount, 1, 0, 0, 0);
 }
 

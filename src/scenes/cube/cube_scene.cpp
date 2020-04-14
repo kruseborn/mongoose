@@ -71,7 +71,7 @@ void renderScene(const mg::FrameData &frameData) {
     static float rotAngle = 0;
     rotAngle += frameData.dt * 20.0f;
     glm::mat4 rotation = glm::rotate(glm::mat4(1), rotAngle, {1, 1, 0});
-    renderCube(renderContext, meshId, rotation, {1, 0, 0, 1});
+    renderMesh(renderContext, meshId, rotation, {1, 0, 0, 1});
   }
   mg::endSingleRenderPass();
 

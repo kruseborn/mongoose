@@ -1,11 +1,14 @@
 ﻿#include "march_cubes.h"
 
+#include "houseHolder.h"
 #include "mg/mgSystem.h"
+#include "mg/window.h"
 #include "vulkan/pipelineContainer.h"
+#include <Eigen/Dense>
 #include <cinttypes>
 #include <glm/gtc/matrix_transform.hpp>
 #include <imgui.h>
-#include "mg/window.h"
+#include <iostream>
 #include <vector>
 
 static int32_t NumOctaves = 9;
@@ -18,45 +21,44 @@ static glm::vec3 dirt(0.12f, 0.09, 0.0);
 
 namespace mg {
 
-  void fullBarrier();
+void fullBarrier();
 
-  void fullPipe() {
-    fullBarrier();
-    VkFence fence;
-      VkMemoryBarrier memoryBarrier = {};
-    memoryBarrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
-    memoryBarrier.srcAccessMask = VK_ACCESS_MEMORY_WRITE_BIT;
-    memoryBarrier.dstAccessMask = VK_ACCESS_HOST_READ_BIT;
+void fullPipe() {
+  fullBarrier();
+  VkFence fence;
+  VkMemoryBarrier memoryBarrier = {};
+  memoryBarrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
+  memoryBarrier.srcAccessMask = VK_ACCESS_MEMORY_WRITE_BIT;
+  memoryBarrier.dstAccessMask = VK_ACCESS_HOST_READ_BIT;
 
-    vkCmdPipelineBarrier(vkContext.commandBuffer, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_HOST_BIT, 0, 0,
-                         &memoryBarrier, 0, nullptr, 0, nullptr);
+  vkCmdPipelineBarrier(vkContext.commandBuffer, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_HOST_BIT, 0, 0,
+                       &memoryBarrier, 0, nullptr, 0, nullptr);
 
-    vkEndCommandBuffer(vkContext.commandBuffer);
+  vkEndCommandBuffer(vkContext.commandBuffer);
 
-      VkFenceCreateInfo vkFenceCreateInfo = {};
-    vkFenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-    vkFenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-    checkResult(vkCreateFence(vkContext.device, &vkFenceCreateInfo, nullptr, &fence));
-    checkResult(vkResetFences(vkContext.device, 1, &fence));
+  VkFenceCreateInfo vkFenceCreateInfo = {};
+  vkFenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+  vkFenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+  checkResult(vkCreateFence(vkContext.device, &vkFenceCreateInfo, nullptr, &fence));
+  checkResult(vkResetFences(vkContext.device, 1, &fence));
 
-    VkSubmitInfo submitInfo = {};
-    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &vkContext.commandBuffer;
+  VkSubmitInfo submitInfo = {};
+  submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+  submitInfo.commandBufferCount = 1;
+  submitInfo.pCommandBuffers = &vkContext.commandBuffer;
 
-    // fences are GPU to CPU syncs, CPU waits for GPU to finish it's current work on the queue for a
-    // specific command buffer
-    checkResult(vkQueueSubmit(vkContext.queue, 1, &submitInfo, fence));
-    checkResult(vkWaitForFences(vkContext.device, 1, &fence, VK_TRUE, UINT64_MAX));
+  // fences are GPU to CPU syncs, CPU waits for GPU to finish it's current work on the queue for a
+  // specific command buffer
+  checkResult(vkQueueSubmit(vkContext.queue, 1, &submitInfo, fence));
+  checkResult(vkWaitForFences(vkContext.device, 1, &fence, VK_TRUE, UINT64_MAX));
 
-    vkDestroyFence(vkContext.device, fence, nullptr);
-    VkCommandBufferBeginInfo vkCommandBufferBeginInfo = {};
-    vkCommandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-    vkCommandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-    checkResult(vkBeginCommandBuffer(vkContext.commandBuffer, &vkCommandBufferBeginInfo));
-    mg::waitForDeviceIdle();
-  }
-
+  vkDestroyFence(vkContext.device, fence, nullptr);
+  VkCommandBufferBeginInfo vkCommandBufferBeginInfo = {};
+  vkCommandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+  vkCommandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+  checkResult(vkBeginCommandBuffer(vkContext.commandBuffer, &vkCommandBufferBeginInfo));
+  mg::waitForDeviceIdle();
+}
 
 void fullBarrier() {
 
@@ -398,14 +400,14 @@ glm::vec3 getNormal(glm::vec3 pos) {
 static const glm::vec3 a2fVertexOffset[8] = {{0.0, 0.0, 0.0}, {1.0, 0.0, 0.0}, {1.0, 1.0, 0.0}, {0.0, 1.0, 0.0},
                                              {0.0, 0.0, 1.0}, {1.0, 0.0, 1.0}, {1.0, 1.0, 1.0}, {0.0, 1.0, 1.0}};
 
-//static inline glm::vec3 toPos(uint64_t x, uint64_t y, uint64_t z) {
+// static inline glm::vec3 toPos(uint64_t x, uint64_t y, uint64_t z) {
 //  glm::vec3 pos{float(x), float(y), float(z)};
 //
 //  pos = pos * cellSize + corner;
 //  return pos;
 //}
 //
-//void render2(const RenderContext &renderContext) {
+// void render2(const RenderContext &renderContext) {
 //  const uint64_t size = N;
 //  std::vector<glm::vec4> vertices;
 //
@@ -526,8 +528,6 @@ void destroyCreateMarchingCubesStorages(MarchingCubesStorages storages) {
   mg::mgSystem.storageContainer.removeStorage(storages.aiCubeEdgeFlags);
 }
 
-
-
 /*static void createDensity() {
   using namespace mg::shaders::density;
 
@@ -593,16 +593,15 @@ static void triangulate(MarchingCubesStorages storages, const Grid &grid, VkBuff
   bufferMemoryBarrier2.srcQueueFamilyIndex = vkContext.queueFamilyIndex;
   bufferMemoryBarrier2.dstQueueFamilyIndex = vkContext.queueFamilyIndex;
 
-  vkCmdPipelineBarrier(mg::vkContext.commandBuffer,
-                       VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, 0, 0, nullptr, 1,
-                       &bufferMemoryBarrier2, 0, nullptr);
+  vkCmdPipelineBarrier(mg::vkContext.commandBuffer, VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT,
+                       VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, 0, 0, nullptr, 1, &bufferMemoryBarrier2, 0, nullptr);
 
   VkBuffer uniformBuffer;
   uint32_t uniformOffset;
   VkDescriptorSet uboSet;
   Ubo *ubo =
       (Ubo *)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
-  ubo->N = glm::uvec4(grid.N, grid.N/2, grid.N, NumOctaves);
+  ubo->N = glm::uvec4(grid.N, grid.N / 2, grid.N, NumOctaves);
   ubo->cellSize = grid.cellSize;
   ubo->corner = glm::vec4(grid.corner.x, grid.corner.y, grid.corner.z, Offset);
   ubo->attributes = {Lacunarity, Persistence, Noisescale, Noiseweight};
@@ -622,9 +621,9 @@ static void triangulate(MarchingCubesStorages storages, const Grid &grid, VkBuff
                           mg::countof(descriptorSets.values), descriptorSets.values, mg::countof(dynamicOffsets),
                           dynamicOffsets);
 
-  const auto size = grid.N * grid.N/2 * grid.N;
+  const auto size = grid.N * grid.N / 2 * grid.N;
   if (size > 256 * 10)
-    vkCmdDispatch(vkContext.commandBuffer, size/256, 1, 1);
+    vkCmdDispatch(vkContext.commandBuffer, size / 256, 1, 1);
   else
     vkCmdDispatch(vkContext.commandBuffer, size, 1, 1);
 
@@ -639,8 +638,7 @@ static void triangulate(MarchingCubesStorages storages, const Grid &grid, VkBuff
   bufferMemoryBarrier2.dstQueueFamilyIndex = vkContext.queueFamilyIndex;
 
   vkCmdPipelineBarrier(mg::vkContext.commandBuffer, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
-                       VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT, 0, 0, nullptr, 1,
-                       &bufferMemoryBarrier2, 0, nullptr);
+                       VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT, 0, 0, nullptr, 1, &bufferMemoryBarrier2, 0, nullptr);
 
   VkMemoryBarrier memoryBarrier = {};
   memoryBarrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
@@ -659,7 +657,7 @@ Sb simulate(MarchingCubesStorages storages, const Grid &grid) {
 }
 
 void renderMC(const RenderContext &renderContext, Sb sb, MarchingCubesStorages storages, const Grid &grid) {
-  using namespace mg::shaders::solidColorAndNormal;
+  using namespace mg::shaders::terrain;
 
   mg::PipelineStateDesc pipelineStateDesc = {};
   pipelineStateDesc.rasterization.rasterization.cullMode = VK_CULL_MODE_NONE;
@@ -697,12 +695,11 @@ void renderMC(const RenderContext &renderContext, Sb sb, MarchingCubesStorages s
   vkCmdBindPipeline(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.pipeline);
   vkCmdDrawIndirect(mg::vkContext.commandBuffer, sb.drawIndirectBuffer, VkDeviceSize(sb.drawIndirectBufferOffset), 1,
                     0);
-
 }
 
 void renderGUI(const mg::FrameData &frameData) {
   ImGuiIO &io = ImGui::GetIO();
-   
+
   io.DisplaySize = {float(mg::vkContext.screen.width), float(mg::vkContext.screen.height)};
   io.DeltaTime = 1.0f / 60.0f;
 
@@ -714,8 +711,7 @@ void renderGUI(const mg::FrameData &frameData) {
   enum class MenuIems { Allocations, Console };
   static MenuIems menuIem = MenuIems::Allocations;
 
-  if (ImGui::Begin("Terrain", nullptr, {256.0f, 1024.0f}, -1.0f,
-                   ImGuiWindowFlags_AlwaysAutoResize)) {
+  if (ImGui::Begin("Terrain", nullptr, {256.0f, 1024.0f}, -1.0f, ImGuiWindowFlags_AlwaysAutoResize)) {
 
     ImGui::SliderInt("Num octaves", &NumOctaves, 1, 9, "%d");
     ImGui::SliderFloatWithSteps("Lacunarity", &Lacunarity, 0.5, 3.0f, 0.01f, "%.5f");
@@ -724,11 +720,202 @@ void renderGUI(const mg::FrameData &frameData) {
     ImGui::SliderFloatWithSteps("Noise weight", &Noiseweight, 1.0f, 10.0f, 0.001f, "%.3f");
     ImGui::SliderFloatWithSteps("Offset", &Offset, 0.0f, 10.0f, 0.0001f, "%.3f");
     ImGui::ColorPicker3("Dirt", &dirt.r);
-
   }
   ImGui::End();
   ImGui::EndFrame();
   ImGui::Render();
 }
 
+const float XMIN = -3, XMAX = 3, YMIN = -3, YMAX = 3, ZMIN = -3, ZMAX = 3;
+float cellStep = 1.0f;
+
+float f(float x, float y, float z) { return 2.5f - glm::length(glm::vec3{x, y, z}); }
+float f(int32_t x, int32_t y, int32_t z) { return f(float(x), float(y), float(z)); }
+
+glm::vec3 n(float x, float y, float z) { return glm::normalize(glm::vec3{x, y, z}); }
+
+float adapt(float v0, float v1) { return (0 - v0) / (v1 - v0); }
+
+bool dual_contour_3d_find_best_vertex(float x, float y, float z, glm::vec3 *out) {
+  float v[2][2][2];
+  for (uint32_t dx = 0; dx < 2; dx++) {
+    for (uint32_t dy = 0; dy < 2; dy++) {
+      for (uint32_t dz = 0; dz < 2; dz++) {
+        v[dx][dy][dz] = f(x + dx, y + dy, z + dz);
+      }
+    }
+  }
+
+  std::vector<glm::vec3> changes;
+  for (uint32_t dy = 0; dy < 2; dy++) {
+    for (uint32_t dx = 0; dx < 2; dx++) {
+      if ((v[dx][dy][0] > 0) != (v[dx][dy][1] > 0)) {
+        changes.push_back(glm::vec3{x + dx, y + dy, z + adapt(v[dx][dy][0], v[dx][dy][1])});
+      }
+    }
+  }
+
+  for (uint32_t dz = 0; dz < 2; dz++) {
+    for (uint32_t dx = 0; dx < 2; dx++) {
+      if ((v[dx][0][dz] > 0) != (v[dx][1][dz] > 0)) {
+        changes.push_back(glm::vec3{x + dx, y + adapt(v[dx][0][dz], v[dx][1][dz]), z + dz});
+      }
+    }
+  }
+
+  for (uint32_t dz = 0; dz < 2; dz++) {
+    for (uint32_t dy = 0; dy < 2; dy++) {
+      if ((v[0][dy][dz] > 0) != (v[1][dy][dz] > 0)) {
+        changes.push_back(glm::vec3{x + adapt(v[0][dy][dz], v[1][dy][dz]), y + dy, z + dz});
+      }
+    }
+  }
+  if (changes.empty())
+    return false;
+
+  std::vector<glm::vec3> A;
+  glm::vec3 coeff;
+  std::vector<float> b;
+  Eigen::MatrixXf AA(changes.size(), 3);
+  Eigen::VectorXf bb(changes.size());
+
+  for (uint32_t i = 0; i < changes.size(); i++) {
+    auto normal = n(changes[i].x, changes[i].y, changes[i].z);
+    A.push_back(normal);
+    b.push_back(glm::dot(normal, changes[i]));
+
+    for (int j = 0; j < 3; j++) {
+      AA(i, j) = normal[j];
+    }
+    bb(i) = b[i];
+  }
+
+  Eigen::Vector3f res = AA.colPivHouseholderQr().solve(bb);
+  coeff.x = res(0);
+  coeff.y = res(1);
+  coeff.z = res(2);
+
+  // LOG(AA);
+  // LOG(bb);
+
+  // std::cout << "The solution using the QR decomposition is:\n" << AA.colPivHouseholderQr().solve(bb) << std::endl;
+  //
+  // lsqqr((float *)(A.data()), (float *)(b.data()), &coeff.x, 3, long(A.size()));
+  // std::cout << coeff.x << " " << coeff.y << " " << coeff.z << std::endl;
+  *out = coeff;
+  return true;
+}
+
+struct Quad {
+  int32_t v0, v1, v2, v3;
+};
+
+int32_t toIndex(int32_t x, int32_t y, int32_t z) { return 7 * 7 * (z + 3) + 7 * (y + 3) + (x + 3); }
+Quad swapQuad(Quad q, bool b) {
+  if (b) {
+    return {q.v3, q.v2, q.v1, q.v0};
+  }
+  return q;
+}
+
+void addQuad(std::vector<int32_t> &indices, Quad q) {
+  indices.push_back(q.v0);
+  indices.push_back(q.v2);
+  indices.push_back(q.v1);
+  indices.push_back(q.v0);
+  indices.push_back(q.v3);
+  indices.push_back(q.v2);
+}
+
+std::unordered_map<std::string, int32_t> hashValue;
+
+std::string toHash(int32_t x, int32_t y, int32_t z) {
+  return std::to_string(x) + std::to_string(y) + std::to_string(z);
+}
+
+struct Vertex {
+  glm::vec3 v, n;
+};
+
+MeshId dualContouring() {
+  std::vector<Vertex> vertices;
+  std::vector<int32_t> indices;
+
+  for (int32_t x = -3; x < 3; x++) {
+    for (int32_t y = -3; y < 3; y++) {
+      for (int32_t z = -3; z < 3; z++) {
+        glm::vec3 vertex;
+        bool ok = dual_contour_3d_find_best_vertex(float(x), float(y), float(z), &vertex);
+        if (ok) {
+          vertices.push_back({vertex, n(vertex.x, vertex.y, vertex.z)});
+          hashValue.emplace(toHash(x, y, z), int32_t(vertices.size() - 1));
+        }
+      }
+    }
+  }
+
+  for (int32_t x = -3; x < 3; x++) {
+    for (int32_t y = -3; y < 3; y++) {
+      for (int32_t z = -3; z < 3; z++) {
+
+        if (hashValue.count(toHash(x, y, z)) == 0)
+          continue;
+
+        if (x > -3 && y > -3) {
+          bool solid1 = f(x, y, z + 0) > 0;
+          bool solid2 = f(x, y, z + 1) > 0;
+          if (solid1 != solid2) {
+            // clang-format off
+            Quad quad = {hashValue[toHash(x - 1, y - 1, z)], 
+                         hashValue[toHash(x - 0, y - 1, z)], 
+                         hashValue[toHash(x - 0, y - 0, z)],
+                         hashValue[toHash(x - 1, y - 0, z)]};
+            // clang-format on
+            quad = swapQuad(quad, solid2);
+            addQuad(indices, quad);
+          }
+        }
+        if (x > -3 && z > -3) {
+          bool solid1 = f(x, y + 0, z) > 0;
+          bool solid2 = f(x, y + 1, z) > 0;
+          if (solid1 != solid2) {
+            // clang-format off
+            Quad quad = {hashValue[toHash(x - 1, y, z - 0)],
+                         hashValue[toHash(x - 0, y, z - 0)], 
+                         hashValue[toHash(x - 0, y, z - 1)],
+                         hashValue[toHash(x - 1, y, z - 1)]};
+            // clang-format on
+
+            quad = swapQuad(quad, solid2);
+            addQuad(indices, quad);
+          }
+        }
+        if (y > -3 && z > -3) {
+          bool solid1 = f(x + 0, y, z) > 0;
+          bool solid2 = f(x + 1, y, z) > 0;
+          if (solid1 != solid2) {
+            // clang-format off
+            Quad quad = {hashValue[toHash(x, y - 1, z - 1)],
+                         hashValue[toHash(x, y - 0, z - 1)],  
+                         hashValue[toHash(x, y - 0, z - 0)],
+                         hashValue[toHash(x, y - 1, z - 0)]};
+            // clang-format on
+            quad = swapQuad(quad, solid2);
+            addQuad(indices, quad);
+          }
+        }
+      }
+    }
+  }
+
+  CreateMeshInfo info = {};
+  info.id = "circle";
+  info.indices = (unsigned char *)indices.data();
+  info.indicesSizeInBytes = mg::sizeofContainerInBytes(indices);
+  info.vertices = (unsigned char *)vertices.data();
+  info.verticesSizeInBytes = mg::sizeofContainerInBytes(vertices);
+  info.nrOfIndices = uint32_t(indices.size());
+
+  return mg::mgSystem.meshContainer.createMesh(info);
+}
 } // namespace mg
