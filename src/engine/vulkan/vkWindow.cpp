@@ -290,6 +290,7 @@ static void createLogicalDevice() {
   VkPhysicalDeviceFeatures enabledFeatures = {};
   enabledFeatures.shaderClipDistance = VK_TRUE;
   enabledFeatures.shaderCullDistance = VK_TRUE;
+  enabledFeatures.wideLines = VK_TRUE;
 
   const char *deviceExtensions[5] = {VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME,
                                      VK_KHR_MAINTENANCE3_EXTENSION_NAME,

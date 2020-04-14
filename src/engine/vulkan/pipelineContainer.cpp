@@ -111,7 +111,7 @@ static Pipeline _createPipeline(const _PipelineDesc &pipelineDesc) {
   rasterizationState.depthBiasConstantFactor = 0.0f;
   rasterizationState.depthBiasClamp = 0.0f;
   rasterizationState.depthBiasSlopeFactor = 0.0f;
-  rasterizationState.lineWidth = 1.0f;
+  rasterizationState.lineWidth = 5.0f;
 
   for (uint32_t i = 0; i < pipelineDesc.state.rasterization.graphics.nrOfColorAttachments; i++) {
     blendAttachmentState[i].blendEnable = pipelineDesc.state.rasterization.blend.blendEnable;

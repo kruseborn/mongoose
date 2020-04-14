@@ -69,6 +69,9 @@ inline Time now() {
 inline uint64_t durationInMs(const Time &start, const Time &end) {
   return uint64_t(std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count());
 }
+inline uint64_t durationInUs(const Time &start, const Time &end) {
+  return uint64_t(std::chrono::duration_cast<std::chrono::microseconds>(end - start).count());
+}
 }
 
 std::string rtrim(const std::string &s);

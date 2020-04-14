@@ -31,8 +31,8 @@ void subDivide(Quadtree *qt) {
 }
 
 bool isInside(glm::vec4 boundary, glm::vec2 point) {
-  return (point.x >= boundary.x - boundary.z && point.x <= boundary.x + boundary.z &&
-          point.y >= boundary.y - boundary.w && point.y <= boundary.y + boundary.w);
+  return ((point.x >= (boundary.x - boundary.z)) && (point.x < (boundary.x + boundary.z)) &&
+          (point.y >= (boundary.y - boundary.w)) && (point.y < (boundary.y + boundary.w)));
 }
 
 void insert(Quadtree *qt, glm::vec2 point) {
@@ -52,18 +52,24 @@ void insert(Quadtree *qt, glm::vec2 point) {
   }
 } // namespace mg
 
-Quadtree qt = {.boundary = {200, 200, 200, 200}};
+Quadtree qt = {.boundary = {500, 500, 500, 500}};
 
 void simulateQuadtree() {
 
-  for (size_t i = 0; i < 5; i++) {
-    glm::vec2 point = {rand() % 400, rand() % 400};
+  auto start = mg::timer::now();
+
+  // start time for 100000 = 210 ms
+  for (size_t i = 0; i < 100000; i++) {
+    glm::vec2 point = {rand()%1000, rand()%1000};
     insert(&qt, point);
   }
+
+  auto end = mg::timer::now();
+  LOG("create quadtree: " << mg::timer::durationInMs(start, end));
 }
 
 static mg::Pipeline createSolidRendering(const mg::RenderContext &renderContext, bool points) {
-  using namespace mg::shaders::solid;
+  using namespace mg::shaders::solidColor;
 
   mg::PipelineStateDesc pipelineStateDesc = {};
   pipelineStateDesc.rasterization.vkRenderPass = renderContext.renderPass;
@@ -72,7 +78,7 @@ static mg::Pipeline createSolidRendering(const mg::RenderContext &renderContext,
   pipelineStateDesc.rasterization.depth.TestEnable = VK_FALSE;
   pipelineStateDesc.rasterization.rasterization.cullMode = VK_CULL_MODE_NONE;
   pipelineStateDesc.rasterization.inputAssemblyState.topology =
-      points ? VK_PRIMITIVE_TOPOLOGY_POINT_LIST: VK_PRIMITIVE_TOPOLOGY_LINE_STRIP;
+      points ? VK_PRIMITIVE_TOPOLOGY_POINT_LIST : VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
 
   mg::CreatePipelineInfo createPipelineInfo = {};
   createPipelineInfo.shaderName = shader;
@@ -92,29 +98,34 @@ void renderQuadTree(const mg::RenderContext &renderContext) {
   while (queue.size()) {
     auto q = queue.top();
     queue.pop();
-    if (!q->points.size())
+    if (q  == nullptr || !q->points.size())
       continue;
+
+    queue.push(q->nw);
+    queue.push(q->ne);
+    queue.push(q->sw);
+    queue.push(q->se);
 
     for (auto p : q->points) {
       points.push_back({p.x, p.y, 0});
     }
 
-    lines.push_back(glm::vec3{q->boundary.x - q->boundary.z, q->boundary.y - q->boundary.z, 0});
-    lines.push_back(glm::vec3{q->boundary.x + q->boundary.z, q->boundary.y - q->boundary.z, 0});
+    lines.push_back(glm::vec3{q->boundary.x - q->boundary.z, q->boundary.y - q->boundary.w, 0});
+    lines.push_back(glm::vec3{q->boundary.x + q->boundary.z, q->boundary.y - q->boundary.w, 0});
 
-    lines.push_back(glm::vec3{q->boundary.x + q->boundary.z, q->boundary.y - q->boundary.z, 0});
-    lines.push_back(glm::vec3{q->boundary.x + q->boundary.z, q->boundary.y + q->boundary.z, 0});
+    lines.push_back(glm::vec3{q->boundary.x + q->boundary.z, q->boundary.y - q->boundary.w, 0});
+    lines.push_back(glm::vec3{q->boundary.x + q->boundary.z, q->boundary.y + q->boundary.w, 0});
 
-    lines.push_back(glm::vec3{q->boundary.x + q->boundary.z, q->boundary.y + q->boundary.z, 0});
-    lines.push_back(glm::vec3{q->boundary.x - q->boundary.z, q->boundary.y + q->boundary.z, 0});
+    lines.push_back(glm::vec3{q->boundary.x + q->boundary.z, q->boundary.y + q->boundary.w, 0});
+    lines.push_back(glm::vec3{q->boundary.x - q->boundary.z, q->boundary.y + q->boundary.w, 0});
 
-    lines.push_back(glm::vec3{q->boundary.x - q->boundary.z, q->boundary.y + q->boundary.z, 0});
-    lines.push_back(glm::vec3{q->boundary.x - q->boundary.z, q->boundary.y - q->boundary.z, 0});
+    lines.push_back(glm::vec3{q->boundary.x - q->boundary.z, q->boundary.y + q->boundary.w, 0});
+    lines.push_back(glm::vec3{q->boundary.x - q->boundary.z, q->boundary.y - q->boundary.w, 0});
   }
 
   {
     const auto solidPipeline = createSolidRendering(renderContext, false);
-    using namespace mg::shaders::solid;
+    using namespace mg::shaders::solidColor;
 
     using VertexInputData = InputAssembler::VertexInputData;
 
@@ -124,6 +135,7 @@ void renderQuadTree(const mg::RenderContext &renderContext) {
     Ubo *ubo =
         (Ubo *)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
     ubo->mvp = glm::ortho(0.0f, float(vkContext.screen.width), 0.0f, float(vkContext.screen.height), -10.0f, 10.0f);
+    ubo->color = {0.5f, 0, 0, 1};
 
     VkBuffer vertexBuffer;
     VkDeviceSize vertexBufferOffset;
@@ -142,11 +154,11 @@ void renderQuadTree(const mg::RenderContext &renderContext) {
     vkCmdBindPipeline(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, solidPipeline.pipeline);
 
     vkCmdBindVertexBuffers(mg::vkContext.commandBuffer, 0, 1, &vertexBuffer, &vertexBufferOffset);
-    vkCmdDraw(mg::vkContext.commandBuffer, lines.size(), 0, 0, 0);
+    vkCmdDraw(mg::vkContext.commandBuffer, uint32_t(lines.size()), 1, 0, 0);
   }
   {
     const auto solidPipeline = createSolidRendering(renderContext, true);
-    using namespace mg::shaders::solid;
+    using namespace mg::shaders::solidColor;
 
     using VertexInputData = InputAssembler::VertexInputData;
 
@@ -156,6 +168,7 @@ void renderQuadTree(const mg::RenderContext &renderContext) {
     Ubo *ubo =
         (Ubo *)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
     ubo->mvp = glm::ortho(0.0f, float(vkContext.screen.width), 0.0f, float(vkContext.screen.height), -10.0f, 10.0f);
+    ubo->color = {0.5f, 0.5, 0, 1};
 
     VkBuffer vertexBuffer;
     VkDeviceSize vertexBufferOffset;
@@ -174,7 +187,7 @@ void renderQuadTree(const mg::RenderContext &renderContext) {
     vkCmdBindPipeline(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, solidPipeline.pipeline);
 
     vkCmdBindVertexBuffers(mg::vkContext.commandBuffer, 0, 1, &vertexBuffer, &vertexBufferOffset);
-    vkCmdDraw(mg::vkContext.commandBuffer, points.size(), 0, 0, 0);
+    vkCmdDraw(mg::vkContext.commandBuffer, uint32_t(points.size()), 1, 0, 0);
   }
 }
 
