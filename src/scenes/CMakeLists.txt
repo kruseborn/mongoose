@@ -7,4 +7,5 @@ add_subdirectory(nv-ray)
 add_subdirectory(cube)
 add_subdirectory(fluids)
 add_subdirectory(marching-cubes)
+add_subdirectory(octree)
 

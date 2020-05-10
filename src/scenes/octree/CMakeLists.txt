@@ -1,22 +1,23 @@
 mg_cc_executable(
     NAME
-        marching_cube
+        octree
     SRCS
-        marching_cube_scene.cpp
-        marching_cube_scene.h
-        marching_cube_main.cpp
-        march_cubes.h
-        march_cubes.cpp
-        houseHolder.h
-        houseHolder.cpp
-        quadtree.cpp
-        quadtree.h
-        freeList.h
+        octree_scene.cpp
+        octree_scene.h
+        octree_main.cpp
+        voxelizer.h
+        voxelizer.cpp
+        empty_render_pass.h
+        empty_render_pass.cpp
+        render_sdf.h
+        render_sdf.cpp
+        chunkedAllocator.h
     COPTS
         ${CPP_FLAGS}
     DEPS
         glm
         mg-engine
+        sdfgen
         ${VULKAN_LIB}
         ${PLATFORM_LIB}
     DEPS_DIR

@@ -199,18 +199,16 @@ ObjMeshes loadObjFromFile(const std::string &filename) {
   ObjMeshes tinyObjMeshes = {};
   Outputs outputs = {};
 
-
-
   const auto name = getName(filename);
-  std::ifstream ifText(name + ".txt");
-  if (ifText.good()) {
-    return readObjFromBinary(ifText, name);
-  } else {
+  //std::ifstream ifText(name + ".txt");
+  //if (ifText.good()) {
+  //  return readObjFromBinary(ifText, name);
+  //} else {
     outputs.binary.open(name + ".bin", std::fstream::binary);
     outputs.sizes.open(name + ".txt");
     outputs.materials.open(name + ".mat", std::fstream::binary);
     outputs.mesh.open(name + ".mesh", std::fstream::binary);
-  }
+//  }
 
   std::vector<tinyobj::material_t> materials;
   std::unordered_set<std::string> loadedTextures;

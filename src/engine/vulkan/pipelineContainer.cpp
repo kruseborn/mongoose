@@ -40,8 +40,12 @@ struct _PipelineDesc {
   uint32_t vertexInputStateCount;
 };
 
-_PipelineDesc::_PipelineDesc() { memset(this, 0, sizeof(_PipelineDesc)); }
-_PipelineDesc::_PipelineDesc(const _PipelineDesc &other) { memcpy(this, &other, sizeof(_PipelineDesc)); }
+_PipelineDesc::_PipelineDesc() {
+  memset(this, 0, sizeof(_PipelineDesc));
+}
+_PipelineDesc::_PipelineDesc(const _PipelineDesc &other) {
+  memcpy(this, &other, sizeof(_PipelineDesc));
+}
 _PipelineDesc &_PipelineDesc::operator=(const _PipelineDesc &other) {
   memcpy(this, &other, sizeof(_PipelineDesc));
   return *this;
@@ -111,7 +115,7 @@ static Pipeline _createPipeline(const _PipelineDesc &pipelineDesc) {
   rasterizationState.depthBiasConstantFactor = 0.0f;
   rasterizationState.depthBiasClamp = 0.0f;
   rasterizationState.depthBiasSlopeFactor = 0.0f;
-  rasterizationState.lineWidth = 5.0f;
+  rasterizationState.lineWidth = 1.0f;
 
   for (uint32_t i = 0; i < pipelineDesc.state.rasterization.graphics.nrOfColorAttachments; i++) {
     blendAttachmentState[i].blendEnable = pipelineDesc.state.rasterization.blend.blendEnable;
@@ -175,21 +179,33 @@ static Pipeline _createPipeline(const _PipelineDesc &pipelineDesc) {
   VkVertexInputAttributeDescription vkVertexInputAttributeDescription[maxNrOfInputVertexAttribute] = {};
 
   uint32_t strideInterleaved = 0;
+  uint32_t strideInstancesInterleaved = 0;
   for (uint32_t i = 0; i < pipelineDesc.vertexInputStateCount; i++) {
     vkVertexInputAttributeDescription[i].binding = pipelineDesc.vertexInputState[i].binding;
     vkVertexInputAttributeDescription[i].format = pipelineDesc.vertexInputState[i].format;
     vkVertexInputAttributeDescription[i].offset = pipelineDesc.vertexInputState[i].offset;
     vkVertexInputAttributeDescription[i].location = pipelineDesc.vertexInputState[i].location;
-    strideInterleaved += pipelineDesc.vertexInputState[i].size;
+    if (pipelineDesc.vertexInputState[i].binding == 0)
+      strideInterleaved += pipelineDesc.vertexInputState[i].size;
+    else
+      strideInstancesInterleaved += pipelineDesc.vertexInputState[i].size;
   }
 
-  VkVertexInputBindingDescription vkVertexInputBindingDescription = {};
-  vkVertexInputBindingDescription.binding = 0;
-  vkVertexInputBindingDescription.stride = strideInterleaved;
-  vkVertexInputBindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+  // clang-format off
+  VkVertexInputBindingDescription vkVertexInputBindingDescription[2] ={ {
+    .binding = 0,
+    .stride = strideInterleaved,
+    .inputRate = VK_VERTEX_INPUT_RATE_VERTEX,
+  },{
+    .binding = 1,
+    .stride = strideInstancesInterleaved,
+    .inputRate = VK_VERTEX_INPUT_RATE_INSTANCE,
+  }};
+  // clang-format on
 
-  vertexInputStateCreateInfo.pVertexBindingDescriptions = &vkVertexInputBindingDescription;
-  vertexInputStateCreateInfo.vertexBindingDescriptionCount = pipelineDesc.vertexInputStateCount ? 1 : 0;
+  uint32_t count = uint32_t(strideInterleaved > 0) + uint32_t(strideInstancesInterleaved > 0);
+  vertexInputStateCreateInfo.pVertexBindingDescriptions = vkVertexInputBindingDescription;
+  vertexInputStateCreateInfo.vertexBindingDescriptionCount = count;
   vertexInputStateCreateInfo.pVertexAttributeDescriptions = vkVertexInputAttributeDescription;
   vertexInputStateCreateInfo.vertexAttributeDescriptionCount = pipelineDesc.vertexInputStateCount;
 
@@ -213,9 +229,13 @@ static Pipeline _createPipeline(const _PipelineDesc &pipelineDesc) {
   return pipeline;
 }
 
-void PipelineContainer::createPipelineContainer() { mg::createShaders(); }
+void PipelineContainer::createPipelineContainer() {
+  mg::createShaders();
+}
 
-PipelineContainer::~PipelineContainer() { mgAssert(_idToPipeline.empty()); }
+PipelineContainer::~PipelineContainer() {
+  mgAssert(_idToPipeline.empty());
+}
 
 void PipelineContainer::destroyPipelineContainer() {
   waitForDeviceIdle();

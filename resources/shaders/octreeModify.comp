@@ -1,0 +1,22 @@
+#version 450 core
+
+layout (set = 0, binding = 0) uniform Ubo {
+  vec4 temp;
+} ubo;
+
+layout (local_size_x = 1, local_size_y = 1, local_size_z = 1 ) in;
+
+layout(set = 1, binding = 0) buffer uuBuildInfo { 
+  uint uFragmentNum, uVoxelResolution, uAllocBegin, uAllocNum, uCounter;
+} uBuildInfo;
+
+layout(set = 2, binding = 0) buffer DrawIndirectCommand {
+	uint uNumGroupX, uNumGroupY, uNumGroupZ;
+} drawIndirectCommand;
+
+uint group_x_64(uint x) { return (x >> 6u) + (((x & 0x3fu) > 0u) ? 1u : 0u); }
+void main() {
+	uBuildInfo.uAllocBegin += uBuildInfo.uAllocNum;
+	uBuildInfo.uAllocNum = ( atomicAdd(uBuildInfo.uCounter, 1) << 3u ) - uBuildInfo.uAllocBegin + 8u;
+	drawIndirectCommand.uNumGroupX = group_x_64( uBuildInfo.uAllocNum );
+}

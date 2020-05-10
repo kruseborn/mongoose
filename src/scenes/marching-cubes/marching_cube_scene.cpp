@@ -46,12 +46,12 @@ void initScene() {
     }
   }
 
-  // camera = mg::create3DCamera(glm::vec3{0.0f, 50, -60.0f}, glm::vec3{0.0f, 10.0f, 0.0f}, glm::vec3{0.0f, 1.0f,
-  // 0.0f});
-  camera = mg::create3DCamera(glm::vec3{0.0f, 0.0f, -15.0f}, glm::vec3{0.0f, 0, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f});
+   camera = mg::create3DCamera(glm::vec3{0.0f, 50, -60.0f}, glm::vec3{0.0f, 10.0f, 0.0f}, glm::vec3{0.0f, 1.0f,
+   0.0f});
+  //camera = mg::create3DCamera(glm::vec3{0.0f, 0.0f, -15.0f}, glm::vec3{0.0f, 0, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f});
 
   //id = mg::dualContouring();
-  mg::simulateQuadtree();
+  //mg::simulateQuadtree();
 
 
   mg::mgSystem.textureContainer.setupDescriptorSets();
@@ -99,13 +99,13 @@ void renderScene(const mg::FrameData &frameData) {
   mg::beginRendering();
   mg::setFullscreenViewport();
 
-  // mg::Sb sbs[N][N];
+   mg::Sb sbs[N][N];
 
-  // for (uint32_t z = 0; z < N; z++) {
-  //  for (uint32_t x = 0; x < N; x++) {
-  //    sbs[z][x] = mg::simulate(marchingCubesStorages[z][x], grids[z][x]);
-  //  }
-  //}
+   for (uint32_t z = 0; z < N; z++) {
+    for (uint32_t x = 0; x < N; x++) {
+      sbs[z][x] = mg::simulate(marchingCubesStorages[z][x], grids[z][x]);
+    }
+  }
 
 
   mg::beginSingleRenderPass(singleRenderPass);
@@ -119,14 +119,14 @@ void renderScene(const mg::FrameData &frameData) {
 
     renderContext.renderPass = singleRenderPass.vkRenderPass;
 
-    // for (uint32_t z = 0; z < N; z++) {
-    //  for (uint32_t x = 0; x < N; x++) {
-    //    mg::renderMC(renderContext, sbs[z][x], marchingCubesStorages[z][x], grids[z][x]);
-    //  }
-    //}
+     for (uint32_t z = 0; z < N; z++) {
+      for (uint32_t x = 0; x < N; x++) {
+        mg::renderMC(renderContext, sbs[z][x], marchingCubesStorages[z][x], grids[z][x]);
+      }
+    }
 
    // mg::renderMeshWithNormals(renderContext, id, glm::identity<glm::mat4>(), glm::vec4{1, 0, 0, 1});
-    mg::renderQuadTree(renderContext);
+   // mg::renderQuadTree(renderContext);
 
     // mg::renderText(renderContext, texts);
 

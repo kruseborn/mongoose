@@ -320,23 +320,21 @@ void TextureContainer::setupDescriptorSets() {
   mg::waitForDeviceIdle();
   // Samplers
   {
-    VkDescriptorImageInfo descriptorImageInfos[2] = {};
-    descriptorImageInfos[0].sampler = vkContext.sampler.linearBorderSampler;
-    descriptorImageInfos[1].sampler = vkContext.sampler.linearRepeat;
+    VkDescriptorImageInfo samplerDescriptorImageInfos[3] = {};
+    samplerDescriptorImageInfos[0].sampler = vkContext.sampler.linearBorderSampler;
+    samplerDescriptorImageInfos[1].sampler = vkContext.sampler.linearRepeat;
+    samplerDescriptorImageInfos[2].sampler = vkContext.sampler.pointBorderSampler;
 
-    VkWriteDescriptorSet writeDescriptorSet = {};
-    writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-    writeDescriptorSet.dstBinding = 0;
-    writeDescriptorSet.dstArrayElement = 0;
-    writeDescriptorSet.descriptorCount = mg::countof(descriptorImageInfos);
-    writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER;
-    writeDescriptorSet.pImageInfo = descriptorImageInfos;
-    writeDescriptorSet.dstSet = _descriptorSet;
+    VkWriteDescriptorSet writeDescriptorSet[2] = {};
+    writeDescriptorSet[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    writeDescriptorSet[0].dstBinding = 0;
+    writeDescriptorSet[0].dstArrayElement = 0;
+    writeDescriptorSet[0].descriptorCount = mg::countof(samplerDescriptorImageInfos);
+    writeDescriptorSet[0].descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER;
+    writeDescriptorSet[0].pImageInfo = samplerDescriptorImageInfos;
+    writeDescriptorSet[0].dstSet = _descriptorSet;
 
-    vkUpdateDescriptorSets(mg::vkContext.device, 1, &writeDescriptorSet, 0, nullptr);
-  }
-  // 2D Textures
-  {
+    // 2D Textures
     VkDescriptorImageInfo descriptorImageInfos[MAX_NR_OF_2D_TEXTURES] = {};
     uint32_t currentIndex = 0;
     _idToDescriptorIndex2D.clear();
@@ -353,16 +351,15 @@ void TextureContainer::setupDescriptorSets() {
       currentIndex++;
     }
 
-    VkWriteDescriptorSet writeDescriptorSet = {};
-    writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-    writeDescriptorSet.dstBinding = 1;
-    writeDescriptorSet.dstArrayElement = 0;
-    writeDescriptorSet.descriptorCount = currentIndex;
-    writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
-    writeDescriptorSet.pImageInfo = descriptorImageInfos;
-    writeDescriptorSet.dstSet = _descriptorSet;
+    writeDescriptorSet[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    writeDescriptorSet[1].dstBinding = 1;
+    writeDescriptorSet[1].dstArrayElement = 0;
+    writeDescriptorSet[1].descriptorCount = currentIndex;
+    writeDescriptorSet[1].descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+    writeDescriptorSet[1].pImageInfo = descriptorImageInfos;
+    writeDescriptorSet[1].dstSet = _descriptorSet;
 
-    vkUpdateDescriptorSets(mg::vkContext.device, 1, &writeDescriptorSet, 0, nullptr);
+    vkUpdateDescriptorSets(mg::vkContext.device, 2, writeDescriptorSet, 0, nullptr);
     mgAssert(MAX_NR_OF_2D_TEXTURES > currentIndex);
   }
   // 3D Textures

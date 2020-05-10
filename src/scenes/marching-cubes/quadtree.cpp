@@ -1,6 +1,8 @@
 ﻿#include "quadtree.h"
+#include "freeList.h"
 #include "mg/mgSystem.h"
 #include "rendering/rendering.h"
+#include <algorithm>
 #include <cinttypes>
 #include <cstdlib>
 #include <glm/glm.hpp>
@@ -10,62 +12,103 @@
 
 namespace mg {
 
-struct Quadtree {
-  glm::vec4 boundary;
-  size_t capacity = 4;
+enum DIRS { NW, NE, SW, SE };
+
+struct Node {
+  uint32_t childId = ~0u;
   std::vector<glm::vec2> points;
-  Quadtree *nw, *ne, *sw, *se;
-  bool isDivied;
 };
 
-void subDivide(Quadtree *qt) {
-  auto b = qt->boundary;
-  glm::vec4 nw = {b.x - b.z / 2, b.y + b.w / 2, b.z / 2, b.w / 2};
-  glm::vec4 ne = {b.x + b.z / 2, b.y + b.w / 2, b.z / 2, b.w / 2};
-  glm::vec4 sw = {b.x - b.z / 2, b.y - b.w / 2, b.z / 2, b.w / 2};
-  glm::vec4 se = {b.x + b.z / 2, b.y - b.w / 2, b.z / 2, b.w / 2};
-  qt->nw = new Quadtree{.boundary = nw};
-  qt->ne = new Quadtree{.boundary = ne};
-  qt->sw = new Quadtree{.boundary = sw};
-  qt->se = new Quadtree{.boundary = se};
+struct Quadtree {
+  size_t capacity = 8;
+  std::vector<Node> nodes;
+  glm::vec4 boundary;
+};
+
+void initQuadTree(Quadtree *tree, glm::vec4 boundary) {
+  tree->boundary = boundary;
+  tree->nodes.reserve(1000);
+  tree->nodes.push_back({});
 }
 
-bool isInside(glm::vec4 boundary, glm::vec2 point) {
-  return ((point.x >= (boundary.x - boundary.z)) && (point.x < (boundary.x + boundary.z)) &&
-          (point.y >= (boundary.y - boundary.w)) && (point.y < (boundary.y + boundary.w)));
+void subDivide(Quadtree *qt, uint32_t node, glm::vec4 b) {
+  qt->nodes[node].childId = uint32_t(qt->nodes.size());
+  qt->nodes.push_back({});
+  qt->nodes.push_back({});
+  qt->nodes.push_back({});
+  qt->nodes.push_back({});
 }
 
-void insert(Quadtree *qt, glm::vec2 point) {
-  if (!isInside(qt->boundary, point))
-    return;
-  if (qt->points.size() < qt->capacity) {
-    qt->points.push_back(point);
+inline bool isInside(glm::vec2 point, glm::vec4 boundary) {
+  return ((point.x >= (boundary.x - boundary.z)) & (point.x < (boundary.x + boundary.z)) &
+          (point.y >= (boundary.y - boundary.w)) & (point.y < (boundary.y + boundary.w)));
+}
+
+bool _insert(Quadtree *qt, uint32_t node, glm::vec2 point, glm::vec4 b) {
+  if (!isInside(point, b))
+    return false;
+  if (qt->nodes[node].childId == ~0u && qt->nodes[node].points.size() < qt->capacity) {
+    qt->nodes[node].points.push_back(point);
+    return true;
   } else {
-    if (!qt->isDivied) {
-      subDivide(qt);
-      qt->isDivied = true;
+    if (qt->nodes[node].childId == ~0u) {
+      subDivide(qt, node, b);
     }
-    insert(qt->nw, point);
-    insert(qt->ne, point);
-    insert(qt->sw, point);
-    insert(qt->se, point);
-  }
-} // namespace mg
+    glm::vec4 nw = {b.x - b.z / 2, b.y + b.w / 2, b.z / 2, b.w / 2};
+    glm::vec4 ne = {b.x + b.z / 2, b.y + b.w / 2, b.z / 2, b.w / 2};
+    glm::vec4 sw = {b.x - b.z / 2, b.y - b.w / 2, b.z / 2, b.w / 2};
+    glm::vec4 se = {b.x + b.z / 2, b.y - b.w / 2, b.z / 2, b.w / 2};
 
-Quadtree qt = {.boundary = {500, 500, 500, 500}};
+    for (size_t i = 0; i < qt->nodes[node].points.size(); i++) {
+      _insert(qt, qt->nodes[node].childId + NW, qt->nodes[node].points[i], nw) ||
+          _insert(qt, qt->nodes[node].childId + NE, qt->nodes[node].points[i], ne) ||
+          _insert(qt, qt->nodes[node].childId + SW, qt->nodes[node].points[i], sw) ||
+          _insert(qt, qt->nodes[node].childId + SE, qt->nodes[node].points[i], se);
+    }
+    qt->nodes[node].points.clear();
+
+    return _insert(qt, qt->nodes[node].childId + NW, point, nw) ||
+           _insert(qt, qt->nodes[node].childId + NE, point, ne) ||
+           _insert(qt, qt->nodes[node].childId + SW, point, sw) || _insert(qt, qt->nodes[node].childId + SE, point, se);
+  }
+}
+
+void insert(Quadtree *qt, glm::vec2 point) { _insert(qt, 0, point, qt->boundary); }
+Quadtree qt;
 
 void simulateQuadtree() {
 
+#if 0
+  uint32_t totalTime = 0;
+  for (int j = 0; j < 10; j++) {
+    Quadtree qt;
+
+    initQuadTree(&qt, {500, 500, 500, 500});
+    auto start = mg::timer::now();
+
+    // start time for 100000 = 210 ms, 35-45 ms release
+    // release 0.314
+    for (size_t i = 0; i < 100000; i++) {
+      glm::vec2 point = {rand() % 1000, rand() % 1000};
+      insert(&qt, point);
+    }
+    auto end = mg::timer::now();
+    totalTime += uint32_t(mg::timer::durationInMs(start, end));
+  }
+  LOG("Time: " << totalTime / float(1000));
+
+#else
+  initQuadTree(&qt, {500, 500, 500, 500});
+
   auto start = mg::timer::now();
 
-  // start time for 100000 = 210 ms
   for (size_t i = 0; i < 100000; i++) {
-    glm::vec2 point = {rand()%1000, rand()%1000};
+    glm::vec2 point = {rand() % 1000, rand() % 1000};
     insert(&qt, point);
   }
 
-  auto end = mg::timer::now();
-  LOG("create quadtree: " << mg::timer::durationInMs(start, end));
+  LOG("Time: " << mg::timer::durationInMs(start, mg::timer::now()));
+#endif
 }
 
 static mg::Pipeline createSolidRendering(const mg::RenderContext &renderContext, bool points) {
@@ -90,39 +133,48 @@ static mg::Pipeline createSolidRendering(const mg::RenderContext &renderContext,
 }
 
 void renderQuadTree(const mg::RenderContext &renderContext) {
+
   std::vector<glm::vec3> lines;
   std::vector<glm::vec3> points;
+  struct N {
+    Node *node;
+    glm::vec4 b;
+  };
 
-  std::stack<Quadtree *> queue;
-  queue.push(&qt);
+  std::stack<N> queue;
+  queue.push({&qt.nodes.front(), qt.boundary});
   while (queue.size()) {
-    auto q = queue.top();
+    auto n = queue.top();
     queue.pop();
-    if (q  == nullptr || !q->points.size())
-      continue;
 
-    queue.push(q->nw);
-    queue.push(q->ne);
-    queue.push(q->sw);
-    queue.push(q->se);
+    if (n.node->childId != -1) {
+      glm::vec4 nw = {n.b.x - n.b.z / 2, n.b.y + n.b.w / 2, n.b.z / 2, n.b.w / 2};
+      glm::vec4 ne = {n.b.x + n.b.z / 2, n.b.y + n.b.w / 2, n.b.z / 2, n.b.w / 2};
+      glm::vec4 sw = {n.b.x - n.b.z / 2, n.b.y - n.b.w / 2, n.b.z / 2, n.b.w / 2};
+      glm::vec4 se = {n.b.x + n.b.z / 2, n.b.y - n.b.w / 2, n.b.z / 2, n.b.w / 2};
 
-    for (auto p : q->points) {
+      queue.push({&qt.nodes[n.node->childId + NW], nw});
+      queue.push({&qt.nodes[n.node->childId + NE], ne});
+      queue.push({&qt.nodes[n.node->childId + SW], sw});
+      queue.push({&qt.nodes[n.node->childId + SE], se});
+    }
+
+    for (auto p : n.node->points) {
       points.push_back({p.x, p.y, 0});
     }
 
-    lines.push_back(glm::vec3{q->boundary.x - q->boundary.z, q->boundary.y - q->boundary.w, 0});
-    lines.push_back(glm::vec3{q->boundary.x + q->boundary.z, q->boundary.y - q->boundary.w, 0});
+    lines.push_back(glm::vec3{n.b.x - n.b.z, n.b.y - n.b.w, 0});
+    lines.push_back(glm::vec3{n.b.x + n.b.z, n.b.y - n.b.w, 0});
 
-    lines.push_back(glm::vec3{q->boundary.x + q->boundary.z, q->boundary.y - q->boundary.w, 0});
-    lines.push_back(glm::vec3{q->boundary.x + q->boundary.z, q->boundary.y + q->boundary.w, 0});
+    lines.push_back(glm::vec3{n.b.x + n.b.z, n.b.y - n.b.w, 0});
+    lines.push_back(glm::vec3{n.b.x + n.b.z, n.b.y + n.b.w, 0});
 
-    lines.push_back(glm::vec3{q->boundary.x + q->boundary.z, q->boundary.y + q->boundary.w, 0});
-    lines.push_back(glm::vec3{q->boundary.x - q->boundary.z, q->boundary.y + q->boundary.w, 0});
+    lines.push_back(glm::vec3{n.b.x + n.b.z, n.b.y + n.b.w, 0});
+    lines.push_back(glm::vec3{n.b.x - n.b.z, n.b.y + n.b.w, 0});
 
-    lines.push_back(glm::vec3{q->boundary.x - q->boundary.z, q->boundary.y + q->boundary.w, 0});
-    lines.push_back(glm::vec3{q->boundary.x - q->boundary.z, q->boundary.y - q->boundary.w, 0});
+    lines.push_back(glm::vec3{n.b.x - n.b.z, n.b.y + n.b.w, 0});
+    lines.push_back(glm::vec3{n.b.x - n.b.z, n.b.y - n.b.w, 0});
   }
-
   {
     const auto solidPipeline = createSolidRendering(renderContext, false);
     using namespace mg::shaders::solidColor;
@@ -135,7 +187,10 @@ void renderQuadTree(const mg::RenderContext &renderContext) {
     Ubo *ubo =
         (Ubo *)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
     ubo->mvp = glm::ortho(0.0f, float(vkContext.screen.width), 0.0f, float(vkContext.screen.height), -10.0f, 10.0f);
-    ubo->color = {0.5f, 0, 0, 1};
+    static glm::vec4 colors[] = {{1, 0, 0, 1}, {0, 1, 0, 1},        {0, 0, 1, 1},
+                                 {1, 1, 1, 1}, {1.5f, 0.5, 0.5, 1}, {0.5f, 0.5, 1, 1}};
+    auto color = glm::vec4{1, 0, 0, 1};
+    ubo->color = color;
 
     VkBuffer vertexBuffer;
     VkDeviceSize vertexBufferOffset;
@@ -168,7 +223,7 @@ void renderQuadTree(const mg::RenderContext &renderContext) {
     Ubo *ubo =
         (Ubo *)mg::mgSystem.linearHeapAllocator.allocateUniform(sizeof(Ubo), &uniformBuffer, &uniformOffset, &uboSet);
     ubo->mvp = glm::ortho(0.0f, float(vkContext.screen.width), 0.0f, float(vkContext.screen.height), -10.0f, 10.0f);
-    ubo->color = {0.5f, 0.5, 0, 1};
+    ubo->color = glm::vec4(0, 1, 0, 1);
 
     VkBuffer vertexBuffer;
     VkDeviceSize vertexBufferOffset;
@@ -189,153 +244,7 @@ void renderQuadTree(const mg::RenderContext &renderContext) {
     vkCmdBindVertexBuffers(mg::vkContext.commandBuffer, 0, 1, &vertexBuffer, &vertexBufferOffset);
     vkCmdDraw(mg::vkContext.commandBuffer, uint32_t(points.size()), 1, 0, 0);
   }
-}
-
-void renderQuadtree() {}
+} 
 
 } // namespace mg
 
-///// Provides an indexed free list with constant-time removals from anywhere
-///// in the list without invalidating indices. T must be trivially constructible
-///// and destructible.
-// template <class T> class FreeList {
-// public:
-//  FreeList();
-//
-//  int insert(const T &element);
-//  void erase(int n);
-//  void clear();
-//  // Returns the range of valid indices.
-//  int range() const;
-//
-//  T &operator[](int n);
-//  const T &operator[](int n) const;
-//
-// private:
-//  union FreeElement {
-//    T element;
-//    int next;
-//  };
-//  std::vector<FreeElement> data;
-//  int first_free;
-//};
-//
-// template <class T> FreeList<T>::FreeList() : first_free(-1) {}
-//
-// template <class T> int FreeList<T>::insert(const T &element) {
-//  if (first_free != -1) {
-//    const int index = first_free;
-//    first_free = data[first_free].next;
-//    data[index].element = element;
-//    return index;
-//  } else {
-//    FreeElement fe;
-//    fe.element = element;
-//    data.push_back(fe);
-//    return static_cast<int>(data.size() - 1);
-//  }
-//}
-//
-// template <class T> void FreeList<T>::erase(int n) {
-//  data[n].next = first_free;
-//  first_free = n;
-//}
-//
-// template <class T> void FreeList<T>::clear() {
-//  data.clear();
-//  first_free = -1;
-//}
-//
-// template <class T> int FreeList<T>::range() const { return static_cast<int>(data.size()); }
-//
-// template <class T> T &FreeList<T>::operator[](int n) { return data[n].element; }
-//
-// template <class T> const T &FreeList<T>::operator[](int n) const { return data[n].element; }
-//
-//// Represents a node in the quadtree.
-// struct QuadNode {
-//  // Points to the first child if this node is a branch or the first
-//  // element if this node is a leaf.
-//  int32_t first_child;
-//
-//  // Stores the number of elements in the leaf or -1 if it this node is
-//  // not a leaf.
-//  int32_t count;
-//};
-//
-//// Represents an element in the quadtree.
-// struct QuadElt {
-//  // Stores the ID for the element (can be used to
-//  // refer to external data).
-//  int id;
-//
-//  // Stores the rectangle for the element.
-//  int x1, y1, x2, y2;
-//};
-//
-//// Represents an element node in the quadtree.
-// struct QuadEltNode {
-//  // Points to the next element in the leaf node. A value of -1
-//  // indicates the end of the list.
-//  int next;
-//
-//  // Stores the element index.
-//  int element;
-//};
-//
-// struct Quadtree {
-//  // Stores all the elements in the quadtree.
-//  FreeList<QuadElt> elts;
-//
-//  // Stores all the element nodes in the quadtree.
-//  FreeList<QuadEltNode> elt_nodes;
-//
-//  // Stores all the nodes in the quadtree. The first node in this
-//  // sequence is always the root.
-//  std::vector<QuadNode> nodes;
-//
-//  // Stores the quadtree extents.
-//  QuadCRect root_rect;
-//
-//  // Stores the first free node in the quadtree to be reclaimed as 4
-//  // contiguous nodes at once. A value of -1 indicates that the free
-//  // list is empty, at which point we simply insert 4 nodes to the
-//  // back of the nodes array.
-//  int free_node;
-//  int max_depth;
-//};
-//
-// static QuadNodeList find_leaves(const Quadtree &tree, const QuadNodeData &root, const int rect[4]) {
-//  QuadNodeList leaves, to_process;
-//  to_process.push_back(root);
-//  while (to_process.size() > 0) {
-//    const QuadNodeData nd = to_process.pop_back();
-//
-//    // If this node is a leaf, insert it to the list.
-//    if (tree.nodes[nd.index].count != -1)
-//      leaves.push_back(nd);
-//    else {
-//      // Otherwise push the children that intersect the rectangle.
-//      const int mx = nd.crect[0], my = nd.crect[1];
-//      const int hx = nd.crect[2] >> 1, hy = nd.crect[3] >> 1;
-//      const int fc = tree.nodes[nd.index].first_child;
-//      const int l = mx - hx, t = my - hx, r = mx + hx, b = my + hy;
-//
-//      if (rect[1] <= my) {
-//        if (rect[0] <= mx)
-//          to_process.push_back(child_data(l, t, hx, hy, fc + 0, nd.depth + 1));
-//        if (rect[2] > mx)
-//          to_process.push_back(child_data(r, t, hx, hy, fc + 1, nd.depth + 1));
-//      }
-//      if (rect[3] > my) {
-//        if (rect[0] <= mx)
-//          to_process.push_back(child_data(l, b, hx, hy, fc + 2, nd.depth + 1));
-//        if (rect[2] > mx)
-//          to_process.push_back(child_data(r, b, hx, hy, fc + 3, nd.depth + 1));
-//      }
-//    }
-//  }
-//  return leaves;
-//}
-
-//} // namespace mg

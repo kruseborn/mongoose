@@ -1,0 +1,20 @@
+mg_cc_library(
+	NAME
+		sdfgen
+	TYPE
+		STATIC
+	SRCS
+		"array1.h"
+		"array2.h"
+		"array3.h"
+		"makelevelset3.cpp"
+		"makelevelset3.h"
+		"hashgrid.h"
+		"hashtable.h"
+		"util.h"
+		"vec.h"
+		"sdf.h"
+		"sdf.cpp"
+	COPTS
+		${CPP_FLAGS}
+)

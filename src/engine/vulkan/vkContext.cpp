@@ -268,7 +268,7 @@ static void createDescriptorPool() {
   descriptorPoolSizes[0].descriptorCount = 1;
 
   descriptorPoolSizes[1].type = VK_DESCRIPTOR_TYPE_SAMPLER;
-  descriptorPoolSizes[1].descriptorCount = 2;
+  descriptorPoolSizes[1].descriptorCount = 3;
 
   descriptorPoolSizes[2].type = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
   descriptorPoolSizes[2].descriptorCount = MAX_NR_OF_2D_TEXTURES;

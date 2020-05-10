@@ -292,12 +292,6 @@ layout(local_size_x = localGroupSize) in;
 }
 
 void main() {
-//   atomicExchange(drawIndirectCommand.instanceCount, 1);
-//  atomicExchange(drawIndirectCommand.vertexCount, 0);
-//   memoryBarrierBuffer();
-//   barrier();
-//   memoryBarrier();
-
   const uint size = ubo.N.x * ubo.N.y * ubo.N.z;
 	uint index = gl_GlobalInvocationID.x;
 
