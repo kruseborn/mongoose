@@ -83,35 +83,8 @@ std::vector<glm::uvec2> voxelizeMesh(const RenderContext &renderContext, const E
   VkDescriptorSet storageSet;
   Voxels *voxels = (Voxels *)mg::mgSystem.linearHeapAllocator.allocateStorage(sizeof(Voxels), &storageBuffer,
                                                                               &storageOffset, &storageSet);
-
-  //vkCmdFillBuffer(compute.commandBuffer, storageBuffer, storageOffset, VK_WHOLE_SIZE, 0);
-
-  //VkMemoryBarrier memoryBarriermm = {};
-  //memoryBarriermm.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
-  //memoryBarriermm.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-  //memoryBarriermm.dstAccessMask = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT;
-
-  //vkCmdPipelineBarrier(compute.commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT,
-  //                     VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 1, &memoryBarriermm, 0, nullptr, 0, nullptr);
   memset(voxels, 0, sizeof(voxels));
 
-  //VkMemoryBarrier memoryBarrier = {};
-  //memoryBarrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
-  //memoryBarrier.srcAccessMask = VK_ACCESS_HOST_WRITE_BIT;
-  //memoryBarrier.dstAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
-
-  //VkBufferMemoryBarrier bufferMemoryBarrier2 = {};
-  //bufferMemoryBarrier2.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
-  //bufferMemoryBarrier2.srcAccessMask = VK_ACCESS_HOST_WRITE_BIT;
-  //bufferMemoryBarrier2.dstAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
-  //bufferMemoryBarrier2.buffer = storageBuffer;
-  //bufferMemoryBarrier2.offset = storageOffset;
-  //bufferMemoryBarrier2.size = sizeof(Voxels);
-  //bufferMemoryBarrier2.srcQueueFamilyIndex = vkContext.queueFamilyIndex;
-  //bufferMemoryBarrier2.dstQueueFamilyIndex = vkContext.queueFamilyIndex;
-
-  //vkCmdPipelineBarrier(compute.commandBuffer, VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 1,
-  //                     &memoryBarrier, 1, &bufferMemoryBarrier2, 0, nullptr);
 
   DescriptorSets descriptorSets = {.ubo = uboSet};
 
@@ -129,24 +102,6 @@ std::vector<glm::uvec2> voxelizeMesh(const RenderContext &renderContext, const E
 
   endRenderEmptyRenderPass(compute.commandBuffer);
 
-  VkMemoryBarrier memoryBarrier3 = {};
-  memoryBarrier3.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
-  memoryBarrier3.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
-  memoryBarrier3.dstAccessMask = VK_ACCESS_HOST_READ_BIT;
-
-  VkBufferMemoryBarrier bufferMemoryBarrier3 = {};
-  bufferMemoryBarrier3.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
-  bufferMemoryBarrier3.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
-  bufferMemoryBarrier3.dstAccessMask = VK_ACCESS_HOST_READ_BIT;
-  bufferMemoryBarrier3.buffer = storageBuffer;
-  bufferMemoryBarrier3.offset = storageOffset;
-  bufferMemoryBarrier3.size = sizeof(Voxels);
-  bufferMemoryBarrier3.srcQueueFamilyIndex = vkContext.queueFamilyIndex;
-  bufferMemoryBarrier3.dstQueueFamilyIndex = vkContext.queueFamilyIndex;
-
-  vkCmdPipelineBarrier(compute.commandBuffer, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_PIPELINE_STAGE_HOST_BIT, 0, 1,
-                       &memoryBarrier3, 1, &bufferMemoryBarrier3, 0, nullptr);
-
   vkEndCommandBuffer(compute.commandBuffer);
 
   VkSubmitInfo submitInfo = {};
@@ -154,8 +109,6 @@ std::vector<glm::uvec2> voxelizeMesh(const RenderContext &renderContext, const E
   submitInfo.commandBufferCount = 1;
   submitInfo.pCommandBuffers = &compute.commandBuffer;
 
-  // fences are GPU to CPU syncs, CPU waits for GPU to finish it's current work on the queue for a
-  // specific command buffer
   checkResult(vkQueueSubmit(vkContext.queue, 1, &submitInfo, compute.fence));
   checkResult(vkWaitForFences(vkContext.device, 1, &compute.fence, VK_TRUE, UINT64_MAX));
   checkResult(vkDeviceWaitIdle(vkContext.device));

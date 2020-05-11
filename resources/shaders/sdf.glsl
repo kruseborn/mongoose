@@ -89,11 +89,8 @@ float castRay(vec3 ro, vec3 rd) {
       if(!isInside(pos))
          return -1;
       float h = map(pos);
-
-
       if(h < 0.0001) 
           break;
-      
       t += h;
       if(t > 20.0) break;
   }
@@ -121,7 +118,6 @@ void main() {
   vec2 boxT;
   bool hit = boxIntersect(ro, rd, boxT);
   if(!hit) {
-    col = pow(col, vec3(0.4545));
     discard;
     return;
   }
@@ -131,18 +127,6 @@ void main() {
   if(t > 0.0) {
       vec3 pos = ro + t*rd;
       vec3 nor = calcNormal(pos);
-      
-      vec3 mat = vec3(0.18);
-      
-      vec3 sun_dir = normalize(vec3(0.8, 0.4, 0.2));
-      float sun_dif = clamp(dot(nor, sun_dir), 0.0, 1.0);
-      //float sun_sha = step(castRay(pos + nor*0.001, sun_dir), 0.0);
-      float sky_dif = clamp(0.5 + 0.5*dot(nor, vec3(0,1,0)), 0.0, 1.0);
-      float bou_dif = clamp(0.5 + 0.5*dot(nor, vec3(0,-1,0)), 0.0, 1.0);
-      
-      col = mat * vec3(7.0, 4.5, 3.0) * sun_dif;
-      col += mat *vec3(0.5, 0.8, 0.9) * sky_dif;
-      col += mat *vec3(0.7, 0.3, 0.2) * bou_dif;
       col = pos;
   }
   else 

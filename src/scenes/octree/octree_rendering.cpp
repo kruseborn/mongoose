@@ -32,6 +32,7 @@ void renderSdf(const mg::RenderContext &renderContext, Sdf sdf, const FrameData 
 
   ubo->worldToBox = scale * transform;
   ubo->worldToBox2 = transform * scale;
+
   ubo->info = {vkContext.screen.width, vkContext.screen.width, frameData.mouse.xy.x, frameData.mouse.xy.y};
 
   DescriptorSets descriptorSets = {};
@@ -88,36 +89,6 @@ void renderOctree(const OctreeStorages &storages, const mg::RenderContext &rende
   vkCmdDraw(mg::vkContext.commandBuffer, 3, 1, 0, 0);
 }
 
-void renderMenu(const mg::FrameData &frameData, void *data) {
-  Menu *menu = (Menu *)data;
-
-  ImGuiIO &io = ImGui::GetIO();
-
-  io.DisplaySize = {float(mg::vkContext.screen.width), float(mg::vkContext.screen.height)};
-  io.DeltaTime = 1.0f / 60.0f;
-
-  io.MousePos = ImVec2(frameData.mouse.xy.x * mg::vkContext.screen.width,
-                       (1.0f - frameData.mouse.xy.y) * mg::vkContext.screen.height);
-  io.MouseDown[0] = frameData.mouse.left;
-
-  ImGui::NewFrame();
-
-  if (ImGui::Begin("Octree", nullptr, ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_AlwaysAutoResize)) {
-    if (ImGui::BeginMenuBar()) {
-
-      if (ImGui::BeginMenu("Render mode")) {
-        ImGui::MenuItem("Octree", NULL, &menu->octree);
-        ImGui::MenuItem("Sdf", NULL, &menu->sdf);
-        ImGui::EndMenu();
-      }
-      ImGui::EndMenuBar();
-    }
-  }
-  ImGui::End();
-  ImGui::EndFrame();
-  ImGui::Render();
-}
-
 void renderVoxels(const RenderContext &renderContext, std::vector<glm::uvec2> vec, const mg::MeshId &cubeId) {
   const auto mesh = mg::getMesh(cubeId);
 
@@ -161,9 +132,9 @@ void renderVoxels(const RenderContext &renderContext, std::vector<glm::uvec2> ve
     glm::vec3 position = {};
     glm::uvec3 v = {vec[i].x & 0xfffu, (vec[i].x >> 12u) & 0xfffu, (vec[i].x >> 24u) | ((vec[i].y >> 28u) << 8u)};
 
-    position.x = v.x * 1 / 16.0f;
-    position.y = v.y * 1 / 16.0f;
-    position.z = v.z * 1 / 16.0f;
+    position.x = v.x * 0.5f;
+    position.y = v.y * 0.5f;
+    position.z = v.z * 0.5f;
     instance[i - 1].instancing_translate = position;
   }
 
@@ -176,5 +147,30 @@ void renderVoxels(const RenderContext &renderContext, std::vector<glm::uvec2> ve
   vkCmdDrawIndexed(mg::vkContext.commandBuffer, mesh.indexCount, uint32_t(vec.size() - 1), 0, 0, 0);
 }
 
+void renderMenu(const mg::FrameData &frameData, void *data) {
+  Menu *menu = (Menu *)data;
+
+  ImGuiIO &io = ImGui::GetIO();
+
+  io.DisplaySize = {float(mg::vkContext.screen.width), float(mg::vkContext.screen.height)};
+  io.DeltaTime = 1.0f / 60.0f;
+
+  io.MousePos = ImVec2(frameData.mouse.xy.x * mg::vkContext.screen.width,
+                       (1.0f - frameData.mouse.xy.y) * mg::vkContext.screen.height);
+  io.MouseDown[0] = frameData.mouse.left;
+
+  ImGui::NewFrame();
+
+  if (ImGui::Begin("Octree", nullptr, ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_AlwaysAutoResize)) {
+    ImGui::RadioButton("radio a", &menu->value, 0);
+    ImGui::SameLine();
+    ImGui::RadioButton("radio b", &menu->value, 1);
+    ImGui::SameLine();
+    ImGui::RadioButton("radio c", &menu->value, 2);
+  }
+  ImGui::End();
+  ImGui::EndFrame();
+  ImGui::Render();
+}
 
 } // namespace mg

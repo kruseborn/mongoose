@@ -13,12 +13,22 @@ mg_cc_executable(
         voxelizer.cpp
         empty_render_pass.h
         empty_render_pass.cpp
+        sdf/array1.h
+		sdf/array2.h
+		sdf/array3.h
+		sdf/makelevelset3.cpp
+		sdf/makelevelset3.h
+		sdf/hashgrid.h
+		sdf/hashtable.h
+		sdf/util.h
+		sdf/vec.h
+		sdf/sdf.h
+		sdf/sdf.cpp
     COPTS
         ${CPP_FLAGS}
     DEPS
         glm
         mg-engine
-        sdfgen
         ${VULKAN_LIB}
         ${PLATFORM_LIB}
     DEPS_DIR

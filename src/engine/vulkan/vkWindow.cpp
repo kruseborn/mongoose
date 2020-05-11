@@ -281,7 +281,10 @@ static void createLogicalDevice() {
 
   LOG("Device supported extensions : ");
   std::string extensionNameStr = "";
+  bool ray_tracing_enabled = false;
   for (const auto &extension : availableExtensions) {
+    if (strcmp(extension.extensionName, VK_NV_RAY_TRACING_EXTENSION_NAME) == 0)
+      ray_tracing_enabled = true;
     extensionNameStr += std::string(extension.extensionName) + " ";
   }
   LOG(extensionNameStr);
@@ -294,14 +297,16 @@ static void createLogicalDevice() {
   enabledFeatures.geometryShader = VK_TRUE;
   enabledFeatures.fragmentStoresAndAtomics = VK_TRUE;
 
-  const char *deviceExtensions[5] = {VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME,
+  const char *deviceExtensions[] = {VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME,
                                      VK_KHR_MAINTENANCE3_EXTENSION_NAME,
                                      VK_KHR_MAINTENANCE1_EXTENSION_NAME,
                                      VK_KHR_SWAPCHAIN_EXTENSION_NAME,
                                      VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME,
+                                     VK_NV_RAY_TRACING_EXTENSION_NAME
                                      };
 
-  deviceCreateInfo.enabledExtensionCount = mg::countof(deviceExtensions);
+  deviceCreateInfo.enabledExtensionCount =
+      ray_tracing_enabled ? mg::countof(deviceExtensions) : mg::countof(deviceExtensions) -1;
   deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions;
 
   deviceCreateInfo.pEnabledFeatures = &enabledFeatures;

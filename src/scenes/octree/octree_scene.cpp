@@ -8,20 +8,29 @@
 #include "mg/mgSystem.h"
 #include "mg/texts.h"
 #include "mg/window.h"
-#include "render_sdf.h"
-#include "rendering/rendering.h"
-#include "sdf.h"
 #include "octree_rendering.h"
+#include "rendering/rendering.h"
+#include "sdf/sdf.h"
 #include "voxelizer.h"
 #include "vulkan/singleRenderpass.h"
 #include <fstream>
 #include <glm/gtc/matrix_transform.hpp>
+
+// voxilization and octree building
+// https://www.seas.upenn.edu/~pcozzi/OpenGLInsights/OpenGLInsights-SparseVoxelization.pdf
+// rendering
+// https://research.nvidia.com/publication/efficient-sparse-voxel-octrees
+// opengl implementation
+// https://github.com/AdamYuan/SparseVoxelOctree
+// sdf 
+// https://github.com/christopherbatty/SDFGen
 
 static mg::Camera camera;
 static mg::SingleRenderPass singleRenderPass;
 static mg::EmptyRenderPass emptyRenderPass;
 static mg::MeshId cubeId;
 static mg::MeshId sphereId;
+static mg::TextureId sdfId;
 static mg::OctreeStorages storages;
 static uint32_t octreeLevel = 4;
 static mg::Menu menu = {};
@@ -43,12 +52,7 @@ static mg::TextureId uploadVolumeToGpu(const float *data, const glm::uvec3 &size
   return mg::mgSystem.textureContainer.createTexture(createTextureInfo);
 }
 
-void initScene() {
-  mg::initSingleRenderPass(&singleRenderPass);
-  mg::initEmptyRenderPass(&emptyRenderPass, 1 << octreeLevel);
-
-  camera = mg::create3DCamera(glm::vec3{0, 0, -3}, glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f});
-
+static mg::MeshId uploadCubeToGpu() {
   const auto cube = mg::createVolumeCube({-1.0f, -1.0f, -1.0f}, {2, 2, 2});
 
   mg::CreateMeshInfo createMeshInfo = {.id = "box",
@@ -58,12 +62,20 @@ void initScene() {
                                        .indicesSizeInBytes = mg::sizeofArrayInBytes(cube.indices),
                                        .nrOfIndices = mg::countof(cube.indices)};
 
-  cubeId = mg::mgSystem.meshContainer.createMesh(createMeshInfo);
-  auto sphere = mg::loadObjFromFile(mg::getDataPath() + "uvnSphere.obj");
-  sphereId = sphere.meshes.front().id;
+  return mg::mgSystem.meshContainer.createMesh(createMeshInfo);
+}
+
+void initScene() {
+  mg::initSingleRenderPass(&singleRenderPass);
+  mg::initEmptyRenderPass(&emptyRenderPass, 1 << octreeLevel);
+
+  camera = mg::create3DCamera(glm::vec3{0, 0, -3}, glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f});
+
+  cubeId = uploadCubeToGpu();
+  sphereId = mg::loadObjFromFile(mg::getDataPath() + "sphereTriangles.obj").meshes.front().id;
 
   auto sdf = objToSdf(mg::getDataPath() + "sphereTriangles.obj", 0.1f, 2);
-  uploadVolumeToGpu((float *)(sdf.grid.data()), glm::uvec3{sdf.x, sdf.y, sdf.z});
+  sdfId = uploadVolumeToGpu((float *)(sdf.grid.data()), glm::uvec3{sdf.x, sdf.y, sdf.z});
 
   mg::mgSystem.textureContainer.setupDescriptorSets();
   mg::vkContext.swapChain->resizeCallack = resizeCallback;
@@ -86,16 +98,16 @@ void updateScene(const mg::FrameData &frameData) {
 }
 
 void renderScene(const mg::FrameData &frameData) {
-
   mg::Texts texts = {};
   char fps[50];
   snprintf(fps, sizeof(fps), "Fps: %u", uint32_t(frameData.fps));
   mg::pushText(&texts, {fps});
 
+  // voxilization using empty renderpass
   mg::RenderContext renderContext1 = {.renderPass = emptyRenderPass.vkRenderPass};
   auto voxels = mg::voxelizeMesh(renderContext1, emptyRenderPass, sphereId, octreeLevel);
 
-  // main rendering
+  // main renderpass
   mg::beginRendering();
   mg::setFullscreenViewport();
 
@@ -118,19 +130,20 @@ void renderScene(const mg::FrameData &frameData) {
 
     renderContext.renderPass = singleRenderPass.vkRenderPass;
 
-    static float rotAngle = 0;
-    rotAngle += frameData.dt * 20.0f;
-    glm::mat4 rotation = glm::rotate(glm::mat4(1), rotAngle, {1, 1, 0});
-    // renderMesh(renderContext, meshId, rotation, {1, 0, 0, 1});
-
-    if (menu.sdf)
-      mg::renderSdf(renderContext, {}, frameData, camera);
-    else if (menu.octree)
+    switch (menu.value) {
+    case mg::Menu::Octree:
       mg::renderOctree(storages, renderContext, octreeLevel, frameData, camera.position);
-    //mg::renderVoxels(renderContext, voxels, cubeId);
+      break;
+    case mg::Menu::sdf:
+      mg::renderSdf(renderContext, {}, frameData, camera);
+      break;
+    case mg::Menu::cubes:
+      mg::renderVoxels(renderContext, voxels, cubeId);
+      break;
+    };
+
     mg::renderText(renderContext, texts);
     mg::mgSystem.imguiOverlay.draw(renderContext, frameData, mg::renderMenu, &menu);
-
   }
   mg::endSingleRenderPass();
 

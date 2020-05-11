@@ -1,5 +1,5 @@
 #pragma once
-#include "sdf.h"
+#include "sdf/sdf.h"
 #include <glm/glm.hpp>
 
 namespace mg {
@@ -10,9 +10,8 @@ struct OctreeStorages;
 struct MeshId;
 
 struct Menu {
-  bool octree;
-  bool sdf;
-  bool cubes;
+  enum Types { Octree, sdf, cubes};
+  int32_t value = Octree;
 };
 
 void renderSdf(const mg::RenderContext &renderContext, Sdf sdf, const FrameData &frameData, const Camera &camera);

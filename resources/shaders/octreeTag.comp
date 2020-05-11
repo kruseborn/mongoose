@@ -37,19 +37,5 @@ void main() {
 	} while(cur != 0u && level_dim > 1u);
 
 	uOctree.values[idx] |= 0x80000000u;
-	if(level_dim == 1u) {
-		//uOctree[idx] = 0xC0000000u | (ufragment.y & 0xffffffu); //termination tag and color data
-
-		//atomic moving average
-		uint prev_val = 0, cur_val, new_val = 0xC1000000u | (ufragment.y & 0xffffffu);
-		uvec4 rgba = LeafToUvec4(new_val);
-		while( ( cur_val = atomicCompSwap(uOctree.values[idx], prev_val, new_val) ) != prev_val ) {
-			prev_val = cur_val;
-			uvec4 prev_rgba = LeafToUvec4(prev_val);
-			prev_rgba.xyz *= prev_rgba.w;
-			uvec4 cur_rgba = prev_rgba + rgba;
-			cur_rgba.xyz /= cur_rgba.w;
-			new_val = Uvec4ToLeaf(cur_rgba);
-		}
-	}
+	uOctree.values[idx] = 0xC1000000u | (ufragment.y & 0xffffffu);
 }
