@@ -3,7 +3,7 @@
 #extension GL_ARB_shading_language_420pack : enable
 
 layout (set = 0, binding = 0) uniform Ubo {
-  float resolution;
+  uint resolution;
 } ubo;
 
 @vert
@@ -17,8 +17,7 @@ out gl_PerVertex {
 };
 
 void main() {
-	vec3 position = in_position + in_normal*0.000000000001 + vec3(in_tex, 0.0)*0.000000000001;
-	gl_Position = vec4(position, 1.0);
+	gl_Position = vec4(in_position.xyz, 1.0);
 }
 
 @geom
@@ -32,43 +31,44 @@ in gl_PerVertex
 
 layout (location = 0) out vec3 gVoxelPos;
 
-vec2 project(in vec3 v, in int axis) { return axis == 0 ? v.yz : (axis == 1 ? v.xz : v.xy); }
+vec2 Project(in vec3 v, in int axis) { return axis == 0 ? v.yz : (axis == 1 ? v.xz : v.xy); }
 
 void main() {
+	//get projection axis
 	vec3 axis_weight = abs(cross(gl_in[1].gl_Position.xyz - gl_in[0].gl_Position.xyz, gl_in[2].gl_Position.xyz - gl_in[0].gl_Position.xyz));
 	int axis = 2;
-  if(axis_weight.x >= axis_weight.y && axis_weight.x >= axis_weight.z) axis = 0;
-  else if(axis_weight.y >= axis_weight.z && axis_weight.y >= axis_weight.x) axis = 1;
+	if(axis_weight.x >= axis_weight.y && axis_weight.x > axis_weight.z) axis = 0;
+	else if(axis_weight.y >= axis_weight.z && axis_weight.y > axis_weight.x) axis = 1;
 
-  vec3 pos0 = gl_in[0].gl_Position.xyz;
-  vec3 pos1 = gl_in[1].gl_Position.xyz;
-  vec3 pos2 = gl_in[2].gl_Position.xyz;
+	//project the positions
+	vec3 pos0 = gl_in[0].gl_Position.xyz;
+	vec3 pos1 = gl_in[1].gl_Position.xyz;
+	vec3 pos2 = gl_in[2].gl_Position.xyz;
 
-  gVoxelPos = (pos0 + 1.0) * 0.5 * ubo.resolution;
-	gl_Position = vec4(project(pos0, axis), 1.0, 1.0);
+
+	gVoxelPos = (pos0 + 1.0f) * 0.5f * ubo.resolution;
+	gl_Position = vec4(Project(pos0, axis), 1.0f, 1.0f);
 	EmitVertex();
-
-  gVoxelPos = (pos1 + 1.0) * 0.5 * ubo.resolution;
-	gl_Position = vec4(project(pos1, axis), 1.0, 1.0);
+	gVoxelPos = (pos1 + 1.0f) * 0.5f * ubo.resolution;
+	gl_Position = vec4(Project(pos1, axis), 1.0f, 1.0f);
 	EmitVertex();
-
-  gVoxelPos = (pos2 + 1.0) * 0.5 * ubo.resolution;
-	gl_Position = vec4(project(pos2, axis), 1.0, 1.0);
+	gVoxelPos = (pos2 + 1.0f) * 0.5f * ubo.resolution;
+	gl_Position = vec4(Project(pos2, axis), 1.0f, 1.0f);
 	EmitVertex();
-
-  EndPrimitive();
+	EndPrimitive();
 }
 
 @frag
 layout (set = 0, binding = 1) writeonly buffer Voxels {
-  uvec4 count;
-  uvec4 values[10000];
+  uvec2 values[1000000];
 } voxels;
 
 layout (location = 0) in vec3 gVoxelPos;
 
 void main() {
-	uint cur = atomicAdd(voxels.count.x, 1);
+  uvec3 ucolor = uvec3(100,0,0);
+	uint cur = atomicAdd(voxels.values[0].x, 1) + 1;
   uvec3 uvoxel_pos = clamp(uvec3(gVoxelPos), uvec3(0u), uvec3(ubo.resolution - 1u));
-  voxels.values[cur] = uvec4(uvoxel_pos, cur);
+  voxels.values[cur].x = uvoxel_pos.x | (uvoxel_pos.y << 12u) | ((uvoxel_pos.z & 0xffu) << 24u); //only have the last 8 bits of uvoxel_pos.z
+  voxels.values[cur].y = ((uvoxel_pos.z >> 8u) << 28u) | ucolor.x | (ucolor.y << 8u) | (ucolor.z << 16u);
 }

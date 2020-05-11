@@ -130,7 +130,7 @@ void renderScene(const mg::FrameData &frameData) {
 
     // mg::renderText(renderContext, texts);
 
-    // mg::mgSystem.imguiOverlay.draw(renderContext, frameData, mg::renderGUI);
+     mg::mgSystem.imguiOverlay.draw(renderContext, frameData, mg::renderGUI, nullptr);
   }
   mg::endSingleRenderPass();
 

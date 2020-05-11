@@ -10,7 +10,7 @@ struct EmptyRenderPass {
 
 void initEmptyRenderPass(EmptyRenderPass *emptyRenderPass, uint32_t frameBufferSize);
 void destroyEmptyRenderPass(EmptyRenderPass *emptyRenderPass);
-void beginEmptyRenderPass(const EmptyRenderPass &emptyRenderPass, float viewPortSize, VkCommandBuffer commandBuffer);
+void beginEmptyRenderPass(const EmptyRenderPass &emptyRenderPass, uint32_t viewPortSize, VkCommandBuffer commandBuffer);
 void endRenderEmptyRenderPass(VkCommandBuffer commandBuffer);
 
 } // namespace mg

@@ -38,6 +38,11 @@ struct PipelineStateDesc {
       VkCompareOp DepthCompareOp;
     } depth;
     struct {
+      VkSampleCountFlagBits rasterizationSamples;
+      VkBool32 sampleShadingEnable;
+      float minSampleShading;
+    } multisample;
+    struct {
       uint32_t subpass;
       uint32_t nrOfColorAttachments;
     } graphics;

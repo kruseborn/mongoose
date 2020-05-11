@@ -560,14 +560,10 @@ constexpr const char *shader = "octeee_tag";
 
 namespace octreeAlloc {
 struct Ubo {
-  glm::vec4 temp;
+  glm::uvec4 attrib;
 };
 struct uuBuildInfo {
-  uint32_t uFragmentNum;
-  uint32_t uVoxelResolution;
-  uint32_t uAllocBegin;
-  uint32_t uAllocNum;
-  uint32_t uCounter;
+  glm::uvec4 info1;
 };
 struct uuOctree {
   uint32_t* values = nullptr;
@@ -588,27 +584,22 @@ constexpr const char *shader = "octreeAlloc";
 
 namespace octreeModify {
 struct Ubo {
-  glm::vec4 temp;
+  glm::uvec4 attrib;
 };
-struct DrawIndirectCommand {
-  uint32_t uNumGroupX;
-  uint32_t uNumGroupY;
-  uint32_t uNumGroupZ;
+struct DispatchIndirectCommand {
+  uint32_t x;
+  uint32_t y;
+  uint32_t z;
 };
 struct uuBuildInfo {
-  uint32_t uFragmentNum;
-  uint32_t uVoxelResolution;
-  uint32_t uAllocBegin;
-  uint32_t uAllocNum;
-  uint32_t uCounter;
+  glm::uvec4 info1;
 };
 union DescriptorSets {
   struct {
     VkDescriptorSet ubo;
     VkDescriptorSet uBuildInfo;
-    VkDescriptorSet drawIndirectCommand;
   };
-  VkDescriptorSet values[3];
+  VkDescriptorSet values[2];
 };
 constexpr struct {
   const char *octreeModify_comp = "octreeModify.comp.spv";
@@ -618,14 +609,7 @@ constexpr const char *shader = "octreeModify";
 
 namespace octreeTag {
 struct Ubo {
-  float temp;
-};
-struct uuBuildInfo {
-  uint32_t uFragmentNum;
-  uint32_t uVoxelResolution;
-  uint32_t uAllocBegin;
-  uint32_t uAllocNum;
-  uint32_t uCounter;
+  glm::uvec4 attrib;
 };
 struct uuFragmentList {
   glm::uvec2* values = nullptr;
@@ -638,15 +622,40 @@ union DescriptorSets {
     VkDescriptorSet ubo;
     VkDescriptorSet uFragmentList;
     VkDescriptorSet uOctree;
-    VkDescriptorSet uBuildInfo;
   };
-  VkDescriptorSet values[4];
+  VkDescriptorSet values[3];
 };
 constexpr struct {
   const char *octreeTag_comp = "octreeTag.comp.spv";
 } files = {};
 constexpr const char *shader = "octreeTag";
 } //octreeTag
+
+namespace octreeTracer {
+struct Ubo {
+  glm::mat4 uProjection;
+  glm::mat4 uView;
+  glm::vec4 uPosition;
+  glm::ivec4 screenSize;
+};
+struct uuOctree {
+  uint32_t* values = nullptr;
+};
+union DescriptorSets {
+  struct {
+    VkDescriptorSet ubo;
+    VkDescriptorSet textures;
+    VkDescriptorSet volumeTexture;
+    VkDescriptorSet uOctree;
+  };
+  VkDescriptorSet values[4];
+};
+constexpr struct {
+  const char *octreeTracer_frag = "octreeTracer.frag.spv";
+  const char *octreeTracer_vert = "octreeTracer.vert.spv";
+} files = {};
+constexpr const char *shader = "octreeTracer";
+} //octreeTracer
 
 namespace octree_allocate {
 struct Ubo {
@@ -1130,11 +1139,10 @@ constexpr const char *shader = "volume";
 
 namespace voxelizer {
 struct Ubo {
-  float resolution;
+  uint32_t resolution;
 };
 struct Voxels {
-  glm::uvec4 count;
-  glm::uvec4 values[10000];
+  glm::uvec2 values[1000000];
 };
 namespace InputAssembler {
   static VertexInputState vertexInputState[3] = {

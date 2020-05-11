@@ -1,22 +1,24 @@
 #version 450 core
 
 layout (set = 0, binding = 0) uniform Ubo {
-  vec4 temp;
+  uvec4 attrib; //uFragmentNum, uVoxelResolution
 } ubo;
 
 layout (local_size_x = 1, local_size_y = 1, local_size_z = 1 ) in;
 
-layout(set = 1, binding = 0) buffer uuBuildInfo { 
-  uint uFragmentNum, uVoxelResolution, uAllocBegin, uAllocNum, uCounter;
-} uBuildInfo;
+layout(set = 0, binding = 1) buffer DispatchIndirectCommand  {
+	uint x, y, z;
+} dispatchIndirectCommand;
 
-layout(set = 2, binding = 0) buffer DrawIndirectCommand {
-	uint uNumGroupX, uNumGroupY, uNumGroupZ;
-} drawIndirectCommand;
+layout(set = 1, binding = 0) buffer uuBuildInfo { 
+  uvec4 info1; //uAllocBegin, uAllocNum, uCounter;
+} uBuildInfo;
 
 uint group_x_64(uint x) { return (x >> 6u) + (((x & 0x3fu) > 0u) ? 1u : 0u); }
 void main() {
-	uBuildInfo.uAllocBegin += uBuildInfo.uAllocNum;
-	uBuildInfo.uAllocNum = ( atomicAdd(uBuildInfo.uCounter, 1) << 3u ) - uBuildInfo.uAllocBegin + 8u;
-	drawIndirectCommand.uNumGroupX = group_x_64( uBuildInfo.uAllocNum );
+	uBuildInfo.info1.x += uBuildInfo.info1.y;
+	uBuildInfo.info1.y = ( atomicAdd(uBuildInfo.info1.z, 1) << 3u ) - uBuildInfo.info1.x + 8u;
+	dispatchIndirectCommand.x = group_x_64( uBuildInfo.info1.y );
+  dispatchIndirectCommand.y = 1;
+  dispatchIndirectCommand.z = 1;
 }

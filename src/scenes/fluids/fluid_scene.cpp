@@ -12,7 +12,7 @@
 
 static mg::Camera camera;
 static mg::SingleRenderPass singleRenderPass;
-static mg::MeshId meshId;
+static mg::MeshId cubeId;
 static mg::Storages storages;
 static uint32_t N = 1024;
 

@@ -13,8 +13,8 @@ public:
   void CreateContext();
   void destroy();
 
-  typedef void DrawFunc(const FrameData &frameData);
-  void draw(const RenderContext &renderContext, const FrameData &frameData, DrawFunc *drawFunc) const;
+  typedef void DrawFunc(const FrameData &frameData, void *data);
+  void draw(const RenderContext &renderContext, const FrameData &frameData, DrawFunc *drawFunc, void *data) const;
 
   bool isVisible;
   uint64_t lastTimePressed;

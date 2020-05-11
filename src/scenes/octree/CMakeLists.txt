@@ -5,13 +5,14 @@ mg_cc_executable(
         octree_scene.cpp
         octree_scene.h
         octree_main.cpp
+        octree_rendering.h
+        octree_rendering.cpp
+        build_octree.h
+        build_octree.cpp
         voxelizer.h
         voxelizer.cpp
         empty_render_pass.h
         empty_render_pass.cpp
-        render_sdf.h
-        render_sdf.cpp
-        chunkedAllocator.h
     COPTS
         ${CPP_FLAGS}
     DEPS

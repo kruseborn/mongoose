@@ -20,7 +20,7 @@ void main() {
 @frag
 #include "utils.hglsl"
 
-layout(set = 1, binding = 0) uniform sampler samplers[3];
+layout(set = 1, binding = 0) uniform sampler samplers[2];
 layout(set = 1, binding = 1) uniform texture2D textures[128];
 
 layout (set = 2, binding = 0) uniform texture3D volumeTexture;
@@ -122,7 +122,7 @@ void main() {
   bool hit = boxIntersect(ro, rd, boxT);
   if(!hit) {
     col = pow(col, vec3(0.4545));
-    outFragColor = vec4(col,1);
+    discard;
     return;
   }
   ro = ro + rd * (boxT.x+0.00001);
@@ -143,8 +143,11 @@ void main() {
       col = mat * vec3(7.0, 4.5, 3.0) * sun_dif;
       col += mat *vec3(0.5, 0.8, 0.9) * sky_dif;
       col += mat *vec3(0.7, 0.3, 0.2) * bou_dif;
-      col = nor;
+      col = pos;
   }
+  else 
+    discard;
+
 
   col = pow(col, vec3(0.4545));
   outFragColor = vec4(col, 1.0);

@@ -320,10 +320,9 @@ void TextureContainer::setupDescriptorSets() {
   mg::waitForDeviceIdle();
   // Samplers
   {
-    VkDescriptorImageInfo samplerDescriptorImageInfos[3] = {};
+    VkDescriptorImageInfo samplerDescriptorImageInfos[2] = {};
     samplerDescriptorImageInfos[0].sampler = vkContext.sampler.linearBorderSampler;
     samplerDescriptorImageInfos[1].sampler = vkContext.sampler.linearRepeat;
-    samplerDescriptorImageInfos[2].sampler = vkContext.sampler.pointBorderSampler;
 
     VkWriteDescriptorSet writeDescriptorSet[2] = {};
     writeDescriptorSet[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;

@@ -71,6 +71,10 @@ PipelineStateDesc::PipelineStateDesc() {
   rasterization.depth.writeEnable = VK_TRUE;
   rasterization.depth.DepthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
 
+  rasterization.multisample.minSampleShading = 1.0f;
+  rasterization.multisample.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+  rasterization.multisample.sampleShadingEnable = VK_FALSE;
+
   rasterization.graphics.subpass = 0;
   rasterization.graphics.nrOfColorAttachments = 1;
 
@@ -150,9 +154,10 @@ static Pipeline _createPipeline(const _PipelineDesc &pipelineDesc) {
   viewportState.scissorCount = 1;
 
   multisampleState.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-  multisampleState.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
-  multisampleState.minSampleShading = 1.0f;
-  multisampleState.sampleShadingEnable = VK_FALSE;
+  multisampleState.rasterizationSamples = pipelineDesc.state.rasterization.multisample.rasterizationSamples;
+  multisampleState.minSampleShading = pipelineDesc.state.rasterization.multisample.minSampleShading;
+  multisampleState.sampleShadingEnable = pipelineDesc.state.rasterization.multisample.sampleShadingEnable;
+  
 
   const uint32_t nrOfDynamicStates = 2;
   VkDynamicState dynamicStateEnables[nrOfDynamicStates] = {
@@ -321,6 +326,7 @@ Pipeline PipelineContainer::createComputePipeline(const PipelineStateDesc &pipel
 
   _idToPipeline.emplace(hashValue, pipeline);
   return pipeline;
+
 }
 
 Pipeline PipelineContainer::createRayTracingPipeline(const PipelineStateDesc &pipelineDesc,

@@ -1,12 +1,13 @@
 #include "render_sdf.h"
+#include "mg/camera.h"
 #include "mg/mgSystem.h"
-#include "rendering/rendering.h"
 #include "mg/window.h"
+#include "rendering/rendering.h"
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace mg {
 
-void renderSdf(const mg::RenderContext &renderContext, Sdf sdf, const FrameData &frameData) {
+void renderSdf(const mg::RenderContext &renderContext, Sdf sdf, const FrameData &frameData, const Camera &camera) {
   using namespace mg::shaders::sdf;
 
   mg::PipelineStateDesc pipelineStateDesc = {};
@@ -31,7 +32,7 @@ void renderSdf(const mg::RenderContext &renderContext, Sdf sdf, const FrameData 
   ubo->worldToBox2 = transform * scale;
   ubo->info = {vkContext.screen.width, vkContext.screen.width, frameData.mouse.xy.x, frameData.mouse.xy.y};
 
-  DescriptorSets descriptorSets = {};
+                DescriptorSets descriptorSets = {};
   descriptorSets.ubo = uboSet;
   descriptorSets.textures = mg::getTextureDescriptorSet();
   descriptorSets.volumeTexture = mg::getTextureDescriptorSet3D();

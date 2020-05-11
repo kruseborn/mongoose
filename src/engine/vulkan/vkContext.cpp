@@ -182,10 +182,11 @@ static void createDescriptorLayout() {
 
 static void createPipelineLayout() {
   {
-    VkDescriptorSetLayout descriptorSetLayoutsStorages[3] = {
+    VkDescriptorSetLayout descriptorSetLayoutsStorages[4] = {
         mg::vkContext.descriptorSetLayout.dynamic,
         mg::vkContext.descriptorSetLayout.textures,
         mg::vkContext.descriptorSetLayout.textures3D,
+        mg::vkContext.descriptorSetLayout.storage,
     };
 
     VkPipelineLayoutCreateInfo layoutCreateInfo = {};

@@ -1,5 +1,6 @@
 #include "octree_scene.h"
 
+#include "build_octree.h"
 #include "empty_render_pass.h"
 #include "mg/camera.h"
 #include "mg/meshLoader.h"
@@ -10,6 +11,7 @@
 #include "render_sdf.h"
 #include "rendering/rendering.h"
 #include "sdf.h"
+#include "octree_rendering.h"
 #include "voxelizer.h"
 #include "vulkan/singleRenderpass.h"
 #include <fstream>
@@ -18,8 +20,11 @@
 static mg::Camera camera;
 static mg::SingleRenderPass singleRenderPass;
 static mg::EmptyRenderPass emptyRenderPass;
-static mg::MeshId meshId;
+static mg::MeshId cubeId;
 static mg::MeshId sphereId;
+static mg::OctreeStorages storages;
+static uint32_t octreeLevel = 4;
+static mg::Menu menu = {};
 
 static void resizeCallback() {
   mg::resizeSingleRenderPass(&singleRenderPass);
@@ -32,7 +37,7 @@ static mg::TextureId uploadVolumeToGpu(const float *data, const glm::uvec3 &size
   createTextureInfo.type = mg::TEXTURE_TYPE::TEXTURE_3D;
   createTextureInfo.size = {size.x, size.y, size.z};
   createTextureInfo.data = (void *)data;
-  createTextureInfo.sizeInBytes = size.x*size.y*size.z * sizeof(float);
+  createTextureInfo.sizeInBytes = size.x * size.y * size.z * sizeof(float);
   createTextureInfo.format = VK_FORMAT_R32_SFLOAT;
 
   return mg::mgSystem.textureContainer.createTexture(createTextureInfo);
@@ -40,9 +45,9 @@ static mg::TextureId uploadVolumeToGpu(const float *data, const glm::uvec3 &size
 
 void initScene() {
   mg::initSingleRenderPass(&singleRenderPass);
-  mg::initEmptyRenderPass(&emptyRenderPass, mg::vkContext.screen.width);
+  mg::initEmptyRenderPass(&emptyRenderPass, 1 << octreeLevel);
 
-  camera = mg::create3DCamera(glm::vec3{0.0f, 0.0f, -20.0f}, glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f});
+  camera = mg::create3DCamera(glm::vec3{0, 0, -3}, glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f});
 
   const auto cube = mg::createVolumeCube({-1.0f, -1.0f, -1.0f}, {2, 2, 2});
 
@@ -53,11 +58,9 @@ void initScene() {
                                        .indicesSizeInBytes = mg::sizeofArrayInBytes(cube.indices),
                                        .nrOfIndices = mg::countof(cube.indices)};
 
-  meshId = mg::mgSystem.meshContainer.createMesh(createMeshInfo);
-  auto sphere = mg::loadObjFromFile(mg::getDataPath() + "sphere/sphere.obj");
+  cubeId = mg::mgSystem.meshContainer.createMesh(createMeshInfo);
+  auto sphere = mg::loadObjFromFile(mg::getDataPath() + "uvnSphere.obj");
   sphereId = sphere.meshes.front().id;
-
-  //auto buffer = mg::readBinaryFromDisc(mg::getDataPath() + "out.bin");
 
   auto sdf = objToSdf(mg::getDataPath() + "sphereTriangles.obj", 0.1f, 2);
   uploadVolumeToGpu((float *)(sdf.grid.data()), glm::uvec3{sdf.x, sdf.y, sdf.z});
@@ -70,6 +73,7 @@ void destroyScene() {
   mg::waitForDeviceIdle();
   destroySingleRenderPass(&singleRenderPass);
   mg::destroyEmptyRenderPass(&emptyRenderPass);
+  mg::destroyOctreeStorages(&storages);
 }
 
 void updateScene(const mg::FrameData &frameData) {
@@ -82,17 +86,26 @@ void updateScene(const mg::FrameData &frameData) {
 }
 
 void renderScene(const mg::FrameData &frameData) {
+
   mg::Texts texts = {};
   char fps[50];
   snprintf(fps, sizeof(fps), "Fps: %u", uint32_t(frameData.fps));
   mg::pushText(&texts, {fps});
 
   mg::RenderContext renderContext1 = {.renderPass = emptyRenderPass.vkRenderPass};
-  // auto cubes = mg::createOctreeFromMesh(renderContext1, emptyRenderPass, sphereId);
-  // mg::buildOctree(cubes, {0, 0, 0}, 8);
+  auto voxels = mg::voxelizeMesh(renderContext1, emptyRenderPass, sphereId, octreeLevel);
 
+  // main rendering
   mg::beginRendering();
   mg::setFullscreenViewport();
+
+  static bool firstFrame = true;
+  if (firstFrame) {
+    mg::initOctreeStorages(&storages, voxels);
+    firstFrame = false;
+  }
+
+  mg::buildOctree(storages, octreeLevel, frameData, uint32_t(voxels.size()));
 
   mg::beginSingleRenderPass(singleRenderPass);
   {
@@ -110,10 +123,14 @@ void renderScene(const mg::FrameData &frameData) {
     glm::mat4 rotation = glm::rotate(glm::mat4(1), rotAngle, {1, 1, 0});
     // renderMesh(renderContext, meshId, rotation, {1, 0, 0, 1});
 
-    // mg::renderCubes(renderContext, cubes, sphereId);
-    mg::renderSdf(renderContext, {}, frameData);
-
+    if (menu.sdf)
+      mg::renderSdf(renderContext, {}, frameData, camera);
+    else if (menu.octree)
+      mg::renderOctree(storages, renderContext, octreeLevel, frameData, camera.position);
+    //mg::renderVoxels(renderContext, voxels, cubeId);
     mg::renderText(renderContext, texts);
+    mg::mgSystem.imguiOverlay.draw(renderContext, frameData, mg::renderMenu, &menu);
+
   }
   mg::endSingleRenderPass();
 

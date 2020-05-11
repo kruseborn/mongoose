@@ -697,7 +697,7 @@ void renderMC(const RenderContext &renderContext, Sb sb, MarchingCubesStorages s
                     0);
 }
 
-void renderGUI(const mg::FrameData &frameData) {
+void renderGUI(const mg::FrameData &frameData, void *) {
   ImGuiIO &io = ImGui::GetIO();
 
   io.DisplaySize = {float(mg::vkContext.screen.width), float(mg::vkContext.screen.height)};
@@ -712,7 +712,6 @@ void renderGUI(const mg::FrameData &frameData) {
   static MenuIems menuIem = MenuIems::Allocations;
 
   if (ImGui::Begin("Terrain", nullptr, {256.0f, 1024.0f}, -1.0f, ImGuiWindowFlags_AlwaysAutoResize)) {
-
     ImGui::SliderInt("Num octaves", &NumOctaves, 1, 9, "%d");
     ImGui::SliderFloatWithSteps("Lacunarity", &Lacunarity, 0.5, 3.0f, 0.01f, "%.5f");
     ImGui::SliderFloatWithSteps("Persistence", &Persistence, 0.1f, 1.0f, 0.01f, "%.3f");

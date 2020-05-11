@@ -150,7 +150,7 @@ static void drawAllocations() {
   ImGui::Separator();
 }
 
-void drawAllocations(const mg::FrameData &frameData) {
+void drawAllocations(const mg::FrameData &frameData, void *) {
   ImGuiIO &io = ImGui::GetIO();
 
   io.DisplaySize = {float(mg::vkContext.screen.width), float(mg::vkContext.screen.height)};
@@ -161,8 +161,6 @@ void drawAllocations(const mg::FrameData &frameData) {
   io.MouseDown[0] = frameData.mouse.left;
 
   ImGui::NewFrame();
-  enum class MenuIems { Allocations, Console };
-  static MenuIems menuIem = MenuIems::Allocations;
 
   if (ImGui::Begin("Mongoose", nullptr, {1024.0f, 512.0f}, -1.0f,
                    ImGuiWindowFlags_AlwaysAutoResize)) {

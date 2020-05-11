@@ -7,8 +7,7 @@ struct RenderContext;
 struct MeshId;
 struct EmptyRenderPass;
 
-std::vector<glm::uvec4> createOctreeFromMesh(const RenderContext &renderContext, const EmptyRenderPass emptyRenderPass, const MeshId &id);
-void renderCubes(const RenderContext &renderContext, std::vector<glm::uvec4> vec, mg::MeshId meshid);
-
-std::vector<uint32_t> buildOctree(const std::vector<glm::uvec4> &vec, glm::uvec3 pos, uint32_t size);
+std::vector<glm::uvec2> voxelizeMesh(const RenderContext &renderContext, const EmptyRenderPass emptyRenderPass,
+                                     const MeshId &id, uint32_t octree_levels);
+void renderVoxels(const RenderContext &renderContext, std::vector<glm::uvec2> vec, mg::MeshId meshid);
 }; // namespace mg

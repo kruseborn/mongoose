@@ -173,8 +173,8 @@ void Imgui::CreateContext() {
 
 void Imgui::destroy() { mg::mgSystem.textureContainer.removeTexture(_fontId); }
 
-void Imgui::draw(const RenderContext &renderContext, const FrameData &frameData, DrawFunc *drawFunc) const {
-  drawFunc(frameData);
+void Imgui::draw(const RenderContext &renderContext, const FrameData &frameData, DrawFunc *drawFunc, void *data) const {
+  drawFunc(frameData, data);
 
   auto imguiBuffer = allocateImguiBuffer();
   const auto pipeline = createImguiPipeline(renderContext);

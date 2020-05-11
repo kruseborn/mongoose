@@ -98,7 +98,7 @@ void renderScene(const mg::FrameData &frameData) {
     mg::validateTexts(texts);
     mg::renderText(renderContext, texts);
 
-    mg::mgSystem.imguiOverlay.draw(renderContext, frameData, mg::drawAllocations);
+    mg::mgSystem.imguiOverlay.draw(renderContext, frameData, mg::drawAllocations, nullptr);
   }
   endDeferredRenderPass();
   mg::endRendering();
