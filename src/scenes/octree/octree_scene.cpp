@@ -72,9 +72,9 @@ void initScene() {
   camera = mg::create3DCamera(glm::vec3{0, 0, -3}, glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f});
 
   cubeId = uploadCubeToGpu();
-  sphereId = mg::loadObjFromFile(mg::getDataPath() + "sphereTriangles.obj").meshes.front().id;
+  sphereId = mg::loadObjFromFile(mg::getDataPath() + "sphere.obj").meshes.front().id;
 
-  auto sdf = objToSdf(mg::getDataPath() + "sphereTriangles.obj", 0.1f, 2);
+  auto sdf = objToSdf(mg::getDataPath() + "sphere.obj", 0.1f, 2);
   sdfId = uploadVolumeToGpu((float *)(sdf.grid.data()), glm::uvec3{sdf.x, sdf.y, sdf.z});
 
   mg::mgSystem.textureContainer.setupDescriptorSets();

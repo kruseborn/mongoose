@@ -162,11 +162,11 @@ void renderMenu(const mg::FrameData &frameData, void *data) {
   ImGui::NewFrame();
 
   if (ImGui::Begin("Octree", nullptr, ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_AlwaysAutoResize)) {
-    ImGui::RadioButton("radio a", &menu->value, 0);
+    ImGui::RadioButton("Octree", &menu->value, 0);
     ImGui::SameLine();
-    ImGui::RadioButton("radio b", &menu->value, 1);
+    ImGui::RadioButton("SDF", &menu->value, 1);
     ImGui::SameLine();
-    ImGui::RadioButton("radio c", &menu->value, 2);
+    ImGui::RadioButton("Cubes", &menu->value, 2);
   }
   ImGui::End();
   ImGui::EndFrame();

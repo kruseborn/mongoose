@@ -534,30 +534,6 @@ constexpr struct {
 constexpr const char *shader = "mrt";
 } //mrt
 
-namespace octeee_tag {
-struct Ubo {
-  uint32_t resolution;
-};
-struct Octree {
-  uint32_t values[10000];
-};
-struct Voxels {
-  glm::uvec4 count;
-  glm::uvec4 values[10000];
-};
-union DescriptorSets {
-  struct {
-    VkDescriptorSet ubo;
-    VkDescriptorSet tree;
-  };
-  VkDescriptorSet values[2];
-};
-constexpr struct {
-  const char *octeee_tag_comp = "octeee_tag.comp.spv";
-} files = {};
-constexpr const char *shader = "octeee_tag";
-} //octeee_tag
-
 namespace octreeAlloc {
 struct Ubo {
   glm::uvec4 attrib;
@@ -656,30 +632,6 @@ constexpr struct {
 } files = {};
 constexpr const char *shader = "octreeTracer";
 } //octreeTracer
-
-namespace octree_allocate {
-struct Ubo {
-  uint32_t resolution;
-};
-struct Octree {
-  uint32_t values[10000];
-};
-struct Voxels {
-  glm::uvec4 count;
-  glm::uvec4 values[10000];
-};
-union DescriptorSets {
-  struct {
-    VkDescriptorSet ubo;
-    VkDescriptorSet tree;
-  };
-  VkDescriptorSet values[2];
-};
-constexpr struct {
-  const char *octree_allocate_comp = "octree_allocate.comp.spv";
-} files = {};
-constexpr const char *shader = "octree_allocate";
-} //octree_allocate
 
 namespace particle {
 struct Ubo {
