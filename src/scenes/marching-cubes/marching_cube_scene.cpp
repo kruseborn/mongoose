@@ -50,7 +50,7 @@ void initScene() {
    0.0f});
   //camera = mg::create3DCamera(glm::vec3{0.0f, 0.0f, -15.0f}, glm::vec3{0.0f, 0, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f});
 
-  //id = mg::dualContouring();
+  id = mg::dualContouring();
   //mg::simulateQuadtree();
 
 
@@ -61,7 +61,7 @@ void initScene() {
 void destroyScene() {
   mg::waitForDeviceIdle();
 
- // mg::mgSystem.meshContainer.removeMesh(id);
+  mg::mgSystem.meshContainer.removeMesh(id);
   for (uint32_t z = 0; z < N; z++) {
     for (uint32_t x = 0; x < N; x++) {
       mg::destroyCreateMarchingCubesStorages(marchingCubesStorages[z][x]);
@@ -119,13 +119,13 @@ void renderScene(const mg::FrameData &frameData) {
 
     renderContext.renderPass = singleRenderPass.vkRenderPass;
 
-     for (uint32_t z = 0; z < N; z++) {
-      for (uint32_t x = 0; x < N; x++) {
-        mg::renderMC(renderContext, sbs[z][x], marchingCubesStorages[z][x], grids[z][x]);
-      }
-    }
+    // for (uint32_t z = 0; z < N; z++) {
+    //  for (uint32_t x = 0; x < N; x++) {
+    //    mg::renderMC(renderContext, sbs[z][x], marchingCubesStorages[z][x], grids[z][x]);
+    //  }
+    //}
 
-   // mg::renderMeshWithNormals(renderContext, id, glm::identity<glm::mat4>(), glm::vec4{1, 0, 0, 1});
+    mg::renderMeshWithNormals(renderContext, id, glm::identity<glm::mat4>(), glm::vec4{1, 0, 0, 1});
    // mg::renderQuadTree(renderContext);
 
     // mg::renderText(renderContext, texts);

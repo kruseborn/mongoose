@@ -74,7 +74,7 @@ void initScene() {
   cubeId = uploadCubeToGpu();
   sphereId = mg::loadObjFromFile(mg::getDataPath() + "sphere.obj").meshes.front().id;
 
-  auto sdf = objToSdf(mg::getDataPath() + "sphere.obj", 0.1f, 2);
+  auto sdf = objToSdf(mg::getDataPath() + "sphere.obj", 0.01f, 2);
   sdfId = uploadVolumeToGpu((float *)(sdf.grid.data()), glm::uvec3{sdf.x, sdf.y, sdf.z});
 
   mg::mgSystem.textureContainer.setupDescriptorSets();

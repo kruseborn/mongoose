@@ -66,13 +66,12 @@ float map(vec3 pos) {
 
 vec3 calcNormal(vec3 p) // for function f(p)
 {
-    const float eps = 0.1; // or some other value
+    const float eps = 0.001; // or some other value
     const vec2 h = vec2(eps,0);
     return normalize(vec3(map(p+h.xyy) - map(p-h.xyy),
                            map(p+h.yxy) - map(p-h.yxy),
                            map(p+h.yyx) - map(p-h.yyx)));
 }
-
 
 bool isInside(vec3 pos) {
   pos = (ubo.worldToBox * vec4(pos,1)).xyz;
@@ -123,16 +122,16 @@ void main() {
   }
   ro = ro + rd * (boxT.x+0.00001);
   float t = castRay(ro, rd);
-
+  vec3 pos = vec3(0);
+  vec3 nor = vec3(0);
   if(t > 0.0) {
-      vec3 pos = ro + t*rd;
-      vec3 nor = calcNormal(pos);
-      col = pos;
+      pos = ro + t*rd;
+      nor = calcNormal(pos);
+      col = nor;
   }
   else 
     discard;
 
-
   col = pow(col, vec3(0.4545));
-  outFragColor = vec4(col, 1.0);
+  outFragColor = vec4(nor, 1.0);
 }
