@@ -1,6 +1,7 @@
 #include "boids.h"
 #include <unordered_map>
 #include <array>
+#include <immintrin.h>
 
 inline static float rng() {
   return rand() / float(RAND_MAX);
@@ -61,20 +62,7 @@ inline static float distanceSqr(glm::vec3 a, glm::vec3 b) {
 
 std::unordered_map<glm::uvec3, Cell> grid;
 
-void init(float w, float h, float d) {
-  for (int i = 0; i < boids.count; i++)
-    boids.positions[i] = {rng() * w, rng() * h, rng() * d};
-
-  for (int i = 0; i < boids.count; i++) {
-    boids.acceleration[i] = {};
-  }
-  for (int i = 0; i < boids.count; i++) {
-    boids.velocity[i] = {sRng(), sRng(), sRng()};
-    boids.velocity[i] = glm::normalize(boids.velocity[i]) * (rng() * 2.0f + 2.0f);
-  }
-}
-
-inline glm::vec3 limit(glm::vec3 vec, float max) {
+inline static glm::vec3 limit(glm::vec3 vec, float max) {
   float sqrtMag = vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2];
   if (sqrtMag > max * max * max) {
     vec /= sqrt(sqrtMag);
@@ -83,13 +71,13 @@ inline glm::vec3 limit(glm::vec3 vec, float max) {
   return vec;
 }
 
-inline glm::ivec3 positionToGridCoord(glm::vec3 position) {
+inline static glm::ivec3 positionToGridCoord(glm::vec3 position) {
   glm::vec3 tmp = position * invCellSize + 0.5f;
   glm::uvec3 coord = {tmp.x, tmp.y, tmp.z};
   return coord;
 }
 
-void applyBoidsRulesGrid() {
+static void applyBoidsRulesGrid() {
   for (uint32_t i = 0; i < boids.count; i++) {
     glm::vec3 alignment = {};
     glm::vec3 cohesion = {};
@@ -134,7 +122,7 @@ void applyBoidsRulesGrid() {
   }
 }
 
-void populateGrid() {
+static void populateGrid() {
   for (uint32_t i = 0; i < boids.count; i++) {
     glm::ivec3 coord = positionToGridCoord(boids.positions[i]);
     auto &cell = grid[coord];
@@ -143,7 +131,7 @@ void populateGrid() {
   }
 }
 
-void updatePositions(float w, float h, float d, float dt) {
+static void updatePositions(float w, float h, float d, float dt) {
   for (uint32_t i = 0; i < boids.count; i++) {
     boids.positions[i] += boids.velocity[i] * dt * 500.0f;
     boids.velocity[i] += boids.acceleration[i] * dt * 500.0f;
@@ -167,12 +155,24 @@ void updatePositions(float w, float h, float d, float dt) {
   }
 }
 
+void init(float w, float h, float d) {
+  for (int i = 0; i < boids.count; i++)
+    boids.positions[i] = {rng() * w, rng() * h, rng() * d};
+
+  for (int i = 0; i < boids.count; i++) {
+    boids.acceleration[i] = {};
+  }
+  for (int i = 0; i < boids.count; i++) {
+    boids.velocity[i] = {sRng(), sRng(), sRng()};
+    boids.velocity[i] = glm::normalize(boids.velocity[i]) * (rng() * 2.0f + 2.0f);
+  }
+}
+
 std::span<glm::vec3> simulate(float w, float h, float d, float dt) {
   grid.clear();
 
   populateGrid();
   applyBoidsRulesGrid();
-  //applyBoidsRules();
   updatePositions(w, h, d, dt);
 
   return {boids.positions, boids.count};
