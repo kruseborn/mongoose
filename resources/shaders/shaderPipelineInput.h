@@ -89,13 +89,13 @@ struct Ubo {
 namespace InputAssembler {
   static VertexInputState vertexInputState[2] = {
     { VK_FORMAT_R32G32B32_SFLOAT, 0, 0, 0, 12 },
-    { VK_FORMAT_R32G32_SFLOAT, 1, 0, 1, 8 },
+    { VK_FORMAT_R32G32B32_SFLOAT, 1, 0, 1, 12 },
   };
   struct VertexInputData {
     glm::vec3 in_position;
   };
   struct InstanceInputData {
-    glm::vec2 instancing_translate;
+    glm::vec3 instancing_translate;
   };
 };
 union DescriptorSets {
