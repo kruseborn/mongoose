@@ -1,5 +1,6 @@
 #include "boids.h"
 #include <unordered_map>
+#include <array>
 
 inline static float rng() {
   return rand() / float(RAND_MAX);
@@ -11,18 +12,20 @@ inline static float sRng() {
 static const float maxSpeed = 3.0f;
 static const float maxForce = 0.1f;
 static const float radius = 5.0f;
-static const float cellSize = 300.0f;
+static const float cellSize = 50.0f;
 static const float invCellSize = 1 / cellSize;
 
 struct Boids {
-  static const uint32_t count = 50000;
+  static const uint32_t count = 65520;
   glm::vec3 positions[count];
   glm::vec3 acceleration[count];
   glm::vec3 velocity[count];
 } boids;
 
 struct Cell {
-  std::vector<uint32_t> uids;
+  static const uint16_t maxSize = 500;
+  uint16_t uids[maxSize];
+  uint16_t count = 0;
 };
 
 // Fowler-Noll-Vo_hash_function
@@ -95,7 +98,8 @@ void applyBoidsRulesGrid() {
 
     glm::ivec3 coord = positionToGridCoord(boids.positions[i]);
     const Cell &cell = grid[coord];
-    for (uint32_t j = 0, size = uint32_t(cell.uids.size()); j < size; j++) {
+
+    for (uint32_t j = 0, size = uint32_t(cell.count); j < size; j++) {
       const uint32_t neighborIndex = cell.uids[j];
 
       const glm::vec3 diff = boids.positions[i] - boids.positions[neighborIndex];
@@ -130,55 +134,12 @@ void applyBoidsRulesGrid() {
   }
 }
 
-void applyBoidsRules() {
-  for (uint32_t i = 0; i < boids.count; i++) {
-    glm::vec3 alignment = {};
-    glm::vec3 cohesion = {};
-    glm::vec3 separation = {};
-    uint32_t count = 0;
-    for (uint32_t j = 0; j < boids.count; j++) {
-      if (i == j)
-        continue;
-
-      glm::vec3 dir = boids.positions[i] - boids.positions[j];
-      const float dis = glm::distance(boids.positions[i], boids.positions[j]);
-      if (dis < 50 && dis > 0.1) {
-        alignment += boids.velocity[j];
-        cohesion += boids.positions[j];
-        separation += dir / dis;
-        count++;
-      }
-    }
-    if (count) {
-
-      alignment /= count;
-      alignment = glm::normalize(alignment) * maxSpeed;
-      alignment -= boids.velocity[i];
-      alignment = limit(alignment, maxForce);
-
-      cohesion /= count;
-      cohesion -= boids.positions[i];
-      cohesion = glm::normalize(cohesion) * maxSpeed;
-      cohesion -= boids.velocity[i];
-      cohesion = limit(cohesion, maxForce);
-
-      separation /= count;
-      separation = glm::normalize(separation) * maxSpeed;
-      separation -= boids.velocity[i];
-      separation = limit(separation, maxForce);
-    }
-
-    boids.acceleration[i] += alignment;
-    boids.acceleration[i] += cohesion;
-    boids.acceleration[i] += separation;
-  }
-}
-
 void populateGrid() {
   for (uint32_t i = 0; i < boids.count; i++) {
     glm::ivec3 coord = positionToGridCoord(boids.positions[i]);
     auto &cell = grid[coord];
-    cell.uids.push_back(i);
+    cell.uids[cell.count++] = i;
+    assert(cell.count < cell.maxSize);
   }
 }
 
