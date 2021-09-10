@@ -4,6 +4,6 @@
 #include <vector>
 #include <span>
 
-void init(float w, float h);
+void init(float w, float h, float d);
 
-std::span<glm::vec2> simulate(float w, float h, float dt);
+std::span<glm::vec3> simulate(float w, float h, float d, float dt);

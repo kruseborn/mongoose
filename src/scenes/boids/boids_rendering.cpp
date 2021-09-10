@@ -9,7 +9,7 @@
 
 namespace mg {
 
-void renderCubes(const RenderContext &renderContext, const FrameData &frameData, std::span<glm::vec2> positions,
+void renderCubes(const RenderContext &renderContext, const FrameData &frameData, std::span<glm::vec3> positions,
                  const mg::MeshId &cubeId) {
   const auto mesh = mg::getMesh(cubeId);
 
@@ -46,7 +46,7 @@ void renderCubes(const RenderContext &renderContext, const FrameData &frameData,
   // glm::mat4 rotation = glm::rotate(glm::mat4(1), rotAngle, {1, 1, 0});
 
   ubo->mvp = renderContext.projection * renderContext.view;
-  ubo->color = {0.2f, 0, 0, 1};
+  ubo->color = {0.6f, 0, 0, 1};
   DescriptorSets descriptorSets = {.ubo = uboSet};
 
   uint32_t dynamicOffsets[] = {uniformOffset, 0};

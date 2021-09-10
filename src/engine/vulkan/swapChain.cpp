@@ -116,7 +116,6 @@ void SwapChain::createImages() {
       presentMode = mode;
     }
   }
-  presentMode = VK_PRESENT_MODE_FIFO_KHR;
   switch (presentMode) {
   case VK_PRESENT_MODE_FIFO_KHR:
     LOG("Using FIFO present mode");

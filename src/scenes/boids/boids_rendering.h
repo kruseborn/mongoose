@@ -7,7 +7,7 @@ struct RenderContext;
 struct MeshId;
 struct FrameData;
 
-void renderCubes(const RenderContext &renderContext, const FrameData &frameData, std::span<glm::vec2> positions,
+void renderCubes(const RenderContext &renderContext, const FrameData &frameData, std::span<glm::vec3> positions,
                  const mg::MeshId &cubeId);
 
 }; // namespace mg
