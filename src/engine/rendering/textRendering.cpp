@@ -92,7 +92,7 @@ static void renderCharacters(const mg::RenderContext &renderContext, const mg::F
 
   DescriptorSets descriptorSets = {};
   descriptorSets.ubo = uboSet;
-  descriptorSets.textures = mg::getTextureDescriptorSet();
+  descriptorSets.textures = mg::getTextureDescriptorSet();  
 
   uint32_t dynamicOffsets[] = {uniformOffset, 0};
   vkCmdBindDescriptorSets(mg::vkContext.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.layout, 0,

@@ -4,7 +4,7 @@ struct GLFWwindow;
 
 namespace mg {
 
-bool createVulkanContext(GLFWwindow *window);
+void createVulkanContext(GLFWwindow *window);
 
 void createCommandBuffers();
 void createCommandBufferFences();

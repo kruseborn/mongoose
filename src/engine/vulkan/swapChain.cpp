@@ -10,11 +10,12 @@ namespace mg {
 
 static void checkSwapChainSupport() {
   uint32_t extensionCount = 0;
-  vkEnumerateDeviceExtensionProperties(mg::vkContext.physicalDevice, nullptr, &extensionCount, nullptr);
+  checkResult(vkEnumerateDeviceExtensionProperties(mg::vkContext.physicalDevice, nullptr, &extensionCount, nullptr));
   mgAssert(extensionCount > 0);
 
   std::vector<VkExtensionProperties> deviceExtensions(extensionCount);
-  vkEnumerateDeviceExtensionProperties(mg::vkContext.physicalDevice, nullptr, &extensionCount, deviceExtensions.data());
+  checkResult(vkEnumerateDeviceExtensionProperties(mg::vkContext.physicalDevice, nullptr, &extensionCount,
+                                                   deviceExtensions.data()));
 
   for (const auto &extension : deviceExtensions) {
     if (strcmp(extension.extensionName, VK_KHR_SWAPCHAIN_EXTENSION_NAME) == 0) {
@@ -22,7 +23,6 @@ static void checkSwapChainSupport() {
     }
   }
   mgAssertDesc(false, "physical device doesn't support swap chains");
-  exit(1);
 }
 
 static VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR &surfaceCapabilities) {
@@ -116,6 +116,7 @@ void SwapChain::createImages() {
       presentMode = mode;
     }
   }
+  presentMode = VK_PRESENT_MODE_FIFO_KHR;
   switch (presentMode) {
   case VK_PRESENT_MODE_FIFO_KHR:
     LOG("Using FIFO present mode");

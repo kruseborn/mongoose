@@ -12,9 +12,11 @@
 #include "rendering/rendering.h"
 #include "sdf/sdf.h"
 #include "voxelizer.h"
-#include "vulkan/singleRenderpass.h"
+#include "vulkan/singleRenderpass.h" 
 #include <fstream>
+#include <stdio.h>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/glm.hpp>
 
 // voxilization and octree building
 // https://www.seas.upenn.edu/~pcozzi/OpenGLInsights/OpenGLInsights-SparseVoxelization.pdf
@@ -41,6 +43,11 @@ static void resizeCallback() {
 }
 
 static mg::TextureId uploadVolumeToGpu(const float *data, const glm::uvec3 &size) {
+
+  FILE *pFile;
+  pFile = fopen("file.binary", "wb");
+  fwrite(data, sizeof(float), size.x * size.y * size.z, pFile);
+  fclose(pFile);
   mg::CreateTextureInfo createTextureInfo = {};
   createTextureInfo.id = "sphere";
   createTextureInfo.type = mg::TEXTURE_TYPE::TEXTURE_3D;
@@ -75,6 +82,10 @@ void initScene() {
   sphereId = mg::loadObjFromFile(mg::getDataPath() + "sphere.obj").meshes.front().id;
 
   auto sdf = objToSdf(mg::getDataPath() + "sphere.obj", 0.01f, 2);
+
+  printf("%u, %u, %u\n", sdf.x, sdf.y, sdf.z);
+  printf("%lf, %lf, %lf\n", sdf.minBox.v[0], sdf.minBox.v[1], sdf.minBox.v[2]);
+  printf("%lf, %lf %lf\n", sdf.maxBox.v[0], sdf.maxBox.v[1], sdf.maxBox.v[2]);
   sdfId = uploadVolumeToGpu((float *)(sdf.grid.data()), glm::uvec3{sdf.x, sdf.y, sdf.z});
 
   mg::mgSystem.textureContainer.setupDescriptorSets();

@@ -39,7 +39,7 @@ layout(push_constant) uniform TextureIndices {
 }pc;
 
 void main() {
-  float bitmapValue = texture(sampler2D(textures[pc.textureIndex], samplers[linearBorder]), inData.texCoords ).r;
+  float bitmapValue = texture(sampler2D(textures[0], samplers[linearBorder]), inData.texCoords ).r;
   if(bitmapValue < 0.01)
     discard;
   outFragColor = inData.textColor;

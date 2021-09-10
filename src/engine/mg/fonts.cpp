@@ -30,10 +30,10 @@ void Fonts::init() {
   const auto error = FT_Init_FreeType(&_ftLibrary);
   mgAssertDesc(error == FT_Err_Ok, "FreeType not initialized properly, error code: " << error);
 
-  _fontTypeToFont[(uint32_t)mg::FONT_TYPE::MICRO_SS_9] = createFont(getFontsPath(), "micross.ttf", 9);
-  _fontTypeToFont[(uint32_t)mg::FONT_TYPE::MICRO_SS_10] = createFont(getFontsPath(), "micross.ttf", 10);
+  //_fontTypeToFont[(uint32_t)mg::FONT_TYPE::MICRO_SS_9] = createFont(getFontsPath(), "micross.ttf", 9);
+  //_fontTypeToFont[(uint32_t)mg::FONT_TYPE::MICRO_SS_10] = createFont(getFontsPath(), "micross.ttf", 10);
   _fontTypeToFont[(uint32_t)mg::FONT_TYPE::MICRO_SS_11] = createFont(getFontsPath(), "micross.ttf", 11);
-  _fontTypeToFont[(uint32_t)mg::FONT_TYPE::MICRO_SS_14] = createFont(getFontsPath(), "micross.ttf", 14);
+  //_fontTypeToFont[(uint32_t)mg::FONT_TYPE::MICRO_SS_14] = createFont(getFontsPath(), "micross.ttf", 14);
 }
 
 void Fonts::destroy() {

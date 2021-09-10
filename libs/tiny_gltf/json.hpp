@@ -7937,7 +7937,7 @@ class basic_json
             alloc.deallocate(object, 1);
         };
         std::unique_ptr<T, decltype(deleter)> object(alloc.allocate(1), deleter);
-        alloc.construct(object.get(), std::forward<Args>(args)...);
+//        alloc.construct(object.get(), std::forward<Args>(args)...);
         assert(object != nullptr);
         return object.release();
     }
@@ -8103,7 +8103,7 @@ class basic_json
                 case value_t::object:
                 {
                     AllocatorType<object_t> alloc;
-                    alloc.destroy(object);
+               //     alloc.destroy(object);
                     alloc.deallocate(object, 1);
                     break;
                 }
@@ -8111,7 +8111,7 @@ class basic_json
                 case value_t::array:
                 {
                     AllocatorType<array_t> alloc;
-                    alloc.destroy(array);
+//                    alloc.destroy(array);
                     alloc.deallocate(array, 1);
                     break;
                 }
@@ -8119,7 +8119,7 @@ class basic_json
                 case value_t::string:
                 {
                     AllocatorType<string_t> alloc;
-                    alloc.destroy(string);
+                   // alloc.destroy(string);
                     alloc.deallocate(string, 1);
                     break;
                 }

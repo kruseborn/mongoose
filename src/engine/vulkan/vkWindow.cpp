@@ -23,7 +23,7 @@ namespace mg {
 
 #define ENABLE_DEBUGGING (__DEBUG && std::getenv("VULKAN_SDK") != nullptr)
 
-static char *DEBUG_LAYER = (char *)"VK_LAYER_LUNARG_standard_validation";
+static char *DEBUG_LAYER = (char *)"VK_LAYER_KHRONOS_validation";
 
 void createCommandBuffers() {
   for (int i = 0; i < mg::vkContext.commandBuffers.nrOfBuffers; ++i) {
@@ -67,7 +67,6 @@ static VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugU
   if (func != nullptr) {
     return func(instance, pCreateInfo, pAllocator, pCallback);
   } else {
-    cout << "here we are" << endl;
     return VK_ERROR_EXTENSION_NOT_PRESENT;
   }
 }
@@ -97,8 +96,7 @@ static void createDebugCallback() {
   if (ENABLE_DEBUGGING) {
     VkDebugUtilsMessengerCreateInfoEXT createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-    createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
-                                 VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
+    createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
                                  VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
     createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
                              VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
@@ -112,7 +110,7 @@ static void createDebugCallback() {
   }
 }
 
-static bool createInstance() {
+static void createInstance() {
   VkApplicationInfo appInfo = {};
   appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
   appInfo.pApplicationName = "VulkanClear";
@@ -133,16 +131,16 @@ static bool createInstance() {
 #elif defined(VK_USE_PLATFORM_XCB_KHR)
   extensions.push_back(VK_KHR_XCB_SURFACE_EXTENSION_NAME);
 #endif
-  if (ENABLE_DEBUGGING)
+  if (ENABLE_DEBUGGING) {
+    extensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
     extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+  }
 
   // Check for extensions
   uint32_t extensionCount = 0;
   vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
-  if (extensionCount == 0) {
-    LOG("could not create vulkan instance: vkEnumerateInstanceExtensionProperties returns 0");
-    return false;
-  }
+  mgAssertDesc(extensionCount > 0,
+               "could not create vulkan instance: vkEnumerateInstanceExtensionProperties returns 0");
   std::vector<VkExtensionProperties> availableExtensions(extensionCount);
   vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, availableExtensions.data());
 
@@ -163,11 +161,7 @@ static bool createInstance() {
     createInfo.enabledLayerCount = 1;
     createInfo.ppEnabledLayerNames = &DEBUG_LAYER;
   }
-  auto res = vkCreateInstance(&createInfo, nullptr, &mg::vkContext.instance);
-  if (res == VK_SUCCESS)
-    return true;
-  LOG("could not create vulkan instance: vkCreateInstance");
-  return false;
+  checkResult(vkCreateInstance(&createInfo, nullptr, &mg::vkContext.instance));
 }
 
 static void createWindowSurface(GLFWwindow *window) {
@@ -273,21 +267,18 @@ static void createLogicalDevice() {
 
   // Check for extensions
   uint32_t extensionCount = 0;
-  vkEnumerateDeviceExtensionProperties(mg::vkContext.physicalDevice, nullptr, &extensionCount, nullptr);
+  checkResult(vkEnumerateDeviceExtensionProperties(mg::vkContext.physicalDevice, nullptr, &extensionCount, nullptr));
   mgAssert(extensionCount > 0);
   std::vector<VkExtensionProperties> availableExtensions(extensionCount);
-  vkEnumerateDeviceExtensionProperties(mg::vkContext.physicalDevice, nullptr, &extensionCount,
-                                       availableExtensions.data());
+  checkResult(vkEnumerateDeviceExtensionProperties(mg::vkContext.physicalDevice, nullptr, &extensionCount,
+                                                   availableExtensions.data()));
 
   LOG("Device supported extensions : ");
-  std::string extensionNameStr = "";
   bool ray_tracing_enabled = false;
   for (const auto &extension : availableExtensions) {
     if (strcmp(extension.extensionName, VK_NV_RAY_TRACING_EXTENSION_NAME) == 0)
-      ray_tracing_enabled = true;
-    extensionNameStr += std::string(extension.extensionName) + " ";
+      ray_tracing_enabled = false;
   }
-  LOG(extensionNameStr);
 
   // Necessary for shader (for some reason)
   VkPhysicalDeviceFeatures enabledFeatures = {};
@@ -329,7 +320,8 @@ static void findQueueFamilies() {
   for (; i < queueFamilyCount; i++) {
     VkBool32 presentSupport;
 
-    vkGetPhysicalDeviceSurfaceSupportKHR(mg::vkContext.physicalDevice, i, mg::vkContext.windowSurface, &presentSupport);
+    checkResult(vkGetPhysicalDeviceSurfaceSupportKHR(mg::vkContext.physicalDevice, i, mg::vkContext.windowSurface,
+                                                     &presentSupport));
 
     if (presentSupport && queueFamilies[i].queueCount > 0 && queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT &&
         queueFamilies[i].queueFlags & VK_QUEUE_COMPUTE_BIT) {
@@ -361,9 +353,8 @@ static VkFormat getSupportedDepthFormat() {
 
 static void setupFormats() { mg::vkContext.formats.depth = getSupportedDepthFormat(); }
 
-bool createVulkanContext(GLFWwindow *window) {
-  if (!createInstance())
-    return false;
+void createVulkanContext(GLFWwindow *window) {
+  createInstance();
   createDebugCallback();
   createWindowSurface(window);
 
@@ -373,7 +364,6 @@ bool createVulkanContext(GLFWwindow *window) {
 
   setupFormats();
   initSwapChain();
-  return true;
 }
 
 void destroyVulkanWindow() {

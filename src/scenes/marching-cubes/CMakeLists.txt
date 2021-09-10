@@ -11,6 +11,8 @@ mg_cc_executable(
         houseHolder.cpp
         quadtree.cpp
         quadtree.h
+        transvoxel.cpp
+        transvoxel.h
         freeList.h
     COPTS
         ${CPP_FLAGS}

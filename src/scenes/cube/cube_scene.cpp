@@ -20,7 +20,7 @@ static void resizeCallback() {
 void initScene() {
   mg::initSingleRenderPass(&singleRenderPass);
 
-  camera = mg::create3DCamera(glm::vec3{0.0f, 0.0f, -5.0f}, glm::vec3{0.0f, 0.0f, 0.0f},
+  camera = mg::create3DCamera(glm::vec3{0.0f, 0.0f, -3.0f}, glm::vec3{0.0f, 0.0f, 0.0f},
                               glm::vec3{0.0f, 1.0f, 0.0f});
 
   const auto cube = mg::createVolumeCube({-0.5f, -0.5f, -0.5f}, {1, 1, 1});

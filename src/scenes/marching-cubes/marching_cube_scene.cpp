@@ -119,11 +119,11 @@ void renderScene(const mg::FrameData &frameData) {
 
     renderContext.renderPass = singleRenderPass.vkRenderPass;
 
-    // for (uint32_t z = 0; z < N; z++) {
-    //  for (uint32_t x = 0; x < N; x++) {
-    //    mg::renderMC(renderContext, sbs[z][x], marchingCubesStorages[z][x], grids[z][x]);
-    //  }
-    //}
+     for (uint32_t z = 0; z < N; z++) {
+      for (uint32_t x = 0; x < N; x++) {
+        mg::renderMC(renderContext, sbs[z][x], marchingCubesStorages[z][x], grids[z][x]);
+      }
+    }
 
     mg::renderMeshWithNormals(renderContext, id, glm::identity<glm::mat4>(), glm::vec4{1, 0, 0, 1});
    // mg::renderQuadTree(renderContext);

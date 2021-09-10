@@ -20,7 +20,7 @@ struct _TextureData {
   VkImageView imageView;
   mg::DeviceHeapAllocation heapAllocation;
   VkFormat format;
-  VkImageType imageType;
+  TEXTURE_TYPE type;
 };
 
 struct CreateTextureInfo {

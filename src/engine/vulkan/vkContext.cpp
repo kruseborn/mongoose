@@ -60,9 +60,6 @@ static void createDescriptorLayout() {
     descriptorSetLayoutBindings[1].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC;
     descriptorSetLayoutBindings[1].stageFlags = VK_SHADER_STAGE_ALL;
 
-    VkDescriptorSetLayoutBindingFlagsCreateInfoEXT setLayoutBindingFlags = {};
-    setLayoutBindingFlags.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO_EXT;
-
     VkDescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo = {};
     descriptorSetLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
     descriptorSetLayoutCreateInfo.bindingCount = mg::countof(descriptorSetLayoutBindings);
@@ -365,9 +362,8 @@ static void initNvidiaFunctions() {
 }
 } // namespace nv
 
-bool initVulkan(GLFWwindow *window) {
-  if (!createVulkanContext(window))
-    return false;
+void initVulkan(GLFWwindow *window) {
+  createVulkanContext(window);
 
   createCommandPool();
   createCommandBuffers();
@@ -381,7 +377,6 @@ bool initVulkan(GLFWwindow *window) {
 
   initSampler();
   nv::initNvidiaFunctions();
-  return true;
 }
 
 } // namespace mg

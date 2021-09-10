@@ -10,14 +10,14 @@ layout (set = 0, binding = 0) uniform Ubo {
 @vert
 
 layout (location = 0) in vec3 in_position;
-layout (location = 1) in vec3 instancing_translate; 
+layout (location = 1) in vec2 instancing_translate; 
 
 out gl_PerVertex {
 	vec4 gl_Position;
 };
 
 void main() {
-	vec3 position = (in_position + instancing_translate)/8.0;
+	vec3 position = in_position + vec3(instancing_translate, 0.0);
 	gl_Position = ubo.mvp * vec4(position, 1.0);
 }
 

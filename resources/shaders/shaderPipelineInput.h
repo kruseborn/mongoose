@@ -89,13 +89,13 @@ struct Ubo {
 namespace InputAssembler {
   static VertexInputState vertexInputState[2] = {
     { VK_FORMAT_R32G32B32_SFLOAT, 0, 0, 0, 12 },
-    { VK_FORMAT_R32G32B32_SFLOAT, 1, 0, 1, 12 },
+    { VK_FORMAT_R32G32_SFLOAT, 1, 0, 1, 8 },
   };
   struct VertexInputData {
     glm::vec3 in_position;
   };
   struct InstanceInputData {
-    glm::vec3 instancing_translate;
+    glm::vec2 instancing_translate;
   };
 };
 union DescriptorSets {
@@ -931,6 +931,36 @@ constexpr struct {
 } files = {};
 constexpr const char *shader = "solidColor";
 } //solidColor
+
+namespace solidColorAndNormal {
+struct Ubo {
+  glm::mat4 mvp;
+  glm::vec4 color;
+};
+namespace InputAssembler {
+  static VertexInputState vertexInputState[2] = {
+    { VK_FORMAT_R32G32B32A32_SFLOAT, 0, 0, 0, 16 },
+    { VK_FORMAT_R32G32B32A32_SFLOAT, 1, 16, 0, 16 },
+  };
+  struct VertexInputData {
+    glm::vec4 in_position;
+    glm::vec4 in_normal;
+  };
+  struct InstanceInputData {
+  };
+};
+union DescriptorSets {
+  struct {
+    VkDescriptorSet ubo;
+  };
+  VkDescriptorSet values[1];
+};
+constexpr struct {
+  const char *solidColorAndNormal_frag = "solidColorAndNormal.frag.spv";
+  const char *solidColorAndNormal_vert = "solidColorAndNormal.vert.spv";
+} files = {};
+constexpr const char *shader = "solidColorAndNormal";
+} //solidColorAndNormal
 
 namespace ssao {
 struct Ubo {
