@@ -11,7 +11,7 @@
     glm
     imgui
     lodepng
-    tiny_gltf(will soon be removed)
+    tiny_gltf
     
 #### Prerequisites
     Environment variable *VULKAN_SDK* has to be set
@@ -28,13 +28,16 @@
 #### Compute shader, N-Body simulation with tone mapping
 <img src="images/nbody.png" width="512">
 
+#### Fluid simulation based on Navier-Stokes equations 
+<img src="images/fluid.png" width="512">
+
+#### Physically based shading from gltf-model
+<img src="images/gltf.png" width="512">
+
 #### Memory allocator visualization using dear IMGUI
 <img src="images/mongoose.png" width="512">
 
-#### Physically based rendering from gltf-model
-<img src="images/gltf.png" width="512">
-
-#### Isosurface rendering from Volume data
+#### Isosurface rendering from volume data
 <img src="images/bug.png" width="512">
 
 #### Space invaders

@@ -156,7 +156,7 @@ void alienOnPlayerCollision(const Hashmap &hashmap, const Settings &settings, Al
   checkCollisionInfo.gridObjects.y = aliens->y;
   checkCollisionInfo.gridObjects.size = aliens->nrAliens;
   checkCollisionInfo.gridObjects.radius = settings.alienSize / 2.0f;
-  ;
+  
 
   checkCollisionInfo.collisionObjects.x = &player->position.x;
   checkCollisionInfo.collisionObjects.y = &player->position.y;

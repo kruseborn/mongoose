@@ -29,13 +29,13 @@ static mg::Pipeline createRayPipeline() {
   groups[0].generalShader = 0;
   groups[1].type = VK_RAY_TRACING_SHADER_GROUP_TYPE_GENERAL_NV;
   groups[1].generalShader = 1;
-  groups[2].type = VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_NV;
+  groups[2].type = VK_RAY_TRACING_SHADER_GROUP_TYPE_PROCEDURAL_HIT_GROUP_KHR;
   groups[2].intersectionShader = 2;
   groups[2].closestHitShader = 3;
-  groups[3].type = VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_NV;
+  groups[3].type = VK_RAY_TRACING_SHADER_GROUP_TYPE_PROCEDURAL_HIT_GROUP_KHR;
   groups[3].intersectionShader = 2;
   groups[3].closestHitShader = 4;
-  groups[4].type = VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_NV;
+  groups[4].type = VK_RAY_TRACING_SHADER_GROUP_TYPE_PROCEDURAL_HIT_GROUP_KHR;
   groups[4].intersectionShader = 2;
   groups[4].closestHitShader = 5;
   rayTracingPipelineStateDesc.rayTracing.groupCount = 5;
@@ -52,17 +52,25 @@ void traceTriangle(const World &world, const mg::Camera &camera, const mg::Rende
   auto pipeline = createRayPipeline();
   constexpr uint32_t groupCount = 5; // groupCount is the number of shader handles to retrieve
   const uint32_t shaderGroupHandleSize = rayInfo.rayTracingProperties.shaderGroupHandleSize;
-  const uint32_t bindingTableSize =
-      shaderGroupHandleSize * groupCount; // dataSize must be at least
-                                          // VkPhysicalDeviceRayTracingPropertiesNV::shaderGroupHandleSize × groupCount
+  const uint32_t alignedShaderGroupHandleSize = mg::alignUpPowerOfTwo(
+      rayInfo.rayTracingProperties.shaderGroupHandleSize, rayInfo.rayTracingProperties.shaderGroupBaseAlignment);
+
+  const uint32_t bindingTableSize = shaderGroupHandleSize * groupCount;
+  const uint32_t alignedBindingTableSize = alignedShaderGroupHandleSize * groupCount;
 
   VkBuffer bindingTableBuffer;
   VkDeviceSize bindingTableOffset;
-  uint8_t *data = (uint8_t *)mg::mgSystem.linearHeapAllocator.allocateBuffer(bindingTableSize, &bindingTableBuffer,
-                                                                             &bindingTableOffset);
-
+  uint8_t *data = (uint8_t *)mg::mgSystem.linearHeapAllocator.allocateBuffer(alignedBindingTableSize,
+                                                                             &bindingTableBuffer, &bindingTableOffset);
+  std::vector<uint8_t> stbData(bindingTableSize);
   mg::checkResult(mg::nv::vkGetRayTracingShaderGroupHandlesNV(mg::vkContext.device, pipeline.pipeline, 0, groupCount,
-                                                              bindingTableSize, data));
+                                                              bindingTableSize, stbData.data()));
+
+  // ShaderBindingOffset must be a multiple of VkPhysicalDeviceRayTracingPropertiesNV::shaderGroupBaseAlignment
+  memcpy(data, stbData.data(), shaderGroupHandleSize);
+  memcpy(data + alignedShaderGroupHandleSize, stbData.data() + shaderGroupHandleSize, shaderGroupHandleSize);
+  memcpy(data + alignedShaderGroupHandleSize * 2, stbData.data() + shaderGroupHandleSize * 2,
+         shaderGroupHandleSize * 3);
 
   VkBuffer uniformBuffer;
   uint32_t uniformOffset;
@@ -76,6 +84,7 @@ void traceTriangle(const World &world, const mg::Camera &camera, const mg::Rende
 
   Storage::StorageData *storage = (Storage::StorageData *)mg::mgSystem.linearHeapAllocator.allocateStorage(
       sizeof(storage) * world.positions.size(), &storageBuffer, &storageOffset, &storageSet);
+
   mgAssert(mg::sizeofContainerInBytes(world.positions) <= sizeof(storage->positions));
   memcpy(storage->positions, world.positions.data(), mg::sizeofContainerInBytes(world.positions));
   memcpy(storage->albedos, world.albedos.data(), mg::sizeofContainerInBytes(world.positions));
@@ -90,7 +99,7 @@ void traceTriangle(const World &world, const mg::Camera &camera, const mg::Rende
     totalNrOfSamples = nrOfSamplesPerFrame;
 
   ubo->attrib = {++frame, world.blueNoise.index, nrOfSamplesPerFrame, totalNrOfSamples};
-  ubo->sobolId = {float(rayInfo.sobolId.index),0,0,0};
+  ubo->sobolId = {float(rayInfo.sobolId.index), 0, 0, 0};
   ubo->cameraPosition = {camera.position.x, camera.position.y, camera.position.z,
                          rayInfo.resetAccumulationImage ? 1.0f : 0.0f};
   ubo->cameraLookat = {camera.aim.x, camera.aim.y, camera.aim.z, rayInfo.resetAccumulationImage ? 1.0f : 0.0f};
@@ -114,8 +123,8 @@ void traceTriangle(const World &world, const mg::Camera &camera, const mg::Rende
   // clang-format off
   mg::nv::vkCmdTraceRaysNV(mg::vkContext.commandBuffer, 
     bindingTableBuffer, bindingTableOffset, // raygenShader
-    bindingTableBuffer, bindingTableOffset + shaderGroupHandleSize, shaderGroupHandleSize, //missShader
-    bindingTableBuffer, bindingTableOffset + shaderGroupHandleSize * 2, shaderGroupHandleSize, // hitShader
+    bindingTableBuffer, bindingTableOffset + alignedShaderGroupHandleSize, shaderGroupHandleSize, //missShader
+    bindingTableBuffer, bindingTableOffset + alignedShaderGroupHandleSize * 2, shaderGroupHandleSize, // hitShader
     VK_NULL_HANDLE, 0, 0, mg::vkContext.screen.width, mg::vkContext.screen.height, 1);
   // clang-format on
 }

@@ -53,6 +53,10 @@ static void resizeCallback() {
 }
 
 void initScene() {
+  glm::vec3 v1{0, 1, 0};
+  glm::vec3 v2{0, 1, 0};
+  auto v = glm::cross(v1, v2);
+
   generateSobol();
   world.blueNoise = mg::uploadPngImage("HDR_RGBA_0.png");
 
@@ -133,8 +137,8 @@ void renderScene(const mg::FrameData &frameData) {
   renderContext.view = glm::lookAt(camera.position, camera.aim, camera.up);
 
 
-  mg::beginSingleRenderPass(singleRenderPass);
   traceTriangle(world, camera, renderContext, rayinfo);
+  mg::beginSingleRenderPass(singleRenderPass);
 
   renderContext.renderPass = singleRenderPass.vkRenderPass;
 

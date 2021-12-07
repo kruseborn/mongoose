@@ -120,7 +120,8 @@ StorageId StorageContainer::createStorage(void *data, uint32_t sizeInBytes) {
 }
 
 StorageId StorageContainer::createEmptyStorage(uint32_t sizeInBytes) {
-  auto storageId = _createStorage(nullptr, sizeInBytes, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
+  auto storageId =
+      _createStorage(nullptr, sizeInBytes, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
                                   VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
   return storageId;
 }

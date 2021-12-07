@@ -13,6 +13,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <lodepng.h>
 #include "deferred_utils.h"
+#include "vulkan/allocationUI.h"
 
 static mg::Camera camera;
 static DeferredRenderPass deferredRenderPass;
@@ -97,7 +98,7 @@ void renderScene(const mg::FrameData &frameData) {
     mg::validateTexts(texts);
     mg::renderText(renderContext, texts);
 
-    mg::mgSystem.imguiOverlay.draw(renderContext, frameData);
+    mg::mgSystem.imguiOverlay.draw(renderContext, frameData, mg::drawAllocations, nullptr);
   }
   endDeferredRenderPass();
   mg::endRendering();

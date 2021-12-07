@@ -9,6 +9,8 @@ namespace mg {
 namespace shaders {
 
 enum class Resources { UBO, COMBINED_IMAGE_SAMPLER, SSBO };
+constexpr uint32_t VERTEX_BINDING_ID = 0;
+constexpr uint32_t INSTANCE_BINDING_ID = 1;
 struct VertexInputState {
   VkFormat format;
   uint32_t location, offset, binding, size;
@@ -79,6 +81,36 @@ constexpr struct {
 constexpr const char *shader = "advec";
 } //advec
 
+namespace cubes {
+struct Ubo {
+  glm::mat4 mvp;
+  glm::vec4 color;
+};
+namespace InputAssembler {
+  static VertexInputState vertexInputState[2] = {
+    { VK_FORMAT_R32G32B32_SFLOAT, 0, 0, 0, 12 },
+    { VK_FORMAT_R32G32B32_SFLOAT, 1, 0, 1, 12 },
+  };
+  struct VertexInputData {
+    glm::vec3 in_position;
+  };
+  struct InstanceInputData {
+    glm::vec3 instancing_translate;
+  };
+};
+union DescriptorSets {
+  struct {
+    VkDescriptorSet ubo;
+  };
+  VkDescriptorSet values[1];
+};
+constexpr struct {
+  const char *cubes_frag = "cubes.frag.spv";
+  const char *cubes_vert = "cubes.vert.spv";
+} files = {};
+constexpr const char *shader = "cubes";
+} //cubes
+
 namespace denoise {
 struct Ubo {
   glm::mat4 mvp;
@@ -101,6 +133,28 @@ constexpr struct {
 constexpr const char *shader = "denoise";
 } //denoise
 
+namespace density {
+struct Ubo {
+  glm::vec4 corner;
+  glm::uvec4 N;
+  float cellSize;
+};
+struct Density {
+  float* x = nullptr;
+};
+union DescriptorSets {
+  struct {
+    VkDescriptorSet ubo;
+    VkDescriptorSet density;
+  };
+  VkDescriptorSet values[2];
+};
+constexpr struct {
+  const char *density_comp = "density.comp.spv";
+} files = {};
+constexpr const char *shader = "density";
+} //density
+
 namespace depth {
 struct Ubo {
   glm::mat4 mvp;
@@ -115,6 +169,8 @@ namespace InputAssembler {
   };
   struct VertexInputData {
     glm::vec4 positions;
+  };
+  struct InstanceInputData {
   };
 };
 union DescriptorSets {
@@ -157,33 +213,6 @@ constexpr struct {
 } files = {};
 constexpr const char *shader = "diffuse";
 } //diffuse
-
-namespace diffuse2D {
-struct Ubo {
-  uint32_t N;
-  uint32_t b;
-  float dt;
-  float diff;
-};
-struct X {
-  glm::vec2* x = nullptr;
-};
-struct X0 {
-  glm::vec2* x = nullptr;
-};
-union DescriptorSets {
-  struct {
-    VkDescriptorSet ubo;
-    VkDescriptorSet x;
-    VkDescriptorSet x0;
-  };
-  VkDescriptorSet values[3];
-};
-constexpr struct {
-  const char *diffuse2D_comp = "diffuse2D.comp.spv";
-} files = {};
-constexpr const char *shader = "diffuse2D";
-} //diffuse2D
 
 namespace final {
 struct Ubo {
@@ -236,29 +265,6 @@ constexpr struct {
 constexpr const char *shader = "fluid";
 } //fluid
 
-namespace fluid2 {
-struct Ubo {
-  glm::uvec4 screenSize;
-};
-struct Storage {
-  struct StorageData {
-    float color;
-  };
-  StorageData* storageData = nullptr;
-};
-union DescriptorSets {
-  struct {
-    VkDescriptorSet ubo;
-  };
-  VkDescriptorSet values[1];
-};
-constexpr struct {
-  const char *fluid2_frag = "fluid2.frag.spv";
-  const char *fluid2_vert = "fluid2.vert.spv";
-} files = {};
-constexpr const char *shader = "fluid2";
-} //fluid2
-
 namespace fontRendering {
 struct Ubo {
   glm::mat4 projection;
@@ -274,6 +280,8 @@ namespace InputAssembler {
   struct VertexInputData {
     glm::vec4 inPosition;
     glm::vec4 inColor;
+  };
+  struct InstanceInputData {
   };
 };
 union DescriptorSets {
@@ -301,6 +309,8 @@ namespace InputAssembler {
   };
   struct VertexInputData {
     glm::vec3 positions;
+  };
+  struct InstanceInputData {
   };
 };
 union DescriptorSets {
@@ -341,6 +351,8 @@ namespace InputAssembler {
     glm::vec3 in_normal;
     glm::vec4 in_tangent;
     glm::vec2 in_texCoord;
+  };
+  struct InstanceInputData {
   };
 };
 union DescriptorSets {
@@ -394,6 +406,8 @@ namespace InputAssembler {
     glm::vec2 inUV;
     glm::vec4 inColor;
   };
+  struct InstanceInputData {
+  };
 };
 union DescriptorSets {
   struct {
@@ -408,6 +422,80 @@ constexpr struct {
 } files = {};
 constexpr const char *shader = "imgui";
 } //imgui
+
+namespace marching_cubes {
+struct Ubo {
+  glm::vec4 corner;
+  glm::vec4 attributes;
+  glm::uvec4 N;
+  float cellSize;
+};
+struct A2iTriangleConnectionTable {
+  int32_t x[16];
+};
+struct AiCubeEdgeFlags {
+  int32_t x[256];
+};
+struct Density {
+  float* x = nullptr;
+};
+struct DrawIndirectCommand {
+  uint32_t vertexCount;
+  uint32_t instanceCount;
+  uint32_t firstVertex;
+  uint32_t firstInstance;
+};
+struct Mesh {
+  struct Triangle {
+    glm::vec4 v[6];
+  };
+  Triangle triangles[100000];
+};
+union DescriptorSets {
+  struct {
+    VkDescriptorSet ubo;
+    VkDescriptorSet density;
+    VkDescriptorSet a2iTriangleConnectionTable;
+    VkDescriptorSet aiCubeEdgeFlags;
+    VkDescriptorSet mesh;
+  };
+  VkDescriptorSet values[5];
+};
+constexpr struct {
+  const char *marching_cubes_comp = "marching_cubes.comp.spv";
+} files = {};
+constexpr const char *shader = "marching_cubes";
+} //marching_cubes
+
+namespace meshNormals {
+struct Ubo {
+  glm::mat4 mvp;
+  glm::vec4 color;
+};
+namespace InputAssembler {
+  static VertexInputState vertexInputState[2] = {
+    { VK_FORMAT_R32G32B32_SFLOAT, 0, 0, 0, 12 },
+    { VK_FORMAT_R32G32B32_SFLOAT, 1, 12, 0, 12 },
+  };
+  struct VertexInputData {
+    glm::vec3 in_position;
+    glm::vec3 in_normal;
+  };
+  struct InstanceInputData {
+  };
+};
+union DescriptorSets {
+  struct {
+    VkDescriptorSet ubo;
+  };
+  VkDescriptorSet values[1];
+};
+constexpr struct {
+  const char *meshNormals_frag = "meshNormals.frag.spv";
+  const char *meshNormals_vert = "meshNormals.vert.spv";
+} files = {};
+constexpr const char *shader = "meshNormals";
+} //meshNormals
 
 namespace mrt {
 struct Ubo {
@@ -430,6 +518,8 @@ namespace InputAssembler {
     glm::vec3 normal;
     glm::vec2 texCoord;
   };
+  struct InstanceInputData {
+  };
 };
 union DescriptorSets {
   struct {
@@ -443,6 +533,105 @@ constexpr struct {
 } files = {};
 constexpr const char *shader = "mrt";
 } //mrt
+
+namespace octreeAlloc {
+struct Ubo {
+  glm::uvec4 attrib;
+};
+struct uuBuildInfo {
+  glm::uvec4 info1;
+};
+struct uuOctree {
+  uint32_t* values = nullptr;
+};
+union DescriptorSets {
+  struct {
+    VkDescriptorSet ubo;
+    VkDescriptorSet uOctree;
+    VkDescriptorSet uBuildInfo;
+  };
+  VkDescriptorSet values[3];
+};
+constexpr struct {
+  const char *octreeAlloc_comp = "octreeAlloc.comp.spv";
+} files = {};
+constexpr const char *shader = "octreeAlloc";
+} //octreeAlloc
+
+namespace octreeModify {
+struct Ubo {
+  glm::uvec4 attrib;
+};
+struct DispatchIndirectCommand {
+  uint32_t x;
+  uint32_t y;
+  uint32_t z;
+};
+struct uuBuildInfo {
+  glm::uvec4 info1;
+};
+union DescriptorSets {
+  struct {
+    VkDescriptorSet ubo;
+    VkDescriptorSet uBuildInfo;
+  };
+  VkDescriptorSet values[2];
+};
+constexpr struct {
+  const char *octreeModify_comp = "octreeModify.comp.spv";
+} files = {};
+constexpr const char *shader = "octreeModify";
+} //octreeModify
+
+namespace octreeTag {
+struct Ubo {
+  glm::uvec4 attrib;
+};
+struct uuFragmentList {
+  glm::uvec2* values = nullptr;
+};
+struct uuOctree {
+  uint32_t* values = nullptr;
+};
+union DescriptorSets {
+  struct {
+    VkDescriptorSet ubo;
+    VkDescriptorSet uFragmentList;
+    VkDescriptorSet uOctree;
+  };
+  VkDescriptorSet values[3];
+};
+constexpr struct {
+  const char *octreeTag_comp = "octreeTag.comp.spv";
+} files = {};
+constexpr const char *shader = "octreeTag";
+} //octreeTag
+
+namespace octreeTracer {
+struct Ubo {
+  glm::mat4 uProjection;
+  glm::mat4 uView;
+  glm::vec4 uPosition;
+  glm::ivec4 screenSize;
+};
+struct uuOctree {
+  uint32_t* values = nullptr;
+};
+union DescriptorSets {
+  struct {
+    VkDescriptorSet ubo;
+    VkDescriptorSet textures;
+    VkDescriptorSet volumeTexture;
+    VkDescriptorSet uOctree;
+  };
+  VkDescriptorSet values[4];
+};
+constexpr struct {
+  const char *octreeTracer_frag = "octreeTracer.frag.spv";
+  const char *octreeTracer_vert = "octreeTracer.vert.spv";
+} files = {};
+constexpr const char *shader = "octreeTracer";
+} //octreeTracer
 
 namespace particle {
 struct Ubo {
@@ -461,6 +650,8 @@ namespace InputAssembler {
   struct VertexInputData {
     glm::vec4 in_position;
     glm::vec4 in_velocity;
+  };
+  struct InstanceInputData {
   };
 };
 union DescriptorSets {
@@ -610,6 +801,27 @@ constexpr struct {
 constexpr const char *shader = "project";
 } //project
 
+namespace sdf {
+struct Ubo {
+  glm::mat4 worldToBox;
+  glm::mat4 worldToBox2;
+  glm::vec4 info;
+};
+union DescriptorSets {
+  struct {
+    VkDescriptorSet ubo;
+    VkDescriptorSet textures;
+    VkDescriptorSet volumeTexture;
+  };
+  VkDescriptorSet values[3];
+};
+constexpr struct {
+  const char *sdf_frag = "sdf.frag.spv";
+  const char *sdf_vert = "sdf.vert.spv";
+} files = {};
+constexpr const char *shader = "sdf";
+} //sdf
+
 namespace simulate_positions {
 struct Ubo {
   float dt;
@@ -676,6 +888,8 @@ namespace InputAssembler {
   struct VertexInputData {
     glm::vec3 in_position;
   };
+  struct InstanceInputData {
+  };
 };
 union DescriptorSets {
   struct {
@@ -702,6 +916,8 @@ namespace InputAssembler {
   struct VertexInputData {
     glm::vec3 in_position;
   };
+  struct InstanceInputData {
+  };
 };
 union DescriptorSets {
   struct {
@@ -715,6 +931,36 @@ constexpr struct {
 } files = {};
 constexpr const char *shader = "solidColor";
 } //solidColor
+
+namespace solidColorAndNormal {
+struct Ubo {
+  glm::mat4 mvp;
+  glm::vec4 color;
+};
+namespace InputAssembler {
+  static VertexInputState vertexInputState[2] = {
+    { VK_FORMAT_R32G32B32A32_SFLOAT, 0, 0, 0, 16 },
+    { VK_FORMAT_R32G32B32A32_SFLOAT, 1, 16, 0, 16 },
+  };
+  struct VertexInputData {
+    glm::vec4 in_position;
+    glm::vec4 in_normal;
+  };
+  struct InstanceInputData {
+  };
+};
+union DescriptorSets {
+  struct {
+    VkDescriptorSet ubo;
+  };
+  VkDescriptorSet values[1];
+};
+constexpr struct {
+  const char *solidColorAndNormal_frag = "solidColorAndNormal.frag.spv";
+  const char *solidColorAndNormal_vert = "solidColorAndNormal.vert.spv";
+} files = {};
+constexpr const char *shader = "solidColorAndNormal";
+} //solidColorAndNormal
 
 namespace ssao {
 struct Ubo {
@@ -762,6 +1008,36 @@ constexpr struct {
 constexpr const char *shader = "ssaoBlur";
 } //ssaoBlur
 
+namespace terrain {
+struct Ubo {
+  glm::mat4 mvp;
+  glm::vec4 color;
+};
+namespace InputAssembler {
+  static VertexInputState vertexInputState[2] = {
+    { VK_FORMAT_R32G32B32A32_SFLOAT, 0, 0, 0, 16 },
+    { VK_FORMAT_R32G32B32A32_SFLOAT, 1, 16, 0, 16 },
+  };
+  struct VertexInputData {
+    glm::vec4 in_position;
+    glm::vec4 in_normal;
+  };
+  struct InstanceInputData {
+  };
+};
+union DescriptorSets {
+  struct {
+    VkDescriptorSet ubo;
+  };
+  VkDescriptorSet values[1];
+};
+constexpr struct {
+  const char *terrain_frag = "terrain.frag.spv";
+  const char *terrain_vert = "terrain.vert.spv";
+} files = {};
+constexpr const char *shader = "terrain";
+} //terrain
+
 namespace textureRendering {
 struct Ubo {
   glm::mat4 mvp;
@@ -775,6 +1051,8 @@ namespace InputAssembler {
   };
   struct VertexInputData {
     glm::vec4 positions;
+  };
+  struct InstanceInputData {
   };
 };
 union DescriptorSets {
@@ -840,6 +1118,41 @@ constexpr struct {
 } files = {};
 constexpr const char *shader = "volume";
 } //volume
+
+namespace voxelizer {
+struct Ubo {
+  uint32_t resolution;
+};
+struct Voxels {
+  glm::uvec2 values[1000000];
+};
+namespace InputAssembler {
+  static VertexInputState vertexInputState[3] = {
+    { VK_FORMAT_R32G32B32_SFLOAT, 0, 0, 0, 12 },
+    { VK_FORMAT_R32G32B32_SFLOAT, 1, 12, 0, 12 },
+    { VK_FORMAT_R32G32_SFLOAT, 2, 24, 0, 8 },
+  };
+  struct VertexInputData {
+    glm::vec3 in_position;
+    glm::vec3 in_normal;
+    glm::vec2 in_tex;
+  };
+  struct InstanceInputData {
+  };
+};
+union DescriptorSets {
+  struct {
+    VkDescriptorSet ubo;
+  };
+  VkDescriptorSet values[1];
+};
+constexpr struct {
+  const char *voxelizer_frag = "voxelizer.frag.spv";
+  const char *voxelizer_geom = "voxelizer.geom.spv";
+  const char *voxelizer_vert = "voxelizer.vert.spv";
+} files = {};
+constexpr const char *shader = "voxelizer";
+} //voxelizer
 
 } // shaders
 } // mg

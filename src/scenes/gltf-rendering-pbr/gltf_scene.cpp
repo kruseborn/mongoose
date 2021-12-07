@@ -15,7 +15,7 @@
 
 static mg::Camera camera;
 static mg::SingleRenderPass singleRenderPass;
-static mg::MeshId meshId;
+static mg::MeshId cubeId;
 static std::unordered_map<std::string, mg::TextureId> nameToTextureId;
 
 static void resizeCallback() {
@@ -35,7 +35,7 @@ void initScene() {
   createMeshInfo.vertices = (uint8_t *)mesh.vertices.data();
   createMeshInfo.verticesSizeInBytes = mg::sizeofContainerInBytes(mesh.vertices);
   createMeshInfo.nrOfIndices = mesh.count;
-  meshId = mg::mgSystem.meshContainer.createMesh(createMeshInfo);
+  cubeId = mg::mgSystem.meshContainer.createMesh(createMeshInfo);
 
   for (const auto &image : meshes.images) {
     std::vector<unsigned char> imageData;
@@ -79,7 +79,7 @@ void renderScene(const mg::FrameData &frameData) {
   mg::RenderContext renderContext = {};
   renderContext.renderPass = singleRenderPass.vkRenderPass;
 
-  drawGltfMesh(renderContext, meshId, camera, nameToTextureId);
+  drawGltfMesh(renderContext, cubeId, camera, nameToTextureId);
 
   mg::endSingleRenderPass();
 

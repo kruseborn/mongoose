@@ -84,7 +84,7 @@ struct VulkanContext {
 
 extern VulkanContext vkContext;
 
-bool initVulkan(GLFWwindow *window);
+void initVulkan(GLFWwindow *window);
 void destroyVulkan();
 
 namespace nv {

@@ -15,7 +15,8 @@ struct TextureId;
 int32_t findMemoryTypeIndex(const VkPhysicalDeviceMemoryProperties &memoryProperties, uint32_t memoryTypeBitsRequirement,
                             VkMemoryPropertyFlags requiredProperties, VkMemoryPropertyFlags preferredProperties = 0);
 
-void setViewPort(float x, float y, float width, float height, float minDepth, float maxDepth);
+void setViewPort(VkCommandBuffer commandBuffer, float x, float y, float width, float height, float minDepth,
+                 float maxDepth);
 void setFullscreenViewport();
 
 void beginRendering();

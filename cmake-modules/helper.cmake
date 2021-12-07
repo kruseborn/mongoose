@@ -57,6 +57,8 @@ function(mg_cc_executable)
         ${NAME}
         ${MG_CC_SRCS}
     )
+    target_link_options(${NAME} PRIVATE /debug:fastlink)
+
     message(${MG_CC_DEFS})
     target_compile_definitions(${NAME} PUBLIC ${MG_CC_DEFS})
     target_include_directories(${NAME} PUBLIC ${MG_CC_DEPS_DIR})

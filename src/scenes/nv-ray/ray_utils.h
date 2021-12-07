@@ -35,7 +35,6 @@ struct Sphere {
   const glm::vec4 &position;
   const glm::vec4 &albedo;
   World::MATERIAL material;
-
 };
 
 inline void addSphere(const Sphere &sphere) {

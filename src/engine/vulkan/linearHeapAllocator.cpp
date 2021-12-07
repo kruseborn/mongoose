@@ -13,7 +13,8 @@
 static constexpr uint32_t uniformBufferSizeInBytes = 1u << 16; // 64 kb
 static constexpr uint32_t storageBufferSizeInBytes = 1u << 25; // 2 meg
 static constexpr uint32_t vertexBufferSizeInBytes = 1u << 25;  // 32 meg
-static constexpr uint32_t stagingBufferSizeInBytes = 1u << 27; // 128 meg
+static constexpr uint32_t stagingBufferSizeInBytes = 1u << 25; // 128 meg
+static constexpr uint32_t MAX_ALLOC = 2048;
 
 static constexpr struct {
   VkMemoryPropertyFlags requiredProperties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
@@ -76,7 +77,8 @@ static void destroyLinearBuffer(mg::_Buffer *dynamicBuffer) {
     vkDestroyBuffer(mg::vkContext.device, dynamicBuffer->bufferViews[i].vkBuffer, nullptr);
     dynamicBuffer->bufferViews[i].vkBuffer = VK_NULL_HANDLE;
   }
-  vkFreeMemory(mg::vkContext.device, dynamicBuffer->deviceMemory, nullptr);
+  vkFreeMemory
+  (mg::vkContext.device, dynamicBuffer->deviceMemory, nullptr);
   dynamicBuffer->deviceMemory = VK_NULL_HANDLE;
 }
 
@@ -90,7 +92,7 @@ static _UniformBuffer createUniformBuffer(VkDeviceSize bufferSizeInBytes, VkMemo
   for (uint32_t i = 0; i < NrOfBuffers; i++) {
     VkDescriptorBufferInfo vkDescriptorBufferInfo = {};
     vkDescriptorBufferInfo.buffer = dynamicUniformBuffer.buffer.bufferViews[i].vkBuffer;
-    vkDescriptorBufferInfo.range = VK_WHOLE_SIZE;
+    vkDescriptorBufferInfo.range = MAX_ALLOC;
 
     VkWriteDescriptorSet vkWriteDescriptorSet = {};
     vkWriteDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -109,7 +111,8 @@ static _StorageBuffer createStorageBuffers(VkDeviceSize bufferSizeInBytes, VkMem
                                            VkMemoryPropertyFlags preferredProperties,
                                            VkDescriptorSet vkDescriptorSets[NrOfBuffers]) {
   _StorageBuffer dynamicStorageBuffer = {};
-  dynamicStorageBuffer.buffer = _createLinearBuffer(storageBufferSizeInBytes, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
+  dynamicStorageBuffer.buffer = _createLinearBuffer(
+      storageBufferSizeInBytes, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT,
                                                     requiredProperties, preferredProperties);
 
   for (uint32_t i = 0; i < NrOfBuffers; i++) {
@@ -144,7 +147,7 @@ static void *allocateDynamicBuffer(mg::_Buffer *dynamicBuffer, uint32_t currentB
   return (void *)data;
 }
 
-LinearHeapAllocator::~LinearHeapAllocator() { mgAssert(_hasBeenDelete == true); }
+LinearHeapAllocator::~LinearHeapAllocator() { /*mgAssert(_hasBeenDelete == true);*/ }
 
 void *LinearHeapAllocator::allocateBuffer(VkDeviceSize sizeInBytes, VkBuffer *buffer, VkDeviceSize *offset) {
   VkDeviceSize alignedSize = mg::alignUpPowerOfTwo(sizeInBytes, 256); 

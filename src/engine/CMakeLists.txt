@@ -20,6 +20,8 @@ set(VULKAN_SRC
 	"vulkan/vkUtils.h"
 	"vulkan/vkWindow.cpp"
 	"vulkan/vkWindow.h"
+	"vulkan/allocationUI.h"
+	"vulkan/allocationUI.cpp"
 )
 
 set(RENDERING 

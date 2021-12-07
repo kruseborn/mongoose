@@ -126,7 +126,7 @@ static void createDeviceTexture(const mg::CreateTextureInfo &textureInfo, const 
 
 static void createAttachmentTexture(const mg::CreateTextureInfo &textureInfo, const ImageInfo &imageInfo,
                                     mg::_TextureData *texture) {
-
+  
   VkImageViewCreateInfo vkImageViewCreateInfo = {};
   vkImageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
   vkImageViewCreateInfo.image = texture->image;
@@ -166,7 +166,14 @@ static void createDepthTexture(const mg::CreateTextureInfo &textureInfo, mg::_Te
 
 void TextureContainer::createTextureContainer() {
   {
+    uint32_t counts = MAX_NR_OF_2D_TEXTURES;
+    VkDescriptorSetVariableDescriptorCountAllocateInfo set_counts = {};
+    set_counts.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_ALLOCATE_INFO;
+    set_counts.descriptorSetCount = 1;
+    set_counts.pDescriptorCounts = &counts;
+
     VkDescriptorSetAllocateInfo descriptorSetAllocateInfo = {};
+    descriptorSetAllocateInfo.pNext = &set_counts;
     descriptorSetAllocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
     descriptorSetAllocateInfo.descriptorPool = mg::vkContext.descriptorPool;
     descriptorSetAllocateInfo.descriptorSetCount = 1;
@@ -206,7 +213,7 @@ TextureId TextureContainer::createTexture(const CreateTextureInfo &textureInfo) 
   const auto imageInfo = createImageInfoFromType(textureInfo.type);
 
   mg::_TextureData texture = {};
-  texture.imageType = imageInfo.vkImageType;
+  texture.type = textureInfo.type;
   texture.format = textureInfo.format;
   VkImageCreateInfo imageCreateInfo = {};
   imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -320,23 +327,20 @@ void TextureContainer::setupDescriptorSets() {
   mg::waitForDeviceIdle();
   // Samplers
   {
-    VkDescriptorImageInfo descriptorImageInfos[2] = {};
-    descriptorImageInfos[0].sampler = vkContext.sampler.linearBorderSampler;
-    descriptorImageInfos[1].sampler = vkContext.sampler.linearRepeat;
+    VkDescriptorImageInfo samplerDescriptorImageInfos[2] = {};
+    samplerDescriptorImageInfos[0].sampler = vkContext.sampler.linearBorderSampler;
+    samplerDescriptorImageInfos[1].sampler = vkContext.sampler.linearRepeat;
 
-    VkWriteDescriptorSet writeDescriptorSet = {};
-    writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-    writeDescriptorSet.dstBinding = 0;
-    writeDescriptorSet.dstArrayElement = 0;
-    writeDescriptorSet.descriptorCount = mg::countof(descriptorImageInfos);
-    writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER;
-    writeDescriptorSet.pImageInfo = descriptorImageInfos;
-    writeDescriptorSet.dstSet = _descriptorSet;
+    VkWriteDescriptorSet writeDescriptorSet[2] = {};
+    writeDescriptorSet[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    writeDescriptorSet[0].dstBinding = 0;
+    writeDescriptorSet[0].dstArrayElement = 0;
+    writeDescriptorSet[0].descriptorCount = mg::countof(samplerDescriptorImageInfos);
+    writeDescriptorSet[0].descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER;
+    writeDescriptorSet[0].pImageInfo = samplerDescriptorImageInfos;
+    writeDescriptorSet[0].dstSet = _descriptorSet;
 
-    vkUpdateDescriptorSets(mg::vkContext.device, 1, &writeDescriptorSet, 0, nullptr);
-  }
-  // 2D Textures
-  {
+    // 2D Textures
     VkDescriptorImageInfo descriptorImageInfos[MAX_NR_OF_2D_TEXTURES] = {};
     uint32_t currentIndex = 0;
     _idToDescriptorIndex2D.clear();
@@ -344,7 +348,7 @@ void TextureContainer::setupDescriptorSets() {
     for (uint32_t i = 0; i < uint32_t(_idToTexture.size()); ++i) {
       if (!_isAlive[i])
         continue;
-      if (_idToTexture[i].imageType != VK_IMAGE_TYPE_2D)
+      if (!(_idToTexture[i].type == TEXTURE_TYPE::TEXTURE_2D || _idToTexture[i].type == TEXTURE_TYPE::ATTACHMENT))
         continue;
 
       descriptorImageInfos[currentIndex].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -353,17 +357,16 @@ void TextureContainer::setupDescriptorSets() {
       currentIndex++;
     }
 
-    VkWriteDescriptorSet writeDescriptorSet = {};
-    writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-    writeDescriptorSet.dstBinding = 1;
-    writeDescriptorSet.dstArrayElement = 0;
-    writeDescriptorSet.descriptorCount = currentIndex;
-    writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
-    writeDescriptorSet.pImageInfo = descriptorImageInfos;
-    writeDescriptorSet.dstSet = _descriptorSet;
+    writeDescriptorSet[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    writeDescriptorSet[1].dstBinding = 1;
+    writeDescriptorSet[1].dstArrayElement = 0;
+    writeDescriptorSet[1].descriptorCount = currentIndex;
+    writeDescriptorSet[1].descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+    writeDescriptorSet[1].pImageInfo = descriptorImageInfos;
+    writeDescriptorSet[1].dstSet = _descriptorSet;
 
-    vkUpdateDescriptorSets(mg::vkContext.device, 1, &writeDescriptorSet, 0, nullptr);
-    mgAssert(MAX_NR_OF_2D_TEXTURES > currentIndex);
+    vkUpdateDescriptorSets(mg::vkContext.device, 2, writeDescriptorSet, 0, nullptr);
+     mgAssert(MAX_NR_OF_2D_TEXTURES > currentIndex);
   }
   // 3D Textures
   {
@@ -374,7 +377,7 @@ void TextureContainer::setupDescriptorSets() {
     for (uint32_t i = 0; i < uint32_t(_idToTexture.size()); ++i) {
       if (!_isAlive[i])
         continue;
-      if (_idToTexture[i].imageType != VK_IMAGE_TYPE_3D)
+      if (_idToTexture[i].type != TEXTURE_TYPE::TEXTURE_3D)
         continue;
 
       descriptorImageInfos[currentIndex].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;

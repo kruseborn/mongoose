@@ -199,8 +199,6 @@ ObjMeshes loadObjFromFile(const std::string &filename) {
   ObjMeshes tinyObjMeshes = {};
   Outputs outputs = {};
 
-
-
   const auto name = getName(filename);
   std::ifstream ifText(name + ".txt");
   if (ifText.good()) {

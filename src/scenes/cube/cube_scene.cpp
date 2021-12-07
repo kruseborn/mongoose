@@ -10,7 +10,7 @@
 
 static mg::Camera camera;
 static mg::SingleRenderPass singleRenderPass;
-static mg::MeshId meshId;
+static mg::MeshId cubeId;
 
 static void resizeCallback() {
   mg::resizeSingleRenderPass(&singleRenderPass);
@@ -20,7 +20,7 @@ static void resizeCallback() {
 void initScene() {
   mg::initSingleRenderPass(&singleRenderPass);
 
-  camera = mg::create3DCamera(glm::vec3{0.0f, 0.0f, -5.0f}, glm::vec3{0.0f, 0.0f, 0.0f},
+  camera = mg::create3DCamera(glm::vec3{0.0f, 0.0f, -3.0f}, glm::vec3{0.0f, 0.0f, 0.0f},
                               glm::vec3{0.0f, 1.0f, 0.0f});
 
   const auto cube = mg::createVolumeCube({-0.5f, -0.5f, -0.5f}, {1, 1, 1});
@@ -32,7 +32,7 @@ void initScene() {
                                        .indicesSizeInBytes = mg::sizeofArrayInBytes(cube.indices),
                                        .nrOfIndices = mg::countof(cube.indices)};
 
-  meshId = mg::mgSystem.meshContainer.createMesh(createMeshInfo);
+  cubeId = mg::mgSystem.meshContainer.createMesh(createMeshInfo);
 
   mg::mgSystem.textureContainer.setupDescriptorSets();
   mg::vkContext.swapChain->resizeCallack = resizeCallback;
@@ -71,7 +71,7 @@ void renderScene(const mg::FrameData &frameData) {
     static float rotAngle = 0;
     rotAngle += frameData.dt * 20.0f;
     glm::mat4 rotation = glm::rotate(glm::mat4(1), rotAngle, {1, 1, 0});
-    renderCube(renderContext, meshId, rotation, {1, 0, 0, 1});
+    renderMesh(renderContext, cubeId, rotation, {1, 0, 0, 1});
   }
   mg::endSingleRenderPass();
 

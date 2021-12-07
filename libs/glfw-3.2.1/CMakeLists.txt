@@ -4,12 +4,6 @@ project(GLFW C)
 
 cmake_minimum_required(VERSION 2.8.12)
 
-if (NOT CMAKE_VERSION VERSION_LESS "3.0")
-    # Until all major package systems have moved to CMake 3,
-    # we stick with the older INSTALL_NAME_DIR mechanism
-    cmake_policy(SET CMP0042 OLD)
-endif()
-
 set(GLFW_VERSION_MAJOR "3")
 set(GLFW_VERSION_MINOR "2")
 set(GLFW_VERSION_PATCH "1")
@@ -66,12 +60,10 @@ list(APPEND CMAKE_MODULE_PATH "${GLFW_SOURCE_DIR}/CMake/modules")
 
 find_package(Threads REQUIRED)
 find_package(Vulkan)
-
 if (GLFW_BUILD_DOCS)
     set(DOXYGEN_SKIP_DOT TRUE)
     find_package(Doxygen)
 endif()
-
 #--------------------------------------------------------------------
 # Set compiler specific flags
 #--------------------------------------------------------------------

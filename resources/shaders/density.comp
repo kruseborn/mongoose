@@ -1,0 +1,46 @@
+#version 450
+#extension GL_ARB_shading_language_420pack : enable
+
+#include "noise.hglsl"
+
+layout(set = 0, binding = 0) uniform Ubo {
+  vec4 corner;
+  uvec4 N;
+  float cellSize;
+}
+ubo;
+
+layout(set = 1, binding = 0) buffer Density { 
+  float x[]; 
+} density;
+
+
+#define localGroupSize 256
+layout(local_size_x = localGroupSize) in;
+
+float map(vec3 pos) {
+  float d = length(pos) - 0.25;
+  float d2 = pos.y - (-0.25);
+  return min(d, d2);
+}
+
+
+vec3 toPos(uint index, uvec3 size) {
+	uint z = index / (size.x * size.y);
+  uint y = (index  - (size.x * size.y * z)) / size.x;
+	uint x = index - z * size.x * size.y - y * size.x;
+  
+	return vec3(float(x),float(y),float(z)) * ubo.cellSize + ubo.corner.xyz;
+}
+
+void main() {
+  const uint size = ubo.N.x * ubo.N.y * ubo.N.z;
+
+  uint index = gl_GlobalInvocationID.x;
+  //while (index < size) {
+  vec3 pos = toPos(index, ubo.N.xyz);
+  density.x[index] = map(pos);
+
+    //index += gl_NumWorkGroups.x * localGroupSize;
+ // }
+}

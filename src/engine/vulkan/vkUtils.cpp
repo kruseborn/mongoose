@@ -36,7 +36,7 @@ int32_t findMemoryTypeIndex(const VkPhysicalDeviceMemoryProperties &memoryProper
   return memoryTypeIndex;
 }
 
-void setViewPort(float x, float y, float width, float height, float minDepth, float maxDepth) {
+void setViewPort(VkCommandBuffer commandBuffer, float x, float y, float width, float height, float minDepth, float maxDepth) {
   // the vulkan viewport has it origin in the top left corner, so we we flipp the viewport and move the origin to the
   // bottom left VK_KHR_maintenance1 or VK_AMD_negative_viewport_height need to be set for this to work, from version
   // >= 1.0.39
@@ -47,7 +47,7 @@ void setViewPort(float x, float y, float width, float height, float minDepth, fl
   viewport.height = -height;
   viewport.minDepth = minDepth;
   viewport.maxDepth = maxDepth;
-  vkCmdSetViewport(vkContext.commandBuffer, 0, 1, &viewport);
+  vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
 }
 
 static void setFullscreenScissor() {
@@ -62,7 +62,7 @@ static void setFullscreenScissor() {
 static bool acquireNextSwapChainImage();
 
 void setFullscreenViewport() {
-  setViewPort(0, 0, float(vkContext.screen.width), float(vkContext.screen.height), 0.0f, 1.0f);
+  setViewPort(vkContext.commandBuffer, 0, 0, float(vkContext.screen.width), float(vkContext.screen.height), 0.0f, 1.0f);
   setFullscreenScissor();
 }
 
@@ -86,7 +86,6 @@ void beginRendering() {
   vkCommandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
   vkCommandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
   checkResult(vkBeginCommandBuffer(vkContext.commandBuffer, &vkCommandBufferBeginInfo));
-
   
   setFullscreenViewport();
   acquireNextSwapChainImage();

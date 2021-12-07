@@ -13,11 +13,14 @@ layout (location = 0) in vec3 in_position;
 
 out gl_PerVertex {
 	vec4 gl_Position;
+	float gl_PointSize;
+
 };
 
 void main() {
 	vec3 position = in_position;
 	gl_Position = ubo.mvp * vec4(position, 1.0);
+	gl_PointSize = 5.0;
 }
 
 @frag

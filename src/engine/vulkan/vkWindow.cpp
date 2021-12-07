@@ -23,7 +23,7 @@ namespace mg {
 
 #define ENABLE_DEBUGGING (__DEBUG && std::getenv("VULKAN_SDK") != nullptr)
 
-static char *DEBUG_LAYER = (char *)"VK_LAYER_LUNARG_standard_validation";
+static char *DEBUG_LAYER = (char *)"VK_LAYER_KHRONOS_validation";
 
 void createCommandBuffers() {
   for (int i = 0; i < mg::vkContext.commandBuffers.nrOfBuffers; ++i) {
@@ -67,7 +67,6 @@ static VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugU
   if (func != nullptr) {
     return func(instance, pCreateInfo, pAllocator, pCallback);
   } else {
-    cout << "here we are" << endl;
     return VK_ERROR_EXTENSION_NOT_PRESENT;
   }
 }
@@ -97,9 +96,8 @@ static void createDebugCallback() {
   if (ENABLE_DEBUGGING) {
     VkDebugUtilsMessengerCreateInfoEXT createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-    createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
-                                 VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
-                                 VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+    createInfo.messageSeverity =
+        VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
     createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
                              VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
                              VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
@@ -112,14 +110,14 @@ static void createDebugCallback() {
   }
 }
 
-static bool createInstance() {
+static void createInstance() {
   VkApplicationInfo appInfo = {};
   appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
   appInfo.pApplicationName = "VulkanClear";
   appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
   appInfo.pEngineName = "mongoose engine";
   appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-  appInfo.apiVersion = VK_API_VERSION_1_0;
+  appInfo.apiVersion = VK_API_VERSION_1_2;
 
   std::vector<const char *> extensions;
   extensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
@@ -133,16 +131,16 @@ static bool createInstance() {
 #elif defined(VK_USE_PLATFORM_XCB_KHR)
   extensions.push_back(VK_KHR_XCB_SURFACE_EXTENSION_NAME);
 #endif
-  if (ENABLE_DEBUGGING)
+  if (ENABLE_DEBUGGING) {
+    extensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
     extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+  }
 
   // Check for extensions
   uint32_t extensionCount = 0;
   vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
-  if (extensionCount == 0) {
-    LOG("could not create vulkan instance: vkEnumerateInstanceExtensionProperties returns 0");
-    return false;
-  }
+  mgAssertDesc(extensionCount > 0,
+               "could not create vulkan instance: vkEnumerateInstanceExtensionProperties returns 0");
   std::vector<VkExtensionProperties> availableExtensions(extensionCount);
   vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, availableExtensions.data());
 
@@ -163,11 +161,7 @@ static bool createInstance() {
     createInfo.enabledLayerCount = 1;
     createInfo.ppEnabledLayerNames = &DEBUG_LAYER;
   }
-  auto res = vkCreateInstance(&createInfo, nullptr, &mg::vkContext.instance);
-  if (res == VK_SUCCESS)
-    return true;
-  LOG("could not create vulkan instance: vkCreateInstance");
-  return false;
+  checkResult(vkCreateInstance(&createInfo, nullptr, &mg::vkContext.instance));
 }
 
 static void createWindowSurface(GLFWwindow *window) {
@@ -251,52 +245,47 @@ static void createLogicalDevice() {
   queueCreateInfo.queueCount = 1;
   queueCreateInfo.pQueuePriorities = &queuePriority;
 
-  VkPhysicalDeviceDescriptorIndexingFeaturesEXT physicalDeviceDescriptorIndexingFeatures = {};
-  physicalDeviceDescriptorIndexingFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES_EXT;
-  physicalDeviceDescriptorIndexingFeatures.shaderSampledImageArrayNonUniformIndexing = VK_TRUE;
-  physicalDeviceDescriptorIndexingFeatures.runtimeDescriptorArray = VK_TRUE;
-  physicalDeviceDescriptorIndexingFeatures.descriptorBindingVariableDescriptorCount = VK_TRUE;
-
+  VkPhysicalDeviceVulkan12Features vkPhysicalDeviceVulkan12Features = {};
+  vkPhysicalDeviceVulkan12Features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES;
+  vkPhysicalDeviceVulkan12Features.shaderSampledImageArrayNonUniformIndexing = VK_TRUE;
+  vkPhysicalDeviceVulkan12Features.runtimeDescriptorArray = VK_TRUE;
+  vkPhysicalDeviceVulkan12Features.descriptorBindingVariableDescriptorCount = VK_TRUE;
+  vkPhysicalDeviceVulkan12Features.descriptorBindingPartiallyBound = VK_TRUE;
+  vkPhysicalDeviceVulkan12Features.descriptorIndexing = VK_TRUE;
+  vkPhysicalDeviceVulkan12Features.bufferDeviceAddress = VK_TRUE;
   // Create logical device from physical device
   // Note: there are separate instance and device extensions!
   VkDeviceCreateInfo deviceCreateInfo = {};
   deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
   deviceCreateInfo.pQueueCreateInfos = &queueCreateInfo;
   deviceCreateInfo.queueCreateInfoCount = 1;
-  deviceCreateInfo.pNext = &physicalDeviceDescriptorIndexingFeatures;
-
-  VkPhysicalDeviceDescriptorIndexingFeaturesEXT descIndexFeatures = {};
-  descIndexFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES_EXT;
-  VkPhysicalDeviceFeatures2 supportedFeatures = {};
-  supportedFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
-  supportedFeatures.pNext = &descIndexFeatures;
+  deviceCreateInfo.pNext = &vkPhysicalDeviceVulkan12Features;
 
   // Check for extensions
   uint32_t extensionCount = 0;
-  vkEnumerateDeviceExtensionProperties(mg::vkContext.physicalDevice, nullptr, &extensionCount, nullptr);
+  checkResult(vkEnumerateDeviceExtensionProperties(mg::vkContext.physicalDevice, nullptr, &extensionCount, nullptr));
   mgAssert(extensionCount > 0);
   std::vector<VkExtensionProperties> availableExtensions(extensionCount);
-  vkEnumerateDeviceExtensionProperties(mg::vkContext.physicalDevice, nullptr, &extensionCount,
-                                       availableExtensions.data());
+  checkResult(vkEnumerateDeviceExtensionProperties(mg::vkContext.physicalDevice, nullptr, &extensionCount,
+                                                   availableExtensions.data()));
 
   LOG("Device supported extensions : ");
-  std::string extensionNameStr = "";
-  for (const auto &extension : availableExtensions) {
-    extensionNameStr += std::string(extension.extensionName) + " ";
-  }
-  LOG(extensionNameStr);
-
-  // Necessary for shader (for some reason)
   VkPhysicalDeviceFeatures enabledFeatures = {};
   enabledFeatures.shaderClipDistance = VK_TRUE;
   enabledFeatures.shaderCullDistance = VK_TRUE;
+  enabledFeatures.wideLines = VK_TRUE;
+  enabledFeatures.geometryShader = VK_TRUE;
+  enabledFeatures.fragmentStoresAndAtomics = VK_TRUE;
+  enabledFeatures.shaderSampledImageArrayDynamicIndexing = VK_TRUE;
+  enabledFeatures.shaderStorageImageArrayDynamicIndexing = VK_TRUE;
+  
 
-  const char *deviceExtensions[5] = {VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME,
-                                     VK_KHR_MAINTENANCE3_EXTENSION_NAME,
-                                     VK_KHR_MAINTENANCE1_EXTENSION_NAME,
-                                     VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-                                     VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME,
-                                     };
+  const char *deviceExtensions[] = {VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME,
+                                    VK_KHR_MAINTENANCE3_EXTENSION_NAME,
+                                    VK_KHR_MAINTENANCE1_EXTENSION_NAME,
+                                    VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+                                    VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME,
+                                    VK_NV_RAY_TRACING_EXTENSION_NAME};
 
   deviceCreateInfo.enabledExtensionCount = mg::countof(deviceExtensions);
   deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions;
@@ -321,7 +310,8 @@ static void findQueueFamilies() {
   for (; i < queueFamilyCount; i++) {
     VkBool32 presentSupport;
 
-    vkGetPhysicalDeviceSurfaceSupportKHR(mg::vkContext.physicalDevice, i, mg::vkContext.windowSurface, &presentSupport);
+    checkResult(vkGetPhysicalDeviceSurfaceSupportKHR(mg::vkContext.physicalDevice, i, mg::vkContext.windowSurface,
+                                                     &presentSupport));
 
     if (presentSupport && queueFamilies[i].queueCount > 0 && queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT &&
         queueFamilies[i].queueFlags & VK_QUEUE_COMPUTE_BIT) {
@@ -351,11 +341,12 @@ static VkFormat getSupportedDepthFormat() {
   return formatDepth;
 }
 
-static void setupFormats() { mg::vkContext.formats.depth = getSupportedDepthFormat(); }
+static void setupFormats() {
+  mg::vkContext.formats.depth = getSupportedDepthFormat();
+}
 
-bool createVulkanContext(GLFWwindow *window) {
-  if (!createInstance())
-    return false;
+void createVulkanContext(GLFWwindow *window) {
+  createInstance();
   createDebugCallback();
   createWindowSurface(window);
 
@@ -365,7 +356,6 @@ bool createVulkanContext(GLFWwindow *window) {
 
   setupFormats();
   initSwapChain();
-  return true;
 }
 
 void destroyVulkanWindow() {
@@ -379,6 +369,8 @@ void destroyVulkanWindow() {
   }
 }
 
-void destoyInstance() { vkDestroyInstance(mg::vkContext.instance, nullptr); }
+void destoyInstance() {
+  vkDestroyInstance(mg::vkContext.instance, nullptr);
+}
 
 } // namespace mg

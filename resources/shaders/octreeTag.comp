@@ -1,0 +1,41 @@
+#version 450
+#extension GL_ARB_shading_language_420pack : enable
+
+layout (set = 0, binding = 0) uniform Ubo {
+  uvec4 attrib; //uFragmentNum, uVoxelResolution
+} ubo;
+
+layout (local_size_x = 64, local_size_y = 1, local_size_z = 1) in;
+
+layout(set = 1, binding = 0) buffer uuFragmentList { 
+  uvec2 values[]; 
+} uFragmentList;
+
+layout(set = 2, binding = 0) buffer uuOctree { 
+  uint values[]; 
+} uOctree;
+
+uvec4 LeafToUvec4(uint val) { return uvec4( (val & 0xffu), ((val >> 8u) & 0xffu), ((val >> 16u) & 0xffu), ((val >> 24u) & 0x3fu) ); }
+uint Uvec4ToLeaf(uvec4 vec) { return (min(vec.w, 0x3fu) << 24u) | (vec.x & 0xffu) | ((vec.y & 0xffu) << 8u) | ((vec.z & 0xffu) << 16u) | 0xC0000000u; }
+
+void main() {
+	if(gl_GlobalInvocationID.x + 1 >= ubo.attrib.x) return;
+	uvec2 ufragment = uFragmentList.values[gl_GlobalInvocationID.x + 1];
+
+	uint level_dim = ubo.attrib.y;
+	uvec3 level_pos = uvec3(ufragment.x & 0xfffu, (ufragment.x >> 12u) & 0xfffu, (ufragment.x >> 24u) | ((ufragment.y >> 28u) << 8u));
+	bvec3 level_cmp;
+
+	uint idx = 0u, cur = 0u;
+	do {
+		level_dim >>= 1;
+
+		level_cmp = greaterThanEqual(level_pos, uvec3(level_dim));
+		idx = cur + (uint(level_cmp.x) | (uint(level_cmp.y) << 1u) | (uint(level_cmp.z) << 2u));
+		cur = uOctree.values[idx] & 0x3fffffffu;
+		level_pos -= uvec3(level_cmp) * level_dim;
+	} while(cur != 0u && level_dim > 1u);
+
+	uOctree.values[idx] |= 0x80000000u;
+	uOctree.values[idx] = 0xC1000000u | (ufragment.y & 0xffffffu);
+}

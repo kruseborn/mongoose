@@ -2591,6 +2591,21 @@ bool ImGui::SliderScalarN(const char* label, ImGuiDataType data_type, void* v, i
     return value_changed;
 }
 
+bool ImGui::SliderFloatWithSteps(const char *label, float *v, float v_min, float v_max, float v_step,
+                                 const char *display_format) {
+  if (!display_format)
+    display_format = "%.3f";
+
+  float v_f = *v;
+  char value_buf[64] = {};
+  const char *value_buf_end = value_buf + ImFormatString(value_buf, IM_ARRAYSIZE(value_buf), display_format, *v);
+
+  bool value_changed = SliderFloat(label, &v_f, v_min, v_max, value_buf, 1.0f);
+  float remain = fmodf((v_f - v_min), v_step);
+  *v = (v_f - remain);
+  return value_changed;
+}
+
 bool ImGui::SliderFloat(const char* label, float* v, float v_min, float v_max, const char* format, float power)
 {
     return SliderScalar(label, ImGuiDataType_Float, v, &v_min, &v_max, format, power);

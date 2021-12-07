@@ -20,6 +20,8 @@ struct ShaderType {
 static ShaderType getShaderType(const std::string &fileName) {
   if (fileName.find(".vert") != std::string::npos)
     return {VK_SHADER_STAGE_VERTEX_BIT, false};
+  else if (fileName.find(".geom") != std::string::npos)
+    return {VK_SHADER_STAGE_GEOMETRY_BIT, false};
   else if (fileName.find(".frag") != std::string::npos)
     return {VK_SHADER_STAGE_FRAGMENT_BIT, false};
   else if (fileName.find(".comp") != std::string::npos)
@@ -33,7 +35,7 @@ static ShaderType getShaderType(const std::string &fileName) {
   else if (fileName.find(".rint") != std::string::npos)
     return {VK_SHADER_STAGE_INTERSECTION_BIT_NV, true};
   else {
-    mgAssertDesc(false, "Shader typ is not supported");
+    mgAssertDesc(false, "Shader type is not supported");
     return {};
   }
 }

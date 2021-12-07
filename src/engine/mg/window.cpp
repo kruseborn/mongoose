@@ -81,7 +81,9 @@ FrameData getFrameData() {
     totalDelta -= 1000000;
     frames = 0;
   }
-
+  char text[50];
+  snprintf(text, sizeof(text), "Fps: %u", uint32_t(frameData.fps));
+  glfwSetWindowTitle(window, text);
   frameData.mouse.prevXY = prevXY;
   frameData.mouse.xy = cursorPosition(vkContext.screen.width, vkContext.screen.height);
 
@@ -101,9 +103,19 @@ FrameData getFrameData() {
   frameData.keys.n = glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS;
   frameData.keys.m = glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS;
 
+  frameData.keys.w = glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS;
+  frameData.keys.a = glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS;
+  frameData.keys.s = glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS;
+  frameData.keys.d = glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS;
+
   frameData.keys.left = glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS;
   frameData.keys.right = glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS;
+  frameData.keys.up = glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS;
+
   frameData.keys.space = glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS;
+
+  frameData.width = vkContext.screen.width;
+  frameData.height = vkContext.screen.height;
 
   return frameData;
 }

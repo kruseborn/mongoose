@@ -60,9 +60,6 @@ static void createDescriptorLayout() {
     descriptorSetLayoutBindings[1].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC;
     descriptorSetLayoutBindings[1].stageFlags = VK_SHADER_STAGE_ALL;
 
-    VkDescriptorSetLayoutBindingFlagsCreateInfoEXT setLayoutBindingFlags = {};
-    setLayoutBindingFlags.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO_EXT;
-
     VkDescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo = {};
     descriptorSetLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
     descriptorSetLayoutCreateInfo.bindingCount = mg::countof(descriptorSetLayoutBindings);
@@ -84,7 +81,8 @@ static void createDescriptorLayout() {
     descriptorSetLayoutBindings[1].descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
     descriptorSetLayoutBindings[1].stageFlags = VK_SHADER_STAGE_ALL;
 
-    VkDescriptorBindingFlagsEXT descriptorBindingFlags[] = {0, VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT_EXT};
+    VkDescriptorBindingFlagsEXT descriptorBindingFlags[] = {0, VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT_EXT |
+                                                                   VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT};
     VkDescriptorSetLayoutBindingFlagsCreateInfoEXT setLayoutBindingFlags = {};
     setLayoutBindingFlags.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO_EXT;
     setLayoutBindingFlags.bindingCount = mg::countof(descriptorBindingFlags);
@@ -107,7 +105,7 @@ static void createDescriptorLayout() {
     descriptorSetLayoutBindings[0].descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
     descriptorSetLayoutBindings[0].stageFlags = VK_SHADER_STAGE_ALL;
 
-    VkDescriptorBindingFlagsEXT descriptorBindingFlags[] = {VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT_EXT};
+    VkDescriptorBindingFlagsEXT descriptorBindingFlags[] = {VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT};
     VkDescriptorSetLayoutBindingFlagsCreateInfoEXT setLayoutBindingFlags = {};
     setLayoutBindingFlags.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO_EXT;
     setLayoutBindingFlags.bindingCount = mg::countof(descriptorBindingFlags);
@@ -140,7 +138,7 @@ static void createDescriptorLayout() {
     checkResult(vkCreateDescriptorSetLayout(mg::vkContext.device, &descriptorSetLayoutCreateInfo, nullptr,
                                             &mg::vkContext.descriptorSetLayout.storage));
   }
-    // storage image
+  // storage image
   {
     VkDescriptorSetLayoutBinding descriptorSetLayoutBinding = {};
     descriptorSetLayoutBinding.binding = 0;
@@ -159,7 +157,7 @@ static void createDescriptorLayout() {
     checkResult(vkCreateDescriptorSetLayout(mg::vkContext.device, &descriptorSetLayoutCreateInfo, nullptr,
                                             &mg::vkContext.descriptorSetLayout.storageImage));
   }
-    // acceleration structure
+  // acceleration structure
   {
     VkDescriptorSetLayoutBinding descriptorSetLayoutBinding = {};
     descriptorSetLayoutBinding.binding = 0;
@@ -182,10 +180,11 @@ static void createDescriptorLayout() {
 
 static void createPipelineLayout() {
   {
-    VkDescriptorSetLayout descriptorSetLayoutsStorages[3] = {
+    VkDescriptorSetLayout descriptorSetLayoutsStorages[4] = {
         mg::vkContext.descriptorSetLayout.dynamic,
         mg::vkContext.descriptorSetLayout.textures,
         mg::vkContext.descriptorSetLayout.textures3D,
+        mg::vkContext.descriptorSetLayout.storage,
     };
 
     VkPipelineLayoutCreateInfo layoutCreateInfo = {};
@@ -204,12 +203,9 @@ static void createPipelineLayout() {
   }
   {
     VkDescriptorSetLayout descriptorSetLayoutsStorages[] = {
-        mg::vkContext.descriptorSetLayout.dynamic,
-        mg::vkContext.descriptorSetLayout.storage,
-        mg::vkContext.descriptorSetLayout.storage,
-        mg::vkContext.descriptorSetLayout.storage,
-        mg::vkContext.descriptorSetLayout.storage
-    };
+        mg::vkContext.descriptorSetLayout.dynamic, mg::vkContext.descriptorSetLayout.storage,
+        mg::vkContext.descriptorSetLayout.storage, mg::vkContext.descriptorSetLayout.storage,
+        mg::vkContext.descriptorSetLayout.storage};
 
     VkPipelineLayoutCreateInfo layoutCreateInfo = {};
     layoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
@@ -268,7 +264,7 @@ static void createDescriptorPool() {
   descriptorPoolSizes[0].descriptorCount = 1;
 
   descriptorPoolSizes[1].type = VK_DESCRIPTOR_TYPE_SAMPLER;
-  descriptorPoolSizes[1].descriptorCount = 2;
+  descriptorPoolSizes[1].descriptorCount = 3;
 
   descriptorPoolSizes[2].type = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
   descriptorPoolSizes[2].descriptorCount = MAX_NR_OF_2D_TEXTURES;
@@ -364,9 +360,8 @@ static void initNvidiaFunctions() {
 }
 } // namespace nv
 
-bool initVulkan(GLFWwindow *window) {
-  if (!createVulkanContext(window))
-    return false;
+void initVulkan(GLFWwindow *window) {
+  createVulkanContext(window);
 
   createCommandPool();
   createCommandBuffers();
@@ -376,11 +371,10 @@ bool initVulkan(GLFWwindow *window) {
   createPipelineCache();
   createDescriptorPool();
   createDescriptorLayout();
+  nv::initNvidiaFunctions();
   createPipelineLayout();
 
   initSampler();
-  nv::initNvidiaFunctions();
-  return true;
 }
 
 } // namespace mg
