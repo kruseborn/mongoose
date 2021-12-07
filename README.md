@@ -29,7 +29,7 @@
 <img src="images/nbody.png" width="512">
 
 #### Fluid simulation based on Navier-Stokes equations 
-<img src="images/fluids.png" width="512">
+<img src="images/fluid.png" width="512">
 
 #### Physically based shading from gltf-model
 <img src="images/gltf.png" width="512">
