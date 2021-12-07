@@ -96,8 +96,8 @@ static void createDebugCallback() {
   if (ENABLE_DEBUGGING) {
     VkDebugUtilsMessengerCreateInfoEXT createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-    createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
-                                 VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+    createInfo.messageSeverity =
+        VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
     createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
                              VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
                              VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
@@ -117,7 +117,7 @@ static void createInstance() {
   appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
   appInfo.pEngineName = "mongoose engine";
   appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-  appInfo.apiVersion = VK_API_VERSION_1_0;
+  appInfo.apiVersion = VK_API_VERSION_1_2;
 
   std::vector<const char *> extensions;
   extensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
@@ -245,25 +245,21 @@ static void createLogicalDevice() {
   queueCreateInfo.queueCount = 1;
   queueCreateInfo.pQueuePriorities = &queuePriority;
 
-  VkPhysicalDeviceDescriptorIndexingFeaturesEXT physicalDeviceDescriptorIndexingFeatures = {};
-  physicalDeviceDescriptorIndexingFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES_EXT;
-  physicalDeviceDescriptorIndexingFeatures.shaderSampledImageArrayNonUniformIndexing = VK_TRUE;
-  physicalDeviceDescriptorIndexingFeatures.runtimeDescriptorArray = VK_TRUE;
-  physicalDeviceDescriptorIndexingFeatures.descriptorBindingVariableDescriptorCount = VK_TRUE;
-
+  VkPhysicalDeviceVulkan12Features vkPhysicalDeviceVulkan12Features = {};
+  vkPhysicalDeviceVulkan12Features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES;
+  vkPhysicalDeviceVulkan12Features.shaderSampledImageArrayNonUniformIndexing = VK_TRUE;
+  vkPhysicalDeviceVulkan12Features.runtimeDescriptorArray = VK_TRUE;
+  vkPhysicalDeviceVulkan12Features.descriptorBindingVariableDescriptorCount = VK_TRUE;
+  vkPhysicalDeviceVulkan12Features.descriptorBindingPartiallyBound = VK_TRUE;
+  vkPhysicalDeviceVulkan12Features.descriptorIndexing = VK_TRUE;
+  vkPhysicalDeviceVulkan12Features.bufferDeviceAddress = VK_TRUE;
   // Create logical device from physical device
   // Note: there are separate instance and device extensions!
   VkDeviceCreateInfo deviceCreateInfo = {};
   deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
   deviceCreateInfo.pQueueCreateInfos = &queueCreateInfo;
   deviceCreateInfo.queueCreateInfoCount = 1;
-  deviceCreateInfo.pNext = &physicalDeviceDescriptorIndexingFeatures;
-
-  VkPhysicalDeviceDescriptorIndexingFeaturesEXT descIndexFeatures = {};
-  descIndexFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES_EXT;
-  VkPhysicalDeviceFeatures2 supportedFeatures = {};
-  supportedFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
-  supportedFeatures.pNext = &descIndexFeatures;
+  deviceCreateInfo.pNext = &vkPhysicalDeviceVulkan12Features;
 
   // Check for extensions
   uint32_t extensionCount = 0;
@@ -274,30 +270,24 @@ static void createLogicalDevice() {
                                                    availableExtensions.data()));
 
   LOG("Device supported extensions : ");
-  bool ray_tracing_enabled = false;
-  for (const auto &extension : availableExtensions) {
-    if (strcmp(extension.extensionName, VK_NV_RAY_TRACING_EXTENSION_NAME) == 0)
-      ray_tracing_enabled = false;
-  }
-
-  // Necessary for shader (for some reason)
   VkPhysicalDeviceFeatures enabledFeatures = {};
   enabledFeatures.shaderClipDistance = VK_TRUE;
   enabledFeatures.shaderCullDistance = VK_TRUE;
   enabledFeatures.wideLines = VK_TRUE;
   enabledFeatures.geometryShader = VK_TRUE;
   enabledFeatures.fragmentStoresAndAtomics = VK_TRUE;
+  enabledFeatures.shaderSampledImageArrayDynamicIndexing = VK_TRUE;
+  enabledFeatures.shaderStorageImageArrayDynamicIndexing = VK_TRUE;
+  
 
   const char *deviceExtensions[] = {VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME,
-                                     VK_KHR_MAINTENANCE3_EXTENSION_NAME,
-                                     VK_KHR_MAINTENANCE1_EXTENSION_NAME,
-                                     VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-                                     VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME,
-                                     VK_NV_RAY_TRACING_EXTENSION_NAME
-                                     };
+                                    VK_KHR_MAINTENANCE3_EXTENSION_NAME,
+                                    VK_KHR_MAINTENANCE1_EXTENSION_NAME,
+                                    VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+                                    VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME,
+                                    VK_NV_RAY_TRACING_EXTENSION_NAME};
 
-  deviceCreateInfo.enabledExtensionCount =
-      ray_tracing_enabled ? mg::countof(deviceExtensions) : mg::countof(deviceExtensions) -1;
+  deviceCreateInfo.enabledExtensionCount = mg::countof(deviceExtensions);
   deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions;
 
   deviceCreateInfo.pEnabledFeatures = &enabledFeatures;
@@ -351,7 +341,9 @@ static VkFormat getSupportedDepthFormat() {
   return formatDepth;
 }
 
-static void setupFormats() { mg::vkContext.formats.depth = getSupportedDepthFormat(); }
+static void setupFormats() {
+  mg::vkContext.formats.depth = getSupportedDepthFormat();
+}
 
 void createVulkanContext(GLFWwindow *window) {
   createInstance();
@@ -377,6 +369,8 @@ void destroyVulkanWindow() {
   }
 }
 
-void destoyInstance() { vkDestroyInstance(mg::vkContext.instance, nullptr); }
+void destoyInstance() {
+  vkDestroyInstance(mg::vkContext.instance, nullptr);
+}
 
 } // namespace mg

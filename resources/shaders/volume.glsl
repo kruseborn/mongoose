@@ -31,7 +31,6 @@ void main() {
 
 layout(set = 1, binding = 0) uniform sampler samplers[2];
 layout(set = 1, binding = 1) uniform texture2D textures[128];
-
 layout (set = 2, binding = 0) uniform texture3D volumeTexture;
 
 layout(push_constant) uniform TextureIndices {

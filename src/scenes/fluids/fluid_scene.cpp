@@ -49,14 +49,6 @@ void updateScene(const mg::FrameData &frameData) {
 }
 
 void renderScene(const mg::FrameData &frameData) {
-  mg::Texts texts = {};
-  char fps[50];
-  snprintf(fps, sizeof(fps), "Fps: %u", uint32_t(frameData.fps));
-
-  mg::Text text1 = {fps};
-  mg::pushText(&texts, text1);
-
-
   mg::beginRendering();
   mg::setFullscreenViewport();
 
@@ -68,10 +60,7 @@ void renderScene(const mg::FrameData &frameData) {
     renderContext.renderPass = singleRenderPass.vkRenderPass;
 
     mg::renderNavierStoke(renderContext, storages);
-    mg::validateTexts(texts);
-    mg::renderText(renderContext, texts);
   }
   mg::endSingleRenderPass();
-
   mg::endRendering();
 }

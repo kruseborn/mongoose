@@ -271,13 +271,15 @@ static std::tuple<std::vector<float>, uint32_t> makeMeshInterleaved(const _GltfM
 namespace mg {
 
 GltfMeshes parseGltf(const std::string &id, const std::string &path, const std::string &name) {
-  tinygltf::Model model;
-  tinygltf::TinyGLTF loader;
+  tinygltf::Model model = {};
+  tinygltf::TinyGLTF loader = {};
   std::string err, warn;
+  
 
   loader.LoadASCIIFromFile(&model, &err, &warn, path + name);
   if (!err.empty()) {
     printf("Err: %s\n", err.c_str());
+    exit(1);
   }
 
   _GltfMesh mesh = {};

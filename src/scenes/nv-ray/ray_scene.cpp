@@ -137,8 +137,8 @@ void renderScene(const mg::FrameData &frameData) {
   renderContext.view = glm::lookAt(camera.position, camera.aim, camera.up);
 
 
-  mg::beginSingleRenderPass(singleRenderPass);
   traceTriangle(world, camera, renderContext, rayinfo);
+  mg::beginSingleRenderPass(singleRenderPass);
 
   renderContext.renderPass = singleRenderPass.vkRenderPass;
 

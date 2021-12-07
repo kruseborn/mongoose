@@ -126,7 +126,7 @@ static void createDeviceTexture(const mg::CreateTextureInfo &textureInfo, const 
 
 static void createAttachmentTexture(const mg::CreateTextureInfo &textureInfo, const ImageInfo &imageInfo,
                                     mg::_TextureData *texture) {
-
+  
   VkImageViewCreateInfo vkImageViewCreateInfo = {};
   vkImageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
   vkImageViewCreateInfo.image = texture->image;
@@ -166,12 +166,11 @@ static void createDepthTexture(const mg::CreateTextureInfo &textureInfo, mg::_Te
 
 void TextureContainer::createTextureContainer() {
   {
-    uint32_t counts[1];
-    counts[0] = MAX_NR_OF_2D_TEXTURES; 
+    uint32_t counts = MAX_NR_OF_2D_TEXTURES;
     VkDescriptorSetVariableDescriptorCountAllocateInfo set_counts = {};
     set_counts.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_ALLOCATE_INFO;
     set_counts.descriptorSetCount = 1;
-    set_counts.pDescriptorCounts = counts;
+    set_counts.pDescriptorCounts = &counts;
 
     VkDescriptorSetAllocateInfo descriptorSetAllocateInfo = {};
     descriptorSetAllocateInfo.pNext = &set_counts;
@@ -349,7 +348,7 @@ void TextureContainer::setupDescriptorSets() {
     for (uint32_t i = 0; i < uint32_t(_idToTexture.size()); ++i) {
       if (!_isAlive[i])
         continue;
-      if (!(_idToTexture[i].type == TEXTURE_TYPE::TEXTURE_2D))
+      if (!(_idToTexture[i].type == TEXTURE_TYPE::TEXTURE_2D || _idToTexture[i].type == TEXTURE_TYPE::ATTACHMENT))
         continue;
 
       descriptorImageInfos[currentIndex].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -367,7 +366,7 @@ void TextureContainer::setupDescriptorSets() {
     writeDescriptorSet[1].dstSet = _descriptorSet;
 
     vkUpdateDescriptorSets(mg::vkContext.device, 2, writeDescriptorSet, 0, nullptr);
-    mgAssert(MAX_NR_OF_2D_TEXTURES > currentIndex);
+     mgAssert(MAX_NR_OF_2D_TEXTURES > currentIndex);
   }
   // 3D Textures
   {

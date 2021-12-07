@@ -14,6 +14,7 @@ static constexpr uint32_t uniformBufferSizeInBytes = 1u << 16; // 64 kb
 static constexpr uint32_t storageBufferSizeInBytes = 1u << 25; // 2 meg
 static constexpr uint32_t vertexBufferSizeInBytes = 1u << 25;  // 32 meg
 static constexpr uint32_t stagingBufferSizeInBytes = 1u << 25; // 128 meg
+static constexpr uint32_t MAX_ALLOC = 2048;
 
 static constexpr struct {
   VkMemoryPropertyFlags requiredProperties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
@@ -91,7 +92,7 @@ static _UniformBuffer createUniformBuffer(VkDeviceSize bufferSizeInBytes, VkMemo
   for (uint32_t i = 0; i < NrOfBuffers; i++) {
     VkDescriptorBufferInfo vkDescriptorBufferInfo = {};
     vkDescriptorBufferInfo.buffer = dynamicUniformBuffer.buffer.bufferViews[i].vkBuffer;
-    vkDescriptorBufferInfo.range = VK_WHOLE_SIZE;
+    vkDescriptorBufferInfo.range = MAX_ALLOC;
 
     VkWriteDescriptorSet vkWriteDescriptorSet = {};
     vkWriteDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
